@@ -1,0 +1,807 @@
+{% extends "layouts/portal_base.html" %}
+
+{% block portal_content %}
+<div class="portal-content-inner" style="padding: 24px 32px;">
+
+    <!-- 1. GREETING & FILTERS ROW -->
+    <div class="portal-greeting-row">
+        <div class="greeting-left">
+            <img src="{{ user.picture if user and user.picture else '/static/images/sprites/sprite_01_pm.png' }}" alt="Avatar" class="greeting-avatar">
+            <div class="greeting-text">
+                <h1>
+                    Xin chào, {{ user.full_name if user and user.full_name else (user.username if user else 'TIEN DUC MAI') }}! 👋
+                    <span style="font-size: 11px; background: var(--portal-green-light); color: var(--portal-green); border: 1px solid rgba(16,185,129,0.3); border-radius: 20px; padding: 3px 10px; font-weight: 700; margin-left: 6px;">● TÀI KHOẢN HOẠT ĐỘNG</span>
+                </h1>
+                <p>Tổng quan hiệu suất tài khoản và hoạt động Copy-Trade định lượng trong thời gian thực.</p>
+            </div>
+        </div>
+
+        <!-- AI Status Banner / CTA -->
+        <div class="greeting-right-banner">
+            <div class="ai-banner-icon">🤖</div>
+            <div class="ai-banner-text">
+                <strong>Astra AI đang giao dịch ổn định</strong>
+                <span>10 AI Agents giám sát đa khung thời gian 24/7</span>
+            </div>
+            <a href="/portal/dashboard#trade" onclick="switchPortalMainTab('trade'); return false;" class="btn-start-copy">Bảng Điều Khiển Copy</a>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs & Timeframe Filters -->
+    <div class="portal-filter-bar">
+        <div class="portal-nav-tabs">
+            <button class="portal-tab-btn active" id="tab-btn-overview" onclick="switchPortalMainTab('overview', this)">Tổng quan</button>
+            <button class="portal-tab-btn" id="tab-btn-performance" onclick="switchPortalMainTab('performance', this)">Hiệu suất</button>
+            <button class="portal-tab-btn" id="tab-btn-strategies" onclick="switchPortalMainTab('strategies', this)">Chiến lược</button>
+            <button class="portal-tab-btn" id="tab-btn-risk" onclick="switchPortalMainTab('risk', this)">Rủi ro</button>
+            <button class="portal-tab-btn" id="tab-btn-activity" onclick="switchPortalMainTab('activity', this)">Hoạt động gần đây</button>
+            <button class="portal-tab-btn" id="tab-btn-trade" onclick="switchPortalMainTab('trade', this)">⚡ Giao dịch / Copy</button>
+            <button class="portal-tab-btn" id="tab-btn-agents" onclick="switchPortalMainTab('agents', this)">🤖 10 AI Agents</button>
+        </div>
+
+        <div class="portal-time-filters">
+            <div class="date-picker-box">
+                <span>📅</span>
+                <span>30 Ngày gần nhất</span>
+            </div>
+            <div class="timeframe-pills">
+                <button class="tf-pill" onclick="switchTimeframe('7D', this)">7D</button>
+                <button class="tf-pill active" onclick="switchTimeframe('30D', this)">30D</button>
+                <button class="tf-pill" onclick="switchTimeframe('90D', this)">90D</button>
+                <button class="tf-pill" onclick="switchTimeframe('1Y', this)">1Y</button>
+                <button class="tf-pill" onclick="switchTimeframe('ALL', this)">Tất cả</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 5 TOP KPI METRICS CARDS -->
+    <div class="portal-kpi-grid">
+        <!-- Card 1: Total Equity -->
+        <div class="portal-kpi-card">
+            <div>
+                <div class="kpi-header">
+                    <span class="kpi-title">Tổng vốn (USDT)</span>
+                    <div class="kpi-icon-pill" style="background: var(--portal-primary-light); color: var(--portal-primary);">💼</div>
+                </div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value">${{ stats.total_balance_usdt if stats and stats.total_balance_usdt else '50,000.00' }}</span>
+                    <span class="kpi-trend-tag positive">+12.4%</span>
+                </div>
+            </div>
+            <div class="kpi-subtext">≈ 1,263,500,000 VND · Ví Binance Futures</div>
+        </div>
+
+        <!-- Card 2: Net PnL -->
+        <div class="portal-kpi-card">
+            <div>
+                <div class="kpi-header">
+                    <span class="kpi-title">Tổng lợi nhuận (Net PnL)</span>
+                    <div class="kpi-icon-pill" style="background: var(--portal-green-light); color: var(--portal-green);">📈</div>
+                </div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value" style="color: var(--portal-green);">+${{ stats.net_profit_client if stats and stats.net_profit_client else '6,217.32' }}</span>
+                    <span class="kpi-trend-tag positive">+12.43%</span>
+                </div>
+            </div>
+            <div class="kpi-subtext">Realized: $5,821.10 | Unrealized: $396.22</div>
+        </div>
+
+        <!-- Card 3: Closed Orders -->
+        <div class="portal-kpi-card">
+            <div>
+                <div class="kpi-header">
+                    <span class="kpi-title">Lệnh đã đóng</span>
+                    <div class="kpi-icon-pill" style="background: var(--portal-cyan-light); color: var(--portal-cyan);">🎯</div>
+                </div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value">{{ stats.closed_trades if stats and stats.closed_trades else '183' }}</span>
+                </div>
+            </div>
+            <div class="kpi-subtext">Win rate: <strong style="color: var(--portal-green);">{{ stats.win_rate if stats and stats.win_rate else '68.3' }}%</strong></div>
+        </div>
+
+        <!-- Card 4: Sharpe Ratio -->
+        <div class="portal-kpi-card">
+            <div>
+                <div class="kpi-header">
+                    <span class="kpi-title">Sharpe Ratio</span>
+                    <div class="kpi-icon-pill" style="background: var(--portal-amber-light); color: var(--portal-amber);">⭐</div>
+                </div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value">1.42</span>
+                </div>
+            </div>
+            <div class="kpi-subtext">Tốt hơn <strong style="color: var(--portal-green);">87%</strong> nhà giao dịch cá nhân</div>
+        </div>
+
+        <!-- Card 5: Max Drawdown -->
+        <div class="portal-kpi-card">
+            <div>
+                <div class="kpi-header">
+                    <span class="kpi-title">Max Drawdown</span>
+                    <div class="kpi-icon-pill" style="background: var(--portal-red-light); color: var(--portal-red);">🛡️</div>
+                </div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value" style="color: var(--portal-red);">-4.8%</span>
+                </div>
+            </div>
+            <div class="kpi-subtext">An toàn cấp độ Kernel (&lt; 10%)</div>
+        </div>
+    </div>
+
+    <!-- 3. CHARTS ROW (EQUITY CURVE & ALLOCATION DONUT) -->
+    <div class="portal-charts-grid" id="performance">
+        <!-- Left: Account Performance Curve -->
+        <div class="portal-chart-card">
+            <div>
+                <div class="chart-card-header">
+                    <div class="chart-title">
+                        <span>📈</span> Hiệu suất tài khoản
+                    </div>
+                    <div class="chart-tabs">
+                        <button class="chart-tab-pill active" onclick="switchChartTab('equity', this)">Tổng vốn</button>
+                        <button class="chart-tab-pill" onclick="switchChartTab('profit', this)">Lợi nhuận</button>
+                        <button class="chart-tab-pill" onclick="switchChartTab('roi', this)">ROI %</button>
+                        <button class="chart-tab-pill" onclick="switchChartTab('drawdown', this)">Drawdown</button>
+                    </div>
+                    <div class="chart-legend-strip">
+                        <span><span class="legend-dot" style="background: #2563eb;"></span> Tổng vốn</span>
+                        <span><span class="legend-dot" style="background: #10b981;"></span> Lợi nhuận tích lũy</span>
+                        <span><span class="legend-dot" style="background: #f59e0b;"></span> BTC Giá (chuẩn hóa)</span>
+                    </div>
+                </div>
+
+                <!-- Canvas Area Chart -->
+                <div class="canvas-chart-container">
+                    <canvas id="equityCurveCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Footer Stats Under Chart -->
+            <div class="chart-stats-footer">
+                <div>
+                    <span class="stat-item-label">Tổng lợi nhuận</span>
+                    <span class="stat-item-val" style="color: var(--portal-green);">+12.4%</span>
+                </div>
+                <div>
+                    <span class="stat-item-label">Lợi nhuận năm (APY)</span>
+                    <span class="stat-item-val" style="color: var(--portal-green);">+24.6%</span>
+                </div>
+                <div>
+                    <span class="stat-item-label">Sharpe Ratio</span>
+                    <span class="stat-item-val">1.42</span>
+                </div>
+                <div>
+                    <span class="stat-item-label">Max Drawdown</span>
+                    <span class="stat-item-val" style="color: var(--portal-red);">-4.8%</span>
+                </div>
+                <div>
+                    <span class="stat-item-label">Win Rate</span>
+                    <span class="stat-item-val" style="color: var(--portal-green);">68.3%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Portfolio Allocation & Pair Performance -->
+        <div class="portal-chart-card">
+            <!-- Donut Section -->
+            <div class="donut-section">
+                <div class="chart-card-header" style="margin-bottom: 8px;">
+                    <div class="chart-title">Phân bổ danh mục</div>
+                    <a href="javascript:void(0)" onclick="switchPortalMainTab('risk')" class="link-view-all">Chi tiết ↗</a>
+                </div>
+                <div class="donut-layout">
+                    <div class="donut-canvas-wrap">
+                        <canvas id="allocationDonutCanvas"></canvas>
+                    </div>
+                    <div class="donut-legend-list">
+                        <div class="donut-legend-item">
+                            <div class="donut-legend-left">
+                                <span class="legend-dot" style="background: #3b82f6;"></span>
+                                <span>BTC</span>
+                            </div>
+                            <span style="font-weight: 700;">45.2% <span style="color: var(--portal-text-subtle);">($22,600)</span></span>
+                        </div>
+                        <div class="donut-legend-item">
+                            <div class="donut-legend-left">
+                                <span class="legend-dot" style="background: #06b6d4;"></span>
+                                <span>ETH</span>
+                            </div>
+                            <span style="font-weight: 700;">28.1% <span style="color: var(--portal-text-subtle);">($14,050)</span></span>
+                        </div>
+                        <div class="donut-legend-item">
+                            <div class="donut-legend-left">
+                                <span class="legend-dot" style="background: #f59e0b;"></span>
+                                <span>BNB</span>
+                            </div>
+                            <span style="font-weight: 700;">12.4% <span style="color: var(--portal-text-subtle);">($6,200)</span></span>
+                        </div>
+                        <div class="donut-legend-item">
+                            <div class="donut-legend-left">
+                                <span class="legend-dot" style="background: #a855f7;"></span>
+                                <span>SOL</span>
+                            </div>
+                            <span style="font-weight: 700;">8.7% <span style="color: var(--portal-text-subtle);">($4,350)</span></span>
+                        </div>
+                        <div class="donut-legend-item">
+                            <div class="donut-legend-left">
+                                <span class="legend-dot" style="background: #64748b;"></span>
+                                <span>Khác</span>
+                            </div>
+                            <span style="font-weight: 700;">5.6% <span style="color: var(--portal-text-subtle);">($2,800)</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pair Performance Section -->
+            <div class="pair-performance-section">
+                <div class="pair-perf-header">
+                    <div class="chart-title" style="font-size: 13px;">Hiệu suất theo cặp</div>
+                    <div class="pair-perf-tabs">
+                        <button class="pair-tab-pill active" onclick="switchPairPerfTab('pnl', this)">PnL</button>
+                        <button class="pair-tab-pill" onclick="switchPairPerfTab('roi', this)">ROI %</button>
+                        <button class="pair-tab-pill" onclick="switchPairPerfTab('orders', this)">Số lệnh</button>
+                    </div>
+                </div>
+
+                <div class="pair-bar-row">
+                    <span class="pair-name">BTC/USDT</span>
+                    <div class="pair-progress-track">
+                        <div class="pair-progress-fill" style="width: 90%; background: #10b981;"></div>
+                    </div>
+                    <div class="pair-stat-values">
+                        <span id="pair-val-0" style="color: var(--portal-green); font-weight: 700;">+$2,843.12</span>
+                        <span style="color: var(--portal-text-subtle);">+18.4%</span>
+                    </div>
+                </div>
+
+                <div class="pair-bar-row">
+                    <span class="pair-name">ETH/USDT</span>
+                    <div class="pair-progress-track">
+                        <div class="pair-progress-fill" style="width: 65%; background: #06b6d4;"></div>
+                    </div>
+                    <div class="pair-stat-values">
+                        <span id="pair-val-1" style="color: var(--portal-green); font-weight: 700;">+$1,982.21</span>
+                        <span style="color: var(--portal-text-subtle);">+12.1%</span>
+                    </div>
+                </div>
+
+                <div class="pair-bar-row">
+                    <span class="pair-name">BNB/USDT</span>
+                    <div class="pair-progress-track">
+                        <div class="pair-progress-fill" style="width: 40%; background: #f59e0b;"></div>
+                    </div>
+                    <div class="pair-stat-values">
+                        <span id="pair-val-2" style="color: var(--portal-green); font-weight: 700;">+$756.43</span>
+                        <span style="color: var(--portal-text-subtle);">+8.6%</span>
+                    </div>
+                </div>
+
+                <div class="pair-bar-row">
+                    <span class="pair-name">SOL/USDT</span>
+                    <div class="pair-progress-track">
+                        <div class="pair-progress-fill" style="width: 25%; background: #a855f7;"></div>
+                    </div>
+                    <div class="pair-stat-values">
+                        <span id="pair-val-3" style="color: var(--portal-green); font-weight: 700;">+$423.11</span>
+                        <span style="color: var(--portal-text-subtle);">+6.3%</span>
+                    </div>
+                </div>
+
+                <div class="pair-bar-row">
+                    <span class="pair-name">Khác</span>
+                    <div class="pair-progress-track">
+                        <div class="pair-progress-fill" style="width: 15%; background: #64748b;"></div>
+                    </div>
+                    <div class="pair-stat-values">
+                        <span id="pair-val-4" style="color: var(--portal-green); font-weight: 700;">+$212.45</span>
+                        <span style="color: var(--portal-text-subtle);">+4.1%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. BOTTOM 4-CARD DATA GRID (POSITIONS, ORDERS, STRATEGIES, NEWS) -->
+    <div class="portal-bottom-grid">
+
+        <!-- Card 1: Vị thế đang mở (3) -->
+        <div class="portal-data-card" id="positions">
+            <div class="data-card-header">
+                <div class="data-card-title">Vị thế đang mở (3)</div>
+                <a href="javascript:void(0)" onclick="switchPortalMainTab('risk')" class="link-view-all">Xem tất cả ↗</a>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="portal-table">
+                    <thead>
+                        <tr>
+                            <th>Cặp</th>
+                            <th>Vị thế</th>
+                            <th>Giá entry</th>
+                            <th>Giá hiện tại</th>
+                            <th>PnL (USDT)</th>
+                            <th>PnL %</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="pos-row-BTCUSDT">
+                            <td data-label="Cặp" style="font-weight: 700;">BTC/USDT</td>
+                            <td data-label="Vị thế"><span class="side-badge long">LONG</span></td>
+                            <td data-label="Giá entry">81,205.17</td>
+                            <td data-label="Giá hiện tại">81,398.22</td>
+                            <td data-label="PnL (USDT)" style="color: var(--portal-green); font-weight: 700;">+$193.05</td>
+                            <td data-label="PnL %" style="color: var(--portal-green); font-weight: 700;">+0.24%</td>
+                            <td data-label="Thao tác"><button class="btn-close-pos" onclick="closePosition('BTC/USDT')">Đóng vị thế</button></td>
+                        </tr>
+                        <tr id="pos-row-ETHUSDT">
+                            <td data-label="Cặp" style="font-weight: 700;">ETH/USDT</td>
+                            <td data-label="Vị thế"><span class="side-badge long">LONG</span></td>
+                            <td data-label="Giá entry">2,618.44</td>
+                            <td data-label="Giá hiện tại">2,633.32</td>
+                            <td data-label="PnL (USDT)" style="color: var(--portal-green); font-weight: 700;">+$14.88</td>
+                            <td data-label="PnL %" style="color: var(--portal-green); font-weight: 700;">+0.37%</td>
+                            <td data-label="Thao tác"><button class="btn-close-pos" onclick="closePosition('ETH/USDT')">Đóng vị thế</button></td>
+                        </tr>
+                        <tr id="pos-row-SOLUSDT">
+                            <td data-label="Cặp" style="font-weight: 700;">SOL/USDT</td>
+                            <td data-label="Vị thế"><span class="side-badge short">SHORT</span></td>
+                            <td data-label="Giá entry">111.20</td>
+                            <td data-label="Giá hiện tại">110.86</td>
+                            <td data-label="PnL (USDT)" style="color: var(--portal-green); font-weight: 700;">+$0.34</td>
+                            <td data-label="PnL %" style="color: var(--portal-green); font-weight: 700;">+0.31%</td>
+                            <td data-label="Thao tác"><button class="btn-close-pos" onclick="closePosition('SOL/USDT')">Đóng vị thế</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Card 2: Lệnh gần đây -->
+        <div class="portal-data-card" id="recent-orders">
+            <div class="data-card-header">
+                <div class="data-card-title">Lệnh gần đây</div>
+                <div style="display: flex; gap: 4px;">
+                    <button class="pair-tab-pill order-filter-btn active" onclick="filterRecentOrders('all', this)">Tất cả</button>
+                    <button class="pair-tab-pill order-filter-btn" onclick="filterRecentOrders('closed', this)">Đã đóng</button>
+                    <button class="pair-tab-pill order-filter-btn" onclick="filterRecentOrders('open', this)">Đang mở</button>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="portal-table">
+                    <thead>
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>Cặp</th>
+                            <th>Loại</th>
+                            <th>Giá</th>
+                            <th>SL/TP</th>
+                            <th>PnL (USDT)</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="order-table-row" data-status="closed">
+                            <td data-label="Thời gian" style="color: var(--portal-text-subtle);">27/11 14:32</td>
+                            <td data-label="Cặp" style="font-weight: 700;">BTC/USDT</td>
+                            <td data-label="Loại"><span class="side-badge short">SELL</span></td>
+                            <td data-label="Giá">81,421.75</td>
+                            <td data-label="SL/TP">--</td>
+                            <td data-label="PnL (USDT)" style="color: var(--portal-green); font-weight: 700;">+$124.32</td>
+                            <td data-label="Trạng thái"><span style="color: var(--portal-green); font-size: 11px;">Đã đóng</span></td>
+                        </tr>
+                        <tr class="order-table-row" data-status="closed">
+                            <td data-label="Thời gian" style="color: var(--portal-text-subtle);">27/11 13:18</td>
+                            <td data-label="Cặp" style="font-weight: 700;">ETH/USDT</td>
+                            <td data-label="Loại"><span class="side-badge long">BUY</span></td>
+                            <td data-label="Giá">2,633.32</td>
+                            <td data-label="SL/TP">--</td>
+                            <td data-label="PnL (USDT)" style="color: var(--portal-green); font-weight: 700;">+$56.11</td>
+                            <td data-label="Trạng thái"><span style="color: var(--portal-green); font-size: 11px;">Đã đóng</span></td>
+                        </tr>
+                        <tr class="order-table-row" data-status="closed">
+                            <td data-label="Thời gian" style="color: var(--portal-text-subtle);">27/11 11:07</td>
+                            <td data-label="Cặp" style="font-weight: 700;">BNB/USDT</td>
+                            <td data-label="Loại"><span class="side-badge long">BUY</span></td>
+                            <td data-label="Giá">758.21</td>
+                            <td data-label="SL/TP">750 / 780</td>
+                            <td data-label="PnL (USDT)" style="color: var(--portal-red); font-weight: 700;">-$23.45</td>
+                            <td data-label="Trạng thái"><span style="color: var(--portal-green); font-size: 11px;">Đã đóng</span></td>
+                        </tr>
+                        <tr class="order-table-row" data-status="closed">
+                            <td data-label="Thời gian" style="color: var(--portal-text-subtle);">27/11 09:54</td>
+                            <td data-label="Cặp" style="font-weight: 700;">SOL/USDT</td>
+                            <td data-label="Loại"><span class="side-badge short">SELL</span></td>
+                            <td data-label="Giá">111.49</td>
+                            <td data-label="SL/TP">113 / 108</td>
+                            <td data-label="PnL (USDT)" style="color: var(--portal-green); font-weight: 700;">+$78.22</td>
+                            <td data-label="Trạng thái"><span style="color: var(--portal-green); font-size: 11px;">Đã đóng</span></td>
+                        </tr>
+                        <tr class="order-table-row" data-status="closed">
+                            <td data-label="Thời gian" style="color: var(--portal-text-subtle);">27/11 08:21</td>
+                            <td data-label="Cặp" style="font-weight: 700;">BTC/USDT</td>
+                            <td data-label="Loại"><span class="side-badge long">BUY</span></td>
+                            <td data-label="Giá">81,012.33</td>
+                            <td data-label="SL/TP">--</td>
+                            <td data-label="PnL (USDT)" style="color: var(--portal-red); font-weight: 700;">-$12.11</td>
+                            <td data-label="Trạng thái"><span style="color: var(--portal-green); font-size: 11px;">Đã đóng</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Card 3: Hiệu suất theo chiến lược AI -->
+        <div class="portal-data-card" id="strategies">
+            <div class="data-card-header">
+                <div class="data-card-title">Hiệu suất theo chiến lược AI</div>
+                <a href="javascript:void(0)" onclick="switchPortalMainTab('strategies')" class="link-view-all">Xem tất cả ↗</a>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="portal-table">
+                    <thead>
+                        <tr>
+                            <th>Chiến lược</th>
+                            <th>Trạng thái</th>
+                            <th>Vốn phân bổ</th>
+                            <th>Lợi nhuận</th>
+                            <th>ROI %</th>
+                            <th>Win rate</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-label="Chiến lược" style="font-weight: 700;">Astra Trend</td>
+                            <td data-label="Trạng thái"><span style="color: var(--portal-green); font-weight: 700;">● Đang chạy</span></td>
+                            <td data-label="Vốn phân bổ">$20,000</td>
+                            <td data-label="Lợi nhuận" style="color: var(--portal-green); font-weight: 700;">+$3,421.12</td>
+                            <td data-label="ROI %" style="color: var(--portal-green); font-weight: 700;">+17.1%</td>
+                            <td data-label="Win rate">72.4%</td>
+                            <td data-label="Thao tác"><button class="btn-detail" onclick="showToast('Chiến lược Astra Trend đang chạy tối ưu.', 'info')">Chi tiết</button></td>
+                        </tr>
+                        <tr>
+                            <td data-label="Chiến lược" style="font-weight: 700;">Mean Reversion</td>
+                            <td data-label="Trạng thái"><span style="color: var(--portal-green); font-weight: 700;">● Đang chạy</span></td>
+                            <td data-label="Vốn phân bổ">$15,000</td>
+                            <td data-label="Lợi nhuận" style="color: var(--portal-green); font-weight: 700;">+$1,982.21</td>
+                            <td data-label="ROI %" style="color: var(--portal-green); font-weight: 700;">+13.2%</td>
+                            <td data-label="Win rate">66.7%</td>
+                            <td data-label="Thao tác"><button class="btn-detail" onclick="showToast('Mean Reversion đang theo dõi vùng quá bán.', 'info')">Chi tiết</button></td>
+                        </tr>
+                        <tr>
+                            <td data-label="Chiến lược" style="font-weight: 700;">Breakout Pro</td>
+                            <td data-label="Trạng thái"><span style="color: var(--portal-green); font-weight: 700;">● Đang chạy</span></td>
+                            <td data-label="Vốn phân bổ">$10,000</td>
+                            <td data-label="Lợi nhuận" style="color: var(--portal-green); font-weight: 700;">+$623.99</td>
+                            <td data-label="ROI %" style="color: var(--portal-green); font-weight: 700;">+6.2%</td>
+                            <td data-label="Win rate">58.1%</td>
+                            <td data-label="Thao tác"><button class="btn-detail" onclick="showToast('Breakout Pro chờ tín hiệu xác nhận Volume.', 'info')">Chi tiết</button></td>
+                        </tr>
+                        <tr>
+                            <td data-label="Chiến lược" style="font-weight: 700;">Arbitrage Desk</td>
+                            <td data-label="Trạng thái"><span style="color: var(--portal-amber); font-weight: 700;">● Tạm dừng</span></td>
+                            <td data-label="Vốn phân bổ">$5,000</td>
+                            <td data-label="Lợi nhuận" style="color: var(--portal-green); font-weight: 700;">+$189.21</td>
+                            <td data-label="ROI %" style="color: var(--portal-green); font-weight: 700;">+3.8%</td>
+                            <td data-label="Win rate">61.3%</td>
+                            <td data-label="Thao tác"><button class="btn-detail" onclick="showToast('Arbitrage chờ chênh lệch Funding rate > 0.05%.', 'info')">Chi tiết</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Card 4: Tin tức & Thông báo -->
+        <div class="portal-data-card" id="news">
+            <div class="data-card-header">
+                <div class="data-card-title">Tin tức & Cảnh báo thị trường</div>
+                <div style="display: flex; gap: 4px;">
+                    <button class="pair-tab-pill news-filter-btn active" onclick="filterNews('all', this)">Tất cả</button>
+                    <button class="pair-tab-pill news-filter-btn" onclick="filterNews('system', this)">Hệ thống</button>
+                    <button class="pair-tab-pill news-filter-btn" onclick="filterNews('market', this)">Thị trường</button>
+                </div>
+            </div>
+
+            <div class="news-list">
+                <div class="news-item" data-category="system">
+                    <div class="news-icon-square" style="background: var(--portal-green-light); color: var(--portal-green);">🟢</div>
+                    <div class="news-content">
+                        <div class="news-title">Binance API & WebSocket Hoạt Động Bình Thường</div>
+                        <div class="news-desc">Độ trễ khớp lệnh đo lường &lt; 85ms, luồng dữ liệu định lượng ổn định</div>
+                    </div>
+                    <div class="news-time">5 phút trước</div>
+                </div>
+
+                <div class="news-item" data-category="system">
+                    <div class="news-icon-square" style="background: var(--portal-primary-light); color: var(--portal-primary);">🚀</div>
+                    <div class="news-content">
+                        <div class="news-title">Kích hoạt Hard Risk Gate & Non-Custodial Shield</div>
+                        <div class="news-desc">Tự động ngắt kết nối nếu phát hiện quyền rút tiền bật trên API sàn</div>
+                    </div>
+                    <div class="news-time">1 giờ trước</div>
+                </div>
+
+                <div class="news-item" data-category="market">
+                    <div class="news-icon-square" style="background: var(--portal-amber-light); color: var(--portal-amber);">₿</div>
+                    <div class="news-content">
+                        <div class="news-title">BTC vượt đỉnh $81,000 — Xu hướng tăng áp đảo</div>
+                        <div class="news-desc">Chỉ số AI Consensus đạt 84% Bullish, danh mục ưu tiên phe Long</div>
+                    </div>
+                    <div class="news-time">3 giờ trước</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 5. NEW TAB: CLIENT COPY-TRADE CONSOLE (#trade-section) -->
+    <div id="trade-section" style="display: none; margin-top: 20px;">
+        <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 16px; padding: 28px; box-shadow: var(--portal-shadow-sm); margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+                <div>
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--portal-text); margin: 0 0 6px;">
+                        ⚡ Bảng Điều Khiển Lệnh & Trạng Thái Copy-Trade
+                    </h2>
+                    <p style="color: var(--portal-text-muted); font-size: 13.5px; margin: 0;">
+                        Quản lý sao chép tín hiệu định lượng theo thời gian thực từ Astra AI Fleet
+                    </p>
+                </div>
+
+                <!-- Master Switch -->
+                <div style="display: flex; align-items: center; gap: 12px; background: var(--portal-border-subtle); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--portal-border);">
+                    <span style="font-size: 13px; font-weight: 700; color: var(--portal-text);">Tự Động Copy-Trade:</span>
+                    <button id="masterCopyToggleBtn" onclick="toggleMasterCopy()" type="button" class="btn-start-copy" style="padding: 8px 18px; font-size: 12.5px; border-radius: 8px;">
+                        ● ĐANG BẬT
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4 Quick Stats Pills -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <div style="background: var(--portal-bg); padding: 16px; border-radius: 10px; border: 1px solid var(--portal-border);">
+                    <div style="font-size: 11.5px; color: var(--portal-text-muted); font-weight: 700; text-transform: uppercase;">Tài khoản kết nối</div>
+                    <div style="font-size: 16px; font-weight: 800; color: var(--portal-text); margin-top: 4px;">{{ cred.label if cred and cred.label else 'Binance Futures' }}</div>
+                    <div style="font-size: 11px; color: var(--portal-green); margin-top: 2px;">{{ cred.masked_key if cred and cred.masked_key else 'Đã xác thực API' }}</div>
+                </div>
+
+                <div style="background: var(--portal-bg); padding: 16px; border-radius: 10px; border: 1px solid var(--portal-border);">
+                    <div style="font-size: 11.5px; color: var(--portal-text-muted); font-weight: 700; text-transform: uppercase;">Hạn mức / lệnh</div>
+                    <div style="font-size: 16px; font-weight: 800; color: #0284c7; margin-top: 4px;">{{ cred.max_margin_usdt if cred and cred.max_margin_usdt else '50.0' }} USDT</div>
+                    <div style="font-size: 11px; color: var(--portal-text-muted); margin-top: 2px;">Đòn bẩy an toàn: {{ cred.leverage if cred and cred.leverage else '3' }}x</div>
+                </div>
+
+                <div style="background: var(--portal-bg); padding: 16px; border-radius: 10px; border: 1px solid var(--portal-border);">
+                    <div style="font-size: 11.5px; color: var(--portal-text-muted); font-weight: 700; text-transform: uppercase;">Độ trễ tín hiệu OMS</div>
+                    <div style="font-size: 16px; font-weight: 800; color: #10b981; margin-top: 4px;">~ 74 ms</div>
+                    <div style="font-size: 11px; color: var(--portal-text-muted); margin-top: 2px;">Khớp lệnh trực tiếp Kernel</div>
+                </div>
+
+                <div style="background: var(--portal-bg); padding: 16px; border-radius: 10px; border: 1px solid var(--portal-border);">
+                    <div style="font-size: 11.5px; color: var(--portal-text-muted); font-weight: 700; text-transform: uppercase;">Chia sẻ lãi (Profit Share)</div>
+                    <div style="font-size: 16px; font-weight: 800; color: #f59e0b; margin-top: 4px;">25% trên LÃI RÒNG</div>
+                    <div style="font-size: 11px; color: var(--portal-text-muted); margin-top: 2px;">Chỉ trừ khi có lợi nhuận</div>
+                </div>
+            </div>
+
+            <!-- Emergency Actions Row -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 16px 20px;">
+                <div>
+                    <div style="font-weight: 800; color: #ef4444; font-size: 13.5px; display: flex; align-items: center; gap: 6px;">
+                        🚨 HÀNH ĐỘNG KHẨN CẤP (EMERGENCY CONTROL):
+                    </div>
+                    <div style="font-size: 12.5px; color: var(--portal-text-muted); margin-top: 2px;">
+                        Đóng toàn bộ vị thế ngay lập tức theo giá thị trường và tạm dừng nhận lệnh mới
+                    </div>
+                </div>
+                <button type="button" class="btn-close-pos" onclick="emergencyCloseAll()" style="padding: 10px 20px; font-size: 13px; font-weight: 800; border-radius: 8px;">
+                    ⚡ Đóng Toàn Bộ Vị Thế Khẩn Cấp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. NEW TAB: 10 AI AGENTS FLEET (#agents-section) -->
+    <div id="agents-section" style="display: none; margin-top: 20px;">
+        <div style="margin-bottom: 20px;">
+            <h2 style="font-size: 20px; font-weight: 800; color: var(--portal-text); margin: 0 0 6px;">
+                🤖 Hạm Đội 10 AI Agents Định Lượng Astra
+            </h2>
+            <p style="color: var(--portal-text-muted); font-size: 13.5px; margin: 0;">
+                Mỗi tác tử AI phụ trách một nhiệm vụ độc lập, phối hợp biểu quyết đa tầng để bảo vệ vốn và tìm kiếm lợi nhuận tối ưu.
+            </p>
+        </div>
+
+        <!-- 10 Agent Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px;">
+            
+            <!-- Agent 1 -->
+            <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 14px; padding: 20px; box-shadow: var(--portal-shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <img src="/static/images/sprites/sprite_01_pm.png" style="width: 44px; height: 44px; border-radius: 10px; background: var(--portal-border-subtle);" alt="Lead PM">
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: var(--portal-text);">Lead Portfolio Manager</div>
+                        <div style="font-size: 11.5px; color: var(--portal-primary); font-weight: 700;">Chỉ Huy Phân Bổ Vốn</div>
+                    </div>
+                </div>
+                <p style="font-size: 12.5px; color: var(--portal-text-muted); line-height: 1.5; margin: 0 0 12px;">
+                    Tổng hợp biểu quyết đa tác tử, cân đối tỷ trọng danh mục BTC/ETH/SOL và quyết định thời điểm vào lệnh.
+                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; padding-top: 10px; border-top: 1px solid var(--portal-border);">
+                    <span style="color: #10b981; font-weight: 700;">● 100% Hoạt động</span>
+                    <span style="color: var(--portal-text-muted);">Độ tin cậy: 98.4%</span>
+                </div>
+            </div>
+
+            <!-- Agent 2 -->
+            <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 14px; padding: 20px; box-shadow: var(--portal-shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <img src="/static/images/sprites/sprite_02_risk.png" style="width: 44px; height: 44px; border-radius: 10px; background: var(--portal-border-subtle);" alt="Risk Council">
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: var(--portal-text);">Risk Council</div>
+                        <div style="font-size: 11.5px; color: #ef4444; font-weight: 700;">Hội Đồng Rủi Ro & Gate</div>
+                    </div>
+                </div>
+                <p style="font-size: 12.5px; color: var(--portal-text-muted); line-height: 1.5; margin: 0 0 12px;">
+                    Giám sát sụt giảm tài khoản (Drawdown), thực thi Hard Stoploss và kích hoạt Circuit Breaker khi thị trường sốc giá.
+                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; padding-top: 10px; border-top: 1px solid var(--portal-border);">
+                    <span style="color: #10b981; font-weight: 700;">● Bảo vệ vốn tối đa</span>
+                    <span style="color: var(--portal-text-muted);">Ngưỡng DD: &lt; 5%</span>
+                </div>
+            </div>
+
+            <!-- Agent 3 -->
+            <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 14px; padding: 20px; box-shadow: var(--portal-shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <img src="/static/images/sprites/sprite_03_quant.png" style="width: 44px; height: 44px; border-radius: 10px; background: var(--portal-border-subtle);" alt="Quant Lab">
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: var(--portal-text);">Quant Lab</div>
+                        <div style="font-size: 11.5px; color: #8b5cf6; font-weight: 700;">Toán Học & Tín Hiệu</div>
+                    </div>
+                </div>
+                <p style="font-size: 12.5px; color: var(--portal-text-muted); line-height: 1.5; margin: 0 0 12px;">
+                    Chạy các mô hình Mean-Reversion, Kalman Filter và Z-Score để phát hiện tín hiệu vào lệnh có xác suất thắng cao.
+                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; padding-top: 10px; border-top: 1px solid var(--portal-border);">
+                    <span style="color: #10b981; font-weight: 700;">● Đồng thuận: 84%</span>
+                    <span style="color: var(--portal-text-muted);">Sharpe: 1.42</span>
+                </div>
+            </div>
+
+            <!-- Agent 4 -->
+            <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 14px; padding: 20px; box-shadow: var(--portal-shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <img src="/static/images/sprites/sprite_04_oms.png" style="width: 44px; height: 44px; border-radius: 10px; background: var(--portal-border-subtle);" alt="Execution OMS">
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: var(--portal-text);">Execution OMS</div>
+                        <div style="font-size: 11.5px; color: #06b6d4; font-weight: 700;">Khớp Lệnh Tối Ưu</div>
+                    </div>
+                </div>
+                <p style="font-size: 12.5px; color: var(--portal-text-muted); line-height: 1.5; margin: 0 0 12px;">
+                    Chia nhỏ lệnh (TWAP/VWAP) để hạn chế trượt giá (Slippage) và gửi lệnh song song tới tất cả tài khoản client copy.
+                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; padding-top: 10px; border-top: 1px solid var(--portal-border);">
+                    <span style="color: #10b981; font-weight: 700;">● Trượt giá: &lt; 0.02%</span>
+                    <span style="color: var(--portal-text-muted);">Tốc độ: 74ms</span>
+                </div>
+            </div>
+
+            <!-- Agent 5 -->
+            <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 14px; padding: 20px; box-shadow: var(--portal-shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <img src="/static/images/sprites/sprite_05_news.png" style="width: 44px; height: 44px; border-radius: 10px; background: var(--portal-border-subtle);" alt="News Scout">
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: var(--portal-text);">News Scout</div>
+                        <div style="font-size: 11.5px; color: #f59e0b; font-weight: 700;">Phân Tích Tin Tức AI</div>
+                    </div>
+                </div>
+                <p style="font-size: 12.5px; color: var(--portal-text-muted); line-height: 1.5; margin: 0 0 12px;">
+                    Quét tin tức vĩ mô FED, CPI, dữ liệu On-chain và chỉ số Fear & Greed để đưa ra cảnh báo sớm trước các cú giật giá.
+                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; padding-top: 10px; border-top: 1px solid var(--portal-border);">
+                    <span style="color: #10b981; font-weight: 700;">● Tâm lý: Bullish</span>
+                    <span style="color: var(--portal-text-muted);">Greed: 78/100</span>
+                </div>
+            </div>
+
+            <!-- Agent 6 -->
+            <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 14px; padding: 20px; box-shadow: var(--portal-shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <img src="/static/images/sprites/sprite_06_vol.png" style="width: 44px; height: 44px; border-radius: 10px; background: var(--portal-border-subtle);" alt="Volatility Lab">
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: var(--portal-text);">Volatility Lab</div>
+                        <div style="font-size: 11.5px; color: #0284c7; font-weight: 700;">Đo Lường Biến Động</div>
+                    </div>
+                </div>
+                <p style="font-size: 12.5px; color: var(--portal-text-muted); line-height: 1.5; margin: 0 0 12px;">
+                    Đo lường biên độ ATR, Bollinger Band Width để tự động điều chỉnh đòn bẩy co giãn linh hoạt từ 2x đến 3x.
+                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; padding-top: 10px; border-top: 1px solid var(--portal-border);">
+                    <span style="color: #10b981; font-weight: 700;">● ATR: Bình thường</span>
+                    <span style="color: var(--portal-text-muted);">Đòn bẩy: 3x</span>
+                </div>
+            </div>
+
+            <!-- Agent 7 -->
+            <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 14px; padding: 20px; box-shadow: var(--portal-shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <img src="/static/images/sprites/sprite_07_breakout.png" style="width: 44px; height: 44px; border-radius: 10px; background: var(--portal-border-subtle);" alt="Breakout Hunter">
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: var(--portal-text);">Breakout Hunter</div>
+                        <div style="font-size: 11.5px; color: #ec4899; font-weight: 700;">Săn Sóng Phá Vỡ</div>
+                    </div>
+                </div>
+                <p style="font-size: 12.5px; color: var(--portal-text-muted); line-height: 1.5; margin: 0 0 12px;">
+                    Phát hiện các mô hình nén giá tam giác, kênh giá tích lũy đi kèm đột biến khối lượng mua chủ động.
+                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; padding-top: 10px; border-top: 1px solid var(--portal-border);">
+                    <span style="color: #10b981; font-weight: 700;">● Sẵn sàng bắt sóng</span>
+                    <span style="color: var(--portal-text-muted);">Volume: +42%</span>
+                </div>
+            </div>
+
+            <!-- Agent 8 -->
+            <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 14px; padding: 20px; box-shadow: var(--portal-shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <img src="/static/images/sprites/sprite_08_spot.png" style="width: 44px; height: 44px; border-radius: 10px; background: var(--portal-border-subtle);" alt="Spot DCA">
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: var(--portal-text);">Spot DCA</div>
+                        <div style="font-size: 11.5px; color: #14b8a6; font-weight: 700;">Tích Lũy Vị Thế</div>
+                    </div>
+                </div>
+                <p style="font-size: 12.5px; color: var(--portal-text-muted); line-height: 1.5; margin: 0 0 12px;">
+                    Tự động phân bổ mua trung bình giá tại các vùng hỗ trợ Fibonacci trọng yếu của BTC & ETH để giữ chi phí vốn thấp.
+                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; padding-top: 10px; border-top: 1px solid var(--portal-border);">
+                    <span style="color: #10b981; font-weight: 700;">● Tích lũy chu kỳ</span>
+                    <span style="color: var(--portal-text-muted);">Giá vốn: $78,400</span>
+                </div>
+            </div>
+
+            <!-- Agent 9 -->
+            <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 14px; padding: 20px; box-shadow: var(--portal-shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <img src="/static/images/sprites/sprite_09_arb.png" style="width: 44px; height: 44px; border-radius: 10px; background: var(--portal-border-subtle);" alt="Arbitrage Desk">
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: var(--portal-text);">Arbitrage Desk</div>
+                        <div style="font-size: 11.5px; color: #f97316; font-weight: 700;">Chênh Lệch Funding</div>
+                    </div>
+                </div>
+                <p style="font-size: 12.5px; color: var(--portal-text-muted); line-height: 1.5; margin: 0 0 12px;">
+                    Khai thác chênh lệch Funding Rate giữa Spot và Futures để thu về lợi nhuận phi rủi ro (Delta-Neutral).
+                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; padding-top: 10px; border-top: 1px solid var(--portal-border);">
+                    <span style="color: #10b981; font-weight: 700;">● Delta-Neutral</span>
+                    <span style="color: var(--portal-text-muted);">Funding: +0.01%</span>
+                </div>
+            </div>
+
+            <!-- Agent 10 -->
+            <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 14px; padding: 20px; box-shadow: var(--portal-shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <img src="/static/images/sprites/sprite_10_comm.png" style="width: 44px; height: 44px; border-radius: 10px; background: var(--portal-border-subtle);" alt="Community & Accounting">
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: var(--portal-text);">Community & Accounting</div>
+                        <div style="font-size: 11.5px; color: #6366f1; font-weight: 700;">Đối Soát Lợi Nhuận</div>
+                    </div>
+                </div>
+                <p style="font-size: 12.5px; color: var(--portal-text-muted); line-height: 1.5; margin: 0 0 12px;">
+                    Kiểm toán số dư tự động theo chuẩn High Water Mark, đối soát báo cáo PnL minh bạch và hỗ trợ thành viên VIP.
+                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; padding-top: 10px; border-top: 1px solid var(--portal-border);">
+                    <span style="color: #10b981; font-weight: 700;">● Đối soát tự động</span>
+                    <span style="color: var(--portal-text-muted);">Chuẩn HWM: Đạt</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/portal_dashboard.js?v=2.5"></script>
+{% endblock %}

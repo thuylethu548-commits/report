@@ -1,0 +1,107 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 24px;">
+    <!-- HEADER -->
+    <div>
+        <h1 style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Audit Logs & Lịch Sử Tín Hiệu (Live Telemetry)</h1>
+        <p style="font-size: 13px; color: var(--text-sub);">
+            Theo dõi chi tiết luồng xử lý thời gian thực từ WebSocket Ticks, OMS Orders, và kiểm duyệt tín hiệu của Astra-RiskGate.
+        </p>
+    </div>
+
+    <!-- TERMINAL & SIGNALS -->
+    <div class="grid-2">
+        <!-- Live Terminal -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+                    <span>Terminal Console Thời Gian Thực</span>
+                </div>
+                <span class="badge badge-green"><span class="pulse-dot"></span> 3S REFRESH</span>
+            </div>
+            <div class="card-body" style="padding: 12px;">
+                <div id="audit-terminal" style="background: #090d16; color: #38bdf8; border-radius: 8px; padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px; height: 380px; overflow-y: auto; border: 1px solid #1e293b; line-height: 1.6;">
+                    <!-- Populated via admin_app.js -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Signals Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--emerald);"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+                    <span>Lịch Sử Tín Hiệu Đã Xử Lý</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tác Tử</th>
+                            <th>Lệnh</th>
+                            <th>Giá Phát</th>
+                            <th>Độ Tin Cậy</th>
+                            <th>Kiểm Duyệt</th>
+                        </tr>
+                    </thead>
+                    <tbody id="signals-tbody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                                Đang đồng bộ tín hiệu từ Database...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadSignalsTable() {
+    try {
+        const res = await fetch('/api/v1/signals');
+        const signals = await res.json();
+        const tbody = document.getElementById('signals-tbody');
+        if (!tbody) return;
+
+        if (signals.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">Chưa có tín hiệu nào.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = '';
+        signals.forEach(s => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${s.strategy_name}</strong></td>
+                    <td><span class="badge ${s.side === 'BUY' ? 'badge-green' : 'badge-red'}">${s.side}</span></td>
+                    <td>$${s.price.toLocaleString()}</td>
+                    <td>${(s.confidence * 100).toFixed(0)}%</td>
+                    <td>
+                        <span class="badge ${s.approved ? 'badge-green' : 'badge-red'}">
+                            ${s.approved ? 'APPROVED' : 'REJECTED'}
+                        </span>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch(e) {
+        console.error("Signals error:", e);
+    }
+}
+document.addEventListener('DOMContentLoaded', () => {
+    loadSignalsTable();
+    setInterval(loadSignalsTable, 4000);
+    if (typeof updateAuditTerminal === 'function') {
+        updateAuditTerminal();
+        setInterval(updateAuditTerminal, 3000);
+    }
+});
+</script>
+{% endblock %}

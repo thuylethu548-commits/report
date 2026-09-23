@@ -1,0 +1,758 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block extra_css %}
+<style>
+    .research-hero {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    .research-hero::after {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(244, 63, 94, 0.15) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .agent-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .agent-mini-card {
+        background: var(--card-bg, #1e293b);
+        border: 1px solid var(--border-color, #334155);
+        border-radius: 10px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .agent-mini-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--primary, #38bdf8);
+    }
+    .agent-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    .agent-avatar-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    .agent-role-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-heading, #f8fafc);
+        line-height: 1.2;
+    }
+    .agent-model-tag {
+        font-size: 10px;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--text-muted, #94a3b8);
+    }
+    .agent-desc-text {
+        font-size: 11.5px;
+        color: var(--text-secondary, #cbd5e1);
+        line-height: 1.45;
+        margin-bottom: 12px;
+    }
+    .status-pulse-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10.5px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 999px;
+    }
+    .pulse-dot-green {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 6px #22c55e;
+    }
+    .pulse-dot-rose {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #f43f5e;
+        box-shadow: 0 0 6px #f43f5e;
+    }
+    .pulse-dot-cyan {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #06b6d4;
+        box-shadow: 0 0 6px #06b6d4;
+    }
+    .control-panel-box {
+        background: var(--card-bg, #1e293b);
+        border: 1px solid var(--border-color, #334155);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+    .terminal-console {
+        background: #090d16;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 14px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: #38bdf8;
+        max-height: 240px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        line-height: 1.5;
+    }
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+    }
+    .custom-table th {
+        background: rgba(15, 23, 42, 0.6);
+        color: var(--text-muted, #94a3b8);
+        text-align: left;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border-color, #334155);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .custom-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: var(--text-primary, #e2e8f0);
+    }
+    .custom-table tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    .badge-veto {
+        background: rgba(244, 63, 94, 0.15);
+        color: #fb7185;
+        border: 1px solid rgba(244, 63, 94, 0.3);
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .badge-approved {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .badge-negative-mem {
+        background: rgba(234, 88, 12, 0.15);
+        color: #fb923c;
+        border: 1px solid rgba(234, 88, 12, 0.3);
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 10.5px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-container" style="max-width: 1440px; margin: 0 auto; padding: 20px;">
+
+    <!-- 1. HERO SECTION -->
+    <div class="research-hero">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <span style="font-size: 24px;">🔬</span>
+                    <h1 style="font-size: 22px; font-weight: 800; color: #fff; margin: 0; letter-spacing: -0.02em;">
+                        ASTRA DIGITAL RESEARCH LAB — PHÒNG NGHIÊN CỨU SỐ
+                    </h1>
+                    <span class="badge badge-rose" style="font-size: 10px; padding: 3px 8px; font-weight: 700;">AI SCIENTIST V3</span>
+                </div>
+                <p style="color: #94a3b8; font-size: 13.5px; margin: 0; max-width: 820px; line-height: 1.5;">
+                    Vận hành đội ngũ 5 AI Agents tự động nghiên cứu chiến lược định lượng: Lập giả thuyết &rarr; Quét vi mô/vĩ mô &rarr; Mô phỏng 10.000 kịch bản Monte Carlo qua DuckDB & Parquet trên Google Drive 5TB &rarr; Trọng tài Grok 4.7 & GPT-6 Astra phản biện sát hạch &rarr; Đúc kết <strong>Negative Memory</strong> để không lặp lại sai lầm.
+                </p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button onclick="syncDataLakeToDrive()" class="btn btn-secondary" style="display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 8px 14px;">
+                    <span>☁️ Đồng Bộ G: Drive 5TB</span>
+                </button>
+                <button onclick="backupDbToTelegram()" class="btn btn-secondary" style="display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 8px 14px;">
+                    <span>✈️ Backup Telegram</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI Ticker -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 20px;">
+            <div style="background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Thí Nghiệm Đã Chạy</div>
+                <div style="font-size: 20px; font-weight: 800; color: #38bdf8;" id="kpi-exp-count">--</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Ký Ức Tiêu Cực (Negative)</div>
+                <div style="font-size: 20px; font-weight: 800; color: #fb7185;" id="kpi-negative-count">--</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Tiêu Chuẩn Vàng (Gold)</div>
+                <div style="font-size: 20px; font-weight: 800; color: #4ade80;" id="kpi-gold-count">--</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Kho Data Lake 5TB</div>
+                <div style="font-size: 20px; font-weight: 800; color: #a78bfa;" id="kpi-lake-files">Apache Arrow</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1.5. A/B BENCHMARK COMPARISON: 10 LỆNH ĐẦU VS 10 LỆNH SAU -->
+    <div style="background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">⚔️</span>
+                <div>
+                    <h3 style="font-size: 15px; font-weight: 700; color: #fff; margin: 0;">
+                        ĐỐI SÁCH A/B THỰC CHIẾN: 10 LỆNH ĐẦU (BASELINE) VS 10 LỆNH SAU (GROK 4.7 & GPT-6)
+                    </h3>
+                    <span style="font-size: 12px; color: #94a3b8;">
+                        So sánh thực chứng hiệu quả: Baseline 70% Win Rate vs Kỷ nguyên Hội đồng Trọng tài VaR
+                    </span>
+                </div>
+            </div>
+            <span class="badge badge-rose" style="font-size: 10.5px; padding: 3px 10px; font-weight: 700;">CHẾ ĐỘ TRANH BIỆN ADVERSARIAL ACTIVE</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+            <!-- Batch 1 Card -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="font-weight: 700; color: #94a3b8; font-size: 13px;">GIAI ĐOẠN 1: 10 LỆNH ĐẦU (BASELINE)</span>
+                    <span class="badge badge-green" style="font-size: 10px;">ĐÃ HOÀN TẤT</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                    <div style="font-size: 26px; font-weight: 800; color: #22c55e;">70.0% <span style="font-size: 12px; color: #94a3b8; font-weight: 500;">Win Rate (7W - 3L)</span></div>
+                    <div style="font-size: 18px; font-weight: 700; color: #38bdf8;">+$3.84 USDT</div>
+                </div>
+                <div style="font-size: 11.5px; color: #94a3b8; line-height: 1.45;">
+                    • Mô hình: Claude Sonnet & Consensus thông thường<br>
+                    • Max Drawdown: <strong>0.08%</strong> (Cực thấp, an toàn vốn)<br>
+                    • Nhận xét: Vốn ban đầu bảo toàn hoàn hảo, có lãi vững vàng làm mốc đối chứng.
+                </div>
+            </div>
+
+            <!-- Batch 2 Card -->
+            <div style="background: rgba(244, 63, 94, 0.05); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 10px; padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="font-weight: 700; color: #fb7185; font-size: 13px;">GIAI ĐOẠN 2: 10 LỆNH SAU (GROK 4.7 & GPT-6 ASTRA)</span>
+                    <span class="badge badge-rose" style="font-size: 10px;">ĐANG THEO DÕI LIVE</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                    <div style="font-size: 26px; font-weight: 800; color: #fb7185;" id="cohort2-winrate">0.0% <span style="font-size: 12px; color: #94a3b8; font-weight: 500;" id="cohort2-trades">(0/10 Lệnh)</span></div>
+                    <div style="font-size: 18px; font-weight: 700; color: #fb7185;" id="cohort2-pnl">+$0.00 USDT</div>
+                </div>
+                <div style="font-size: 11.5px; color: #cbd5e1; line-height: 1.45;">
+                    • Trọng tài: <strong>Grok 4.7</strong> (Phản biện bóc bẫy) & <strong>GPT-6 Astra</strong> (Kiểm toán tối cao)<br>
+                    • Cơ chế: Tranh luận 3 hiệp (Bull 120B vs Bear Grok 4.7 vs Arbiter GPT-6)<br>
+                    • Mục tiêu: Nâng cao tỷ lệ RR, triệt tiêu lệnh sai bằng phản biện cay nghiệt!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. THE 5 AI AGENTS SHOWCASE (MATCHES TIKTOK SCRIPT) -->
+    <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 15px; font-weight: 700; color: var(--text-heading, #f8fafc); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">
+            Đội Ngũ 5 Tác Tử Nghiên Cứu Định Lượng (Autonomous Research Team)
+        </h2>
+        <span style="font-size: 12px; color: #94a3b8;">Sát cánh cùng Grok 4.7 & GPT-6 Astra</span>
+    </div>
+
+    <div class="agent-cards-grid">
+        <!-- Agent 1 -->
+        <div class="agent-mini-card">
+            <div>
+                <div class="agent-card-header">
+                    <div class="agent-avatar-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">🛰️</div>
+                    <div>
+                        <div class="agent-role-title">Market Research</div>
+                        <div class="agent-model-tag">openai/gpt-oss-120b</div>
+                    </div>
+                </div>
+                <div class="agent-desc-text">
+                    Chuyên gia quét vĩ mô, thanh khoản orderbook, Funding Rate và cấu trúc biến động để tìm ra các góc cạnh bất đối xứng.
+                </div>
+            </div>
+            <div class="status-pulse-badge" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8;">
+                <span class="pulse-dot-cyan"></span> Quét Radar 24/7
+            </div>
+        </div>
+
+        <!-- Agent 2 -->
+        <div class="agent-mini-card">
+            <div>
+                <div class="agent-card-header">
+                    <div class="agent-avatar-icon" style="background: rgba(167, 139, 250, 0.15); color: #a78bfa;">📐</div>
+                    <div>
+                        <div class="agent-role-title">Quant Strategist</div>
+                        <div class="agent-model-tag">quant_math / C++ Core</div>
+                    </div>
+                </div>
+                <div class="agent-desc-text">
+                    Chuyên gia toán học & lượng hóa: Tính ATR động, tối ưu ma trận tham số, thiết lập tỷ lệ R:R và công thức quản trị vốn.
+                </div>
+            </div>
+            <div class="status-pulse-badge" style="background: rgba(167, 139, 250, 0.1); color: #a78bfa;">
+                <span class="pulse-dot-cyan"></span> Tối Ưu Toán Học
+            </div>
+        </div>
+
+        <!-- Agent 3 -->
+        <div class="agent-mini-card">
+            <div>
+                <div class="agent-card-header">
+                    <div class="agent-avatar-icon" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;">🥊</div>
+                    <div>
+                        <div class="agent-role-title">Risk Skeptic Officer</div>
+                        <div class="agent-model-tag">gcli/grok-4.7 (9Router)</div>
+                    </div>
+                </div>
+                <div class="agent-desc-text">
+                    Kẻ phản biện cực kỳ khó tính. Chuyên tìm mọi kịch bản để "đấm" vỡ chiến lược qua Flash Crash -30% & Vol Shock +500%.
+                </div>
+            </div>
+            <div class="status-pulse-badge" style="background: rgba(244, 63, 94, 0.1); color: #fb7185;">
+                <span class="pulse-dot-rose"></span> Sát Hạch Cay Nghiệt
+            </div>
+        </div>
+
+        <!-- Agent 4 -->
+        <div class="agent-mini-card">
+            <div>
+                <div class="agent-card-header">
+                    <div class="agent-avatar-icon" style="background: rgba(234, 179, 8, 0.15); color: #eab308;">🌊</div>
+                    <div>
+                        <div class="agent-role-title">Data Lake Specialist</div>
+                        <div class="agent-model-tag">DuckDB & Apache Arrow</div>
+                    </div>
+                </div>
+                <div class="agent-desc-text">
+                    Xử lý 100k nhánh giả định. Truy vấn trực tiếp hàng triệu dòng Parquet trên ổ Google Drive 5TB với tốc độ miligiây.
+                </div>
+            </div>
+            <div class="status-pulse-badge" style="background: rgba(234, 179, 8, 0.1); color: #facc15;">
+                <span class="pulse-dot-green"></span> 5TB GDrive Mount
+            </div>
+        </div>
+
+        <!-- Agent 5 -->
+        <div class="agent-mini-card">
+            <div>
+                <div class="agent-card-header">
+                    <div class="agent-avatar-icon" style="background: rgba(34, 197, 94, 0.15); color: #22c55e;">⚖️</div>
+                    <div>
+                        <div class="agent-role-title">Chief Lead Reviewer</div>
+                        <div class="agent-model-tag">cx/gpt-6-astra & Grok 4.7</div>
+                    </div>
+                </div>
+                <div class="agent-desc-text">
+                    Ghế kiểm toán tối cao. Tổng hợp ý kiến 4 bên, chấm điểm trung lập và đưa ra phán quyết Pass / Veto ghi vào sổ tri thức.
+                </div>
+            </div>
+            <div class="status-pulse-badge" style="background: rgba(34, 197, 94, 0.1); color: #4ade80;">
+                <span class="pulse-dot-green"></span> Phán Quyết Tối Cao
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. CONTROL PANEL: TRIGGER RESEARCH CYCLE -->
+    <div class="control-panel-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h3 style="font-size: 15px; font-weight: 700; color: #fff; margin: 0;">
+                    🚀 Kích Hoạt Chu Kỳ Nghiên Cứu Định Lượng Tự Động
+                </h3>
+                <span style="font-size: 12px; color: #94a3b8;">
+                    Khởi tạo chu kỳ tranh biện, nạp dữ liệu quá khứ, chạy stress-test và ghi nhận kết quả
+                </span>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="research-symbol-select" class="form-control" style="background: #0f172a; border: 1px solid #334155; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px;">
+                    <option value="BTC/USDT">BTC/USDT (Bitcoin)</option>
+                    <option value="ETH/USDT">ETH/USDT (Ethereum)</option>
+                    <option value="SOL/USDT">SOL/USDT (Solana)</option>
+                    <option value="BNB/USDT">BNB/USDT (Binance Coin)</option>
+                    <option value="NEAR/USDT">NEAR/USDT (Near Protocol)</option>
+                    <option value="PEPE/USDT">PEPE/USDT (Pepe Coin)</option>
+                    <option value="SUI/USDT">SUI/USDT (Sui Network)</option>
+                </select>
+                <button id="btn-run-cycle" onclick="triggerResearchCycle()" class="btn btn-primary" style="display: flex; align-items: center; gap: 8px; font-weight: 700; padding: 9px 18px; font-size: 13px; background: linear-gradient(135deg, #f43f5e, #e11d48); border: none;">
+                    <span id="btn-cycle-icon">⚡</span>
+                    <span id="btn-cycle-text">CHẠY CHU KỲ NGHIÊN CỨU</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Terminal Output -->
+        <div class="terminal-console" id="research-terminal">
+[System] Astra Digital Research Lab sẵn sàng. Chọn tài sản và bấm "Chạy Chu Kỳ Nghiên Cứu" để bắt đầu quy trình tranh luận giữa Grok 4.7 và GPT-6 Astra...
+        </div>
+    </div>
+
+    <!-- 4. NEGATIVE MEMORY TABLE (TIKTOK SCRIPT: "CHIẾN LƯỢC ĐÃ TEST NGU THÌ ĐỪNG ĐỐT TÀI NGUYÊN NGU LẠI Y HỆT") -->
+    <div class="control-panel-box" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+                <h3 style="font-size: 14px; font-weight: 700; color: #fb923c; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <span>🧠</span> BỘ NHỚ TIÊU CỰC & BÀI HỌC THẤT BẠI (NEGATIVE MEMORY)
+                </h3>
+                <span style="font-size: 11.5px; color: #94a3b8;">
+                    Ghi nhớ toàn bộ các giả thuyết bị đào thải hoặc cháy trong Stress Test để hệ thống vĩnh viễn không bao giờ lặp lại
+                </span>
+            </div>
+            <button onclick="loadNegativeMemory()" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;">Làm mới</button>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="custom-table" id="negative-memory-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Mã Ký Ức</th>
+                        <th style="width: 200px;">Chiến Lược / Giả Thuyết</th>
+                        <th>Lý Do Đào Thải & Khuyến Nghị Tránh</th>
+                        <th style="width: 140px;">Kịch Bản Thất Bại</th>
+                        <th style="width: 140px;">Thời Gian</th>
+                    </tr>
+                </thead>
+                <tbody id="negative-memory-tbody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #94a3b8; padding: 20px;">Đang tải danh sách ký ức tiêu cực...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 5. EXPERIMENTS LEDGER TABLE -->
+    <div class="control-panel-box" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+                <h3 style="font-size: 14px; font-weight: 700; color: #38bdf8; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <span>📊</span> SỔ NHẬT KÝ THÍ NGHIỆM ĐỊNH LƯỢNG (RESEARCH EXPERIMENTS LEDGER)
+                </h3>
+                <span style="font-size: 11.5px; color: #94a3b8;">
+                    Toàn bộ hồ sơ kiểm định kèm Win Rate, Drawdown và phán quyết cuối cùng của Hội đồng Trọng tài
+                </span>
+            </div>
+            <button onclick="loadExperimentsLedger()" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;">Làm mới</button>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="custom-table" id="experiments-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">ID Thí Nghiệm</th>
+                        <th style="width: 90px;">Cặp Coin</th>
+                        <th>Giả Thuyết Nghiên Cứu</th>
+                        <th style="width: 100px;">Win Rate</th>
+                        <th style="width: 100px;">Max DD</th>
+                        <th style="width: 110px;">Phán Quyết</th>
+                        <th style="width: 130px;">Hành Động Lưu Trữ</th>
+                        <th style="width: 140px;">Thời Gian</th>
+                    </tr>
+                </thead>
+                <tbody id="experiments-tbody">
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: #94a3b8; padding: 20px;">Đang tải nhật ký thí nghiệm...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 6. DUCKDB BIG DATA INTERACTIVE CONSOLE -->
+    <div class="control-panel-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+                <h3 style="font-size: 14px; font-weight: 700; color: #eab308; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <span>⚡</span> DUCKDB ANALYTICAL QUERY ENGINE (BIG DATA PARQUET)
+                </h3>
+                <span style="font-size: 11.5px; color: #94a3b8;">
+                    Truy vấn trực tiếp Parquet Data Lake hàng triệu dòng với cú pháp chuẩn SQL
+                </span>
+            </div>
+            <span class="badge badge-amber" style="font-size: 10px;">DUCKDB C++ IN-PROCESS</span>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+            <textarea id="duckdb-sql-input" style="width: 100%; height: 75px; background: #090d16; border: 1px solid #334155; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #facc15; resize: vertical;">SELECT experiment_id, symbol, status, win_rate, max_drawdown FROM research_experiments ORDER BY created_at DESC LIMIT 5;</textarea>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div style="display: flex; gap: 8px;">
+                <button onclick="setSampleSql(1)" class="btn btn-secondary" style="font-size: 11px; padding: 3px 8px;">Mẫu 1: Top Thí Nghiệm</button>
+                <button onclick="setSampleSql(2)" class="btn btn-secondary" style="font-size: 11px; padding: 3px 8px;">Mẫu 2: Phân Tích Thất Bại</button>
+                <button onclick="setSampleSql(3)" class="btn btn-secondary" style="font-size: 11px; padding: 3px 8px;">Mẫu 3: Đếm Phân Vùng Lake</button>
+            </div>
+            <button onclick="executeDuckDbQuery()" class="btn btn-primary" style="font-size: 12px; padding: 6px 14px; background: #eab308; color: #000; border: none; font-weight: 700;">
+                ▶ THỰC THI TRUY VẤN DUCKDB
+            </button>
+        </div>
+
+        <div style="overflow-x: auto; background: #090d16; border-radius: 6px; border: 1px solid #1e293b; max-height: 220px; overflow-y: auto;">
+            <div id="duckdb-result-box" style="padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #e2e8f0;">
+                Nhấn "Thực thi truy vấn DuckDB" để xem bảng dữ liệu phân tích...
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+async function loadExperimentsLedger() {
+    try {
+        const res = await fetch('/api/v1/research/experiments?limit=50');
+        const data = await res.json();
+        const tbody = document.getElementById('experiments-tbody');
+        if (data.status === 'success' && data.experiments && data.experiments.length > 0) {
+            document.getElementById('kpi-exp-count').textContent = data.count || data.experiments.length;
+            tbody.innerHTML = data.experiments.map(exp => {
+                const isPass = exp.status === 'APPROVED' || exp.status === 'PASSED';
+                const badgeClass = isPass ? 'badge-approved' : 'badge-veto';
+                const winRate = exp.win_rate ? (exp.win_rate * 100).toFixed(1) + '%' : 'N/A';
+                const maxDd = exp.max_drawdown ? (exp.max_drawdown * 100).toFixed(1) + '%' : 'N/A';
+                const memBadge = exp.status === 'APPROVED' ? '<span class="badge-approved">Gold Standard</span>' : '<span class="badge-negative-mem">Negative Memory</span>';
+                const createdTime = exp.created_at ? exp.created_at.replace('T', ' ').substring(0, 19) : '--';
+                return `
+                    <tr>
+                        <td style="font-family: monospace; font-size: 11px; color: #38bdf8;">${exp.experiment_id || '--'}</td>
+                        <td><strong>${exp.symbol || 'ALL'}</strong></td>
+                        <td style="color: #cbd5e1; max-width: 300px; font-size: 12px;">${exp.hypothesis || '--'}</td>
+                        <td style="font-family: monospace;">${winRate}</td>
+                        <td style="font-family: monospace; color: #fb7185;">${maxDd}</td>
+                        <td><span class="${badgeClass}">${exp.status}</span></td>
+                        <td>${memBadge}</td>
+                        <td style="font-size: 11px; color: #94a3b8;">${createdTime}</td>
+                    </tr>
+                `;
+            }).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #94a3b8; padding: 20px;">Chưa có bản ghi thí nghiệm nào. Hãy bấm "Chạy Chu Kỳ Nghiên Cứu"!</td></tr>';
+            document.getElementById('kpi-exp-count').textContent = '0';
+        }
+    } catch (e) {
+        console.error('Error loading experiments:', e);
+    }
+}
+
+async function loadNegativeMemory() {
+    try {
+        const res = await fetch('/api/v1/research/memory?category=negative_memory&limit=30');
+        const data = await res.json();
+        const tbody = document.getElementById('negative-memory-tbody');
+        if (data.status === 'success' && data.memories && data.memories.length > 0) {
+            document.getElementById('kpi-negative-count').textContent = data.count || data.memories.length;
+            tbody.innerHTML = data.memories.map(mem => {
+                const item = mem.data || {};
+                const createdTime = mem.created_at ? mem.created_at.replace('T', ' ').substring(0, 19) : '--';
+                return `
+                    <tr>
+                        <td style="font-family: monospace; font-size: 11px; color: #fb923c;">${mem.key || '--'}</td>
+                        <td style="font-weight: 600; color: #f1f5f9;">${item.hypothesis || item.pattern || '--'}</td>
+                        <td style="color: #cbd5e1; font-size: 12px;">${item.reason || item.lesson || '--'}</td>
+                        <td><span class="badge-veto">${item.scenario_failed || 'Stress Test'}</span></td>
+                        <td style="font-size: 11px; color: #94a3b8;">${createdTime}</td>
+                    </tr>
+                `;
+            }).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 20px;">Chưa có ký ức tiêu cực nào được ghi lại.</td></tr>';
+            document.getElementById('kpi-negative-count').textContent = '0';
+        }
+
+        // Also fetch gold standard count
+        const goldRes = await fetch('/api/v1/research/memory?category=gold_standard&limit=30');
+        const goldData = await goldRes.json();
+        if (goldData.status === 'success') {
+            document.getElementById('kpi-gold-count').textContent = goldData.count || (goldData.memories ? goldData.memories.length : 0);
+        }
+    } catch (e) {
+        console.error('Error loading negative memory:', e);
+    }
+}
+
+async function triggerResearchCycle() {
+    const symbol = document.getElementById('research-symbol-select').value;
+    const btn = document.getElementById('btn-run-cycle');
+    const term = document.getElementById('research-terminal');
+
+    btn.disabled = true;
+    document.getElementById('btn-cycle-icon').textContent = '⏳';
+    document.getElementById('btn-cycle-text').textContent = 'ĐANG TRANH BIỆN & CHẠY TEST...';
+
+    term.textContent = `[${new Date().toLocaleTimeString()}] 🚀 KÍCH HOẠT CHU KỲ NGHIÊN CỨU CHO ${symbol}...\n` +
+        `[Agent: MarketResearch (gpt-oss-120b)] Đang quét dữ liệu vĩ mô, Funding Rate & Orderbook Imbalance...\n` +
+        `[Agent: QuantStrategist] Đang sinh không gian giả thuyết tham số & tính toán ATR động...\n` +
+        `[Engine: HyperSimulation] Khởi tạo 10.000 nhánh Monte Carlo gia tốc x5.000...\n` +
+        `[Agent: RiskSkeptic (Grok 4.7)] Kích hoạt 4 kịch bản Stress-test: Flash Crash -30%, Volume Shock +500%...\n`;
+
+    try {
+        const res = await fetch('/api/v1/research/run-cycle', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ symbol: symbol })
+        });
+        const result = await res.json();
+        if (result.status === 'success') {
+            const exp = result.experiment;
+            term.textContent += `\n[Agent: LeadReviewer (GPT-6 Astra & Grok 4.7)]\n` +
+                `═══════════════════════════════════════════════════════════\n` +
+                `📊 Kết quả Thí nghiệm: ${exp.experiment_id}\n` +
+                `🎯 Phán quyết Hội đồng: ${exp.status}\n` +
+                `📈 Tỷ lệ Thắng (Win Rate): ${(exp.win_rate * 100).toFixed(1)}% | Tỷ lệ Veto: ${(exp.veto_rate * 100).toFixed(1)}%\n` +
+                `📉 Sụt giảm tối đa (Max Drawdown): ${(exp.max_drawdown * 100).toFixed(1)}%\n` +
+                `📝 Kết luận Trọng tài: ${exp.verdict_summary}\n` +
+                `💾 Ghi nhận lưu trữ: Đã nạp vào Ký ức ${exp.status === 'APPROVED' ? 'Tiêu chuẩn Vàng' : 'Tiêu Cực (Negative Memory)'}\n` +
+                `═══════════════════════════════════════════════════════════\n` +
+                `✅ Chu kỳ hoàn tất trong ${(result.duration_seconds || 1.2).toFixed(2)}s! Đã tự động bắn tin báo về Telegram.`;
+            
+            // Reload tables
+            await loadExperimentsLedger();
+            await loadNegativeMemory();
+        } else {
+            term.textContent += `\n❌ Lỗi thực thi chu kỳ: ${result.error || result.message}`;
+        }
+    } catch (err) {
+        term.textContent += `\n❌ Ngoại lệ mạng: ${err.message}`;
+    } finally {
+        btn.disabled = false;
+        document.getElementById('btn-cycle-icon').textContent = '⚡';
+        document.getElementById('btn-cycle-text').textContent = 'CHẠY CHU KỲ NGHIÊN CỨU';
+    }
+}
+
+function setSampleSql(type) {
+    const area = document.getElementById('duckdb-sql-input');
+    if (type === 1) {
+        area.value = 'SELECT experiment_id, symbol, status, win_rate, max_drawdown FROM research_experiments ORDER BY created_at DESC LIMIT 5;';
+    } else if (type === 2) {
+        area.value = "SELECT key, json_extract_string(data, '$.reason') as reason, json_extract_string(data, '$.scenario_failed') as failed_in FROM research_memory WHERE category = 'negative_memory' LIMIT 5;";
+    } else if (type === 3) {
+        area.value = "SELECT count(*) as total_negative_memories FROM research_memory WHERE category = 'negative_memory';";
+    }
+}
+
+async function executeDuckDbQuery() {
+    const sql = document.getElementById('duckdb-sql-input').value.trim();
+    const box = document.getElementById('duckdb-result-box');
+    box.innerHTML = 'Đang thực thi trên động cơ DuckDB C++...';
+
+    try {
+        const res = await fetch('/api/v1/research/query-duckdb', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ query: sql })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            if (!data.data || data.data.length === 0) {
+                box.innerHTML = '<span style="color: #94a3b8;">Truy vấn thành công nhưng không có bản ghi trả về (0 rows).</span>';
+                return;
+            }
+            const keys = Object.keys(data.data[0]);
+            let tableHtml = '<table style="width: 100%; border-collapse: collapse; font-size: 11px;"><thead><tr style="border-bottom: 1px solid #334155;">';
+            keys.forEach(k => tableHtml += `<th style="padding: 6px 10px; color: #facc15; text-align: left;">${k}</th>`);
+            tableHtml += '</tr></thead><tbody>';
+            data.data.forEach(row => {
+                tableHtml += '<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">';
+                keys.forEach(k => tableHtml += `<td style="padding: 6px 10px; color: #cbd5e1;">${row[k] !== null ? row[k] : 'null'}</td>`);
+                tableHtml += '</tr>';
+            });
+            tableHtml += '</tbody></table>';
+            box.innerHTML = `<div style="margin-bottom: 8px; color: #4ade80;">✅ Hoàn tất (${data.row_count} hàng trả về):</div>` + tableHtml;
+        } else {
+            box.innerHTML = `<span style="color: #fb7185;">❌ Lỗi DuckDB: ${data.error}</span>`;
+        }
+    } catch (e) {
+        box.innerHTML = `<span style="color: #fb7185;">❌ Ngoại lệ: ${e.message}</span>`;
+    }
+}
+
+async function syncDataLakeToDrive() {
+    if (!confirm('Khởi tạo gói nén Apache Arrow Parquet và đồng bộ trực tiếp vào G:\\My Drive\\Astra_Data_Lake?')) return;
+    try {
+        const res = await fetch('/api/v1/data-lake/export', { method: 'POST' });
+        const data = await res.json();
+        if (data.status === 'success') {
+            alert(`✅ Đã xuất ${data.exported_records} bản ghi vào Parquet và đồng bộ thành công sang Google Drive 5TB!`);
+        } else {
+            alert(`⚠️ Thông báo: ${data.message || 'Lỗi đồng bộ'}`);
+        }
+    } catch (e) {
+        alert('Lỗi gọi API: ' + e.message);
+    }
+}
+
+async function backupDbToTelegram() {
+    if (!confirm('Tạo bản snapshot online SQLite và gửi file .db.gz qua Telegram + Google Drive?')) return;
+    try {
+        const res = await fetch('/api/v1/backup/telegram', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ note: 'Sao lưu thủ công từ giao diện Research Lab' })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            alert(`✅ Bản sao lưu đã được đẩy đồng thời lên Google Drive G:\\My Drive\\Astra_Backups và kênh Telegram Admin!`);
+        } else {
+            alert(`⚠️ Thông báo: ${data.message || 'Lỗi sao lưu'}`);
+        }
+    } catch (e) {
+        alert('Lỗi gọi API: ' + e.message);
+    }
+}
+
+async function loadCohortBenchmarks() {
+    try {
+        const res = await fetch('/api/v1/benchmarks/cohorts');
+        const data = await res.json();
+        if (data.status === 'SUCCESS' && data.cohorts) {
+            const c2 = data.cohorts.find(c => c.cohort_id === 'BATCH_2_GROK_GPT6');
+            if (c2) {
+                document.getElementById('cohort2-winrate').innerHTML = `${(c2.win_rate * 100).toFixed(1)}% <span style="font-size: 12px; color: #94a3b8; font-weight: 500;" id="cohort2-trades">(${c2.total_trades}/10 Lệnh: ${c2.win_trades}W - ${c2.loss_trades}L)</span>`;
+                const sign = c2.realized_pnl_usdt >= 0 ? '+' : '';
+                document.getElementById('cohort2-pnl').textContent = `${sign}$${c2.realized_pnl_usdt.toFixed(2)} USDT`;
+                document.getElementById('cohort2-pnl').style.color = c2.realized_pnl_usdt >= 0 ? '#22c55e' : '#fb7185';
+            }
+        }
+    } catch (e) {
+        console.error('Error loading cohort benchmarks:', e);
+    }
+}
+
+// Auto init
+document.addEventListener('DOMContentLoaded', () => {
+    loadExperimentsLedger();
+    loadNegativeMemory();
+    loadCohortBenchmarks();
+});
+</script>
+{% endblock %}

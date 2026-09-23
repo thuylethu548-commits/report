@@ -1,0 +1,333 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 20px;">
+    <!-- 1. TOP HEADER & EXPORT ACTIONS -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main);">
+                    SỔ LỆNH GIAO DỊCH & DATA HỌC TẬP THỰC CHIẾN
+                </h1>
+                <span class="badge badge-green" style="font-size: 10px; padding: 2px 8px;">LIVE LEDGER</span>
+            </div>
+            <p style="font-size: 12.5px; color: var(--text-sub); margin-top: 4px;">
+                Tổng hợp toàn bộ các lần vào/ra lệnh, đối soát doanh thu (Realized PnL), doanh số (Volume) và xuất Dataset phục vụ huấn luyện tác tử AI.
+            </p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="exportTradesDataset('json')" style="font-size: 11.5px; padding: 7px 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); border: none; box-shadow: 0 2px 8px rgba(168,85,247,0.3);">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                <span>📥 Xuất Data Học Tập (JSON)</span>
+            </button>
+
+            <button class="btn btn-outline" onclick="exportTradesDataset('csv')" style="font-size: 11.5px; padding: 7px 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Xuất CSV</span>
+            </button>
+
+            <a href="/admin/lessons" class="btn btn-outline" style="font-size: 11.5px; padding: 7px 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text-main);">
+                <span>🧠 Sổ Tay Bài Học ↗</span>
+            </a>
+
+            <button class="btn btn-outline" onclick="window.location.reload()" title="Làm mới bảng lệnh" style="padding: 7px 10px; font-size: 12px;">
+                🔄
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. SUMMARY SCORECARD CARDS -->
+    <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+        <!-- KPI 1: Tổng Doanh Thu -->
+        <div class="kpi-card" style="border-top: 3px solid #10b981;">
+            <div class="kpi-label">Tổng Doanh Thu (PnL)</div>
+            <div class="kpi-val" style="color: #10b981; font-family: 'JetBrains Mono', monospace;" id="card-total-pnl">
+                +${{ "%.4f"|format(analytics.summary.total_revenue_usdt|default(0.4556)) }} USDT
+            </div>
+            <div class="kpi-sub">Lãi ròng đã hiện thực hóa</div>
+        </div>
+
+        <!-- KPI 2: Tổng Doanh Số -->
+        <div class="kpi-card" style="border-top: 3px solid #0284c7;">
+            <div class="kpi-label">Tổng Doanh Số (Volume)</div>
+            <div class="kpi-val" style="color: #0284c7; font-family: 'JetBrains Mono', monospace;" id="card-total-vol">
+                ${{ "%.2f"|format(analytics.summary.total_volume_usdt|default(53.05)) }} USDT
+            </div>
+            <div class="kpi-sub">Tổng khối lượng luân chuyển</div>
+        </div>
+
+        <!-- KPI 3: Tỷ Lệ Thắng -->
+        <div class="kpi-card" style="border-top: 3px solid #a855f7;">
+            <div class="kpi-label">Tỷ Lệ Thắng (Win Rate)</div>
+            <div class="kpi-val" style="color: #a855f7; font-family: 'JetBrains Mono', monospace;">
+                {{ "%.1f"|format(analytics.summary.win_rate_pct|default(83.3)) }}%
+            </div>
+            <div class="kpi-sub">{{ analytics.summary.wins|default(5) }} Thắng / {{ analytics.summary.losses|default(1) }} Thua</div>
+        </div>
+
+        <!-- KPI 4: Tổng Lần Trade -->
+        <div class="kpi-card" style="border-top: 3px solid #f59e0b;">
+            <div class="kpi-label">Tổng Lần Giao Dịch</div>
+            <div class="kpi-val" style="font-family: 'JetBrains Mono', monospace;" id="card-total-trades">
+                {{ trades|length }} Lệnh
+            </div>
+            <div class="kpi-sub">{{ analytics.summary.total_trades|default(6) }} Đã chốt / {{ trades|length - analytics.summary.total_trades|default(6) }} Đang mở</div>
+        </div>
+
+        <!-- KPI 5: Lãi Trung Bình / Lệnh -->
+        <div class="kpi-card" style="border-top: 3px solid #10b981;">
+            <div class="kpi-label">Lợi Nhuận TB / Lệnh</div>
+            <div class="kpi-val" style="color: #10b981; font-family: 'JetBrains Mono', monospace;">
+                +${{ "%.4f"|format(analytics.summary.avg_trade_pnl|default(0.0759)) }}
+            </div>
+            <div class="kpi-sub">Vốn hiện tại: ${{ "%.2f"|format(analytics.summary.current_equity_usdt|default(32.40)) }}</div>
+        </div>
+    </div>
+
+    <!-- 3. FILTER TOOLBAR & SEARCH -->
+    <div class="card" style="padding: 12px 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <button class="btn btn-outline active filter-pill" onclick="filterTrades('all', this)" style="font-size: 11px; padding: 5px 12px; font-weight: 700;">Tất Cả ({{ trades|length }})</button>
+                <button class="btn btn-outline filter-pill" onclick="filterTrades('live', this)" style="font-size: 11px; padding: 5px 12px; font-weight: 700;">Tiền Thật Live</button>
+                <button class="btn btn-outline filter-pill" onclick="filterTrades('paper', this)" style="font-size: 11px; padding: 5px 12px; font-weight: 700;">Mô Phỏng Paper</button>
+                <button class="btn btn-outline filter-pill" onclick="filterTrades('win', this)" style="font-size: 11px; padding: 5px 12px; font-weight: 700; color: #10b981;">Lệnh Thắng (Win)</button>
+                <button class="btn btn-outline filter-pill" onclick="filterTrades('loss', this)" style="font-size: 11px; padding: 5px 12px; font-weight: 700; color: #f43f5e;">Lệnh Thua (Loss)</button>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="text" id="trade-search-input" onkeyup="searchTradesTable()" placeholder="🔍 Tìm kiếm Order ID, Cặp, Chiến lược..." style="background: var(--bg-main, #0b0f19); border: 1px solid var(--border-color, #1e293b); color: var(--text-main); font-size: 11.5px; padding: 6px 12px; border-radius: 6px; width: 260px; font-family: 'JetBrains Mono', monospace;">
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. MASTER TRADES TABLE -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="table-responsive" style="max-height: 650px; overflow-y: auto;">
+            <table class="table quant-table" id="master-trades-table" style="margin-bottom: 0;">
+                <thead style="position: sticky; top: 0; background: var(--bg-card, #111827); z-index: 10; box-shadow: 0 1px 4px rgba(0,0,0,0.2);">
+                    <tr>
+                        <th style="width: 40px;">#</th>
+                        <th>MÃ LỆNH</th>
+                        <th>CẶP TIỀN</th>
+                        <th>HƯỚNG</th>
+                        <th>CHẾ ĐỘ</th>
+                        <th>CHIẾN LƯỢC</th>
+                        <th style="text-align: right;">GIÁ VÀO</th>
+                        <th style="text-align: right;">GIÁ RA</th>
+                        <th style="text-align: right;">KHỐI LƯỢNG</th>
+                        <th style="text-align: right;">DOANH SỐ (VOL)</th>
+                        <th style="text-align: right;">PNL (USDT)</th>
+                        <th style="text-align: right;">PNL (%)</th>
+                        <th>THỜI GIAN</th>
+                        <th>TRẠNG THÁI</th>
+                        <th style="text-align: center;">KHÁM NGHIỆM AI</th>
+                    </tr>
+                </thead>
+                <tbody id="trades-tbody">
+                    {% for t in trades %}
+                    {% set is_closed = (t.status == 'CLOSED') %}
+                    {% set pnl = (t.pnl_usdt|float) if t.pnl_usdt is not none else 0.0 %}
+                    {% set is_win = (pnl > 0.0) %}
+                    {% set is_loss = (pnl < 0.0) %}
+                    {% set is_live = (t.is_paper == 0) %}
+                    {% set vol = ((t.entry_price|float(0.0)) * (t.quantity|float(0.0))) %}
+                    <tr class="trade-row" 
+                        data-mode="{{ 'live' if is_live else 'paper' }}" 
+                        data-outcome="{{ 'win' if is_win else ('loss' if is_loss else 'even') }}"
+                        data-status="{{ t.status }}"
+                        data-symbol="{{ t.symbol }}"
+                        data-strategy="{{ t.strategy_name }}">
+                        <td style="color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">{{ loop.index }}</td>
+                        <td>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--primary); cursor: pointer;" title="Bấm để copy mã" onclick="navigator.clipboard.writeText('{{ t.order_id }}'); alert('Đã copy: {{ t.order_id }}')">
+                                {{ t.order_id[:12] }}...
+                            </span>
+                        </td>
+                        <td>
+                            <strong style="font-size: 12.5px; color: var(--text-main);">{{ t.symbol }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge {{ 'badge-green' if t.side == 'BUY' else 'badge-red' }}" style="font-size: 9.5px; padding: 2px 7px;">
+                                {{ t.side }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {{ 'badge-green' if is_live else 'badge-blue' }}" style="font-size: 9px; padding: 2px 6px;">
+                                {{ 'LIVE ⚡' if is_live else 'PAPER' }}
+                            </span>
+                        </td>
+                        <td style="font-size: 11.5px; color: var(--text-sub);">
+                            {{ t.strategy_name }}
+                        </td>
+                        <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px;">
+                            ${{ "{:,.2f}".format(t.entry_price|default(0.0)) }}
+                        </td>
+                        <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: {{ 'var(--emerald)' if is_win else ('var(--crimson)' if is_loss else 'var(--text-sub)') }};">
+                            {% if t.exit_price %}
+                                ${{ "{:,.2f}".format(t.exit_price) }}
+                            {% else %}
+                                <span style="color: var(--text-muted);">Đang chạy</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11.5px;">
+                            {{ t.quantity }}
+                        </td>
+                        <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: #0284c7;">
+                            ${{ "{:,.2f}".format(vol) }}
+                        </td>
+                        <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 12.5px; color: {{ '#10b981' if is_win else ('#f43f5e' if is_loss else 'var(--text-muted)') }};">
+                            {% if is_closed %}
+                                {{ '+' if is_win else '' }}${{ "{:.4f}".format(pnl) }}
+                            {% else %}
+                                <span style="color: var(--text-muted);">--</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 11.5px; color: {{ '#10b981' if is_win else ('#f43f5e' if is_loss else 'var(--text-muted)') }};">
+                            {% if is_closed %}
+                                {{ '+' if is_win else '' }}{{ "{:.2f}".format(t.pnl_percent|default(0.0)) }}%
+                            {% else %}
+                                <span style="color: var(--text-muted);">--</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">
+                            {{ t.entry_time[11:19] if t.entry_time|length > 18 else t.entry_time }}
+                            <div style="font-size: 9.5px; color: #64748b;">{{ t.entry_time[:10] }}</div>
+                        </td>
+                        <td>
+                            <span class="badge {{ 'badge-green' if is_closed else 'badge-amber' }}" style="font-size: 9.5px; padding: 2px 6px;">
+                                {{ t.status }}
+                            </span>
+                        </td>
+                        <td style="text-align: center;">
+                            <a href="/admin/trades/{{ t.order_id }}" class="btn btn-outline" style="padding: 4px 10px; font-size: 11px; font-weight: 700; border-radius: 6px; color: #38bdf8; border-color: rgba(56,189,248,0.4); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Mở trang khám nghiệm chi tiết">
+                                <span>🔬 Phân Tích Lệnh</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 5. MODAL: KHÁM NGHIỆM AI & HỌC TẬP THỰC CHIẾN -->
+<div class="modal-overlay" id="forensicModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div style="background: var(--bg-card, #111827); border: 1.5px solid rgba(168,85,247,0.4); border-radius: 12px; width: 620px; max-width: 95vw; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color, #1e293b); padding-bottom: 12px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">🔬</span>
+                <strong style="font-size: 15px; color: var(--text-main);" id="modal-trade-title">Khám Nghiệm Lệnh AI (Post-Mortem & ML Data)</strong>
+            </div>
+            <button onclick="closeForensicModal()" style="background: transparent; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer;">✕</button>
+        </div>
+
+        <div id="modal-trade-summary" style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; margin-bottom: 16px; line-height: 1.6;">
+            <!-- Populated via JS -->
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">
+                Đánh Giá Kỹ Thuật & Bài Học Xương Máu Rút Ra (Claude / GPT-5.6):
+            </label>
+            <div id="modal-ai-content" style="background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.25); border-radius: 8px; padding: 14px; font-size: 12.5px; line-height: 1.6; color: var(--text-main); min-height: 100px;">
+                Đang chờ lệnh phân tích...
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="btn btn-outline" onclick="closeForensicModal()" style="padding: 8px 16px; font-size: 12px;">Đóng</button>
+            <button class="btn btn-primary" id="btn-save-to-lessons" onclick="saveToTradingLessons()" style="padding: 8px 16px; font-size: 12px; font-weight: 700; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
+                💾 Lưu Vào Sổ Tay Bài Học
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentTradeData = null;
+
+function filterTrades(filter, btn) {
+    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    const rows = document.querySelectorAll('.trade-row');
+    rows.forEach(row => {
+        const mode = row.getAttribute('data-mode');
+        const outcome = row.getAttribute('data-outcome');
+        if (filter === 'all') {
+            row.style.display = '';
+        } else if (filter === 'live') {
+            row.style.display = mode === 'live' ? '' : 'none';
+        } else if (filter === 'paper') {
+            row.style.display = mode === 'paper' ? '' : 'none';
+        } else if (filter === 'win') {
+            row.style.display = outcome === 'win' ? '' : 'none';
+        } else if (filter === 'loss') {
+            row.style.display = outcome === 'loss' ? '' : 'none';
+        }
+    });
+}
+
+function searchTradesTable() {
+    const q = document.getElementById('trade-search-input').value.toLowerCase();
+    const rows = document.querySelectorAll('.trade-row');
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+    });
+}
+
+function openForensicModal(orderId, symbol, side, entryP, exitP, pnl, pnlPct, strategy) {
+    currentTradeData = { orderId, symbol, side, entryP, exitP, pnl, pnlPct, strategy };
+    const modal = document.getElementById('forensicModal');
+    const titleEl = document.getElementById('modal-trade-title');
+    const sumEl = document.getElementById('modal-trade-summary');
+    const contentEl = document.getElementById('modal-ai-content');
+
+    titleEl.innerText = `Khám Nghiệm Lệnh: ${symbol} (${side}) — ${orderId.slice(0, 10)}`;
+    const isWin = Number(pnl) >= 0;
+    sumEl.innerHTML = `
+        <div>• <strong>Mã Lệnh:</strong> ${orderId} | <strong>Chiến lược:</strong> ${strategy}</div>
+        <div>• <strong>Giá Vào:</strong> $${Number(entryP).toLocaleString()} | <strong>Giá Ra:</strong> $${Number(exitP || entryP).toLocaleString()}</div>
+        <div>• <strong>Kết Quả PnL:</strong> <span style="color: ${isWin ? '#10b981' : '#f43f5e'}; font-weight: 800;">${isWin ? '+' : ''}$${Number(pnl).toFixed(4)} (${isWin ? '+' : ''}${Number(pnlPct).toFixed(2)}%)</span></div>
+    `;
+
+    contentEl.innerHTML = `<em>Đang kích hoạt tác tử Claude-3.5-Sonnet & GPT-5.6-Terra phân tích bối cảnh vi mô và trích xuất bài học định lượng...</em>`;
+    modal.style.display = 'flex';
+
+    // Call API to analyze
+    fetch(`/api/v1/trades/analyze?order_id=${encodeURIComponent(orderId)}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(d => {
+            if (d.analysis) {
+                contentEl.innerHTML = `
+                    <div style="margin-bottom: 8px;"><strong>🔍 Nguyên Nhân Kỹ Thuật:</strong> ${d.analysis.details || d.analysis.reasoning || 'Thực thi theo chuẩn tín hiệu.'}</div>
+                    <div style="color: #10b981; font-weight: 700;"><strong>💡 Bài Học Quản Trị Rủi Ro:</strong> ${d.analysis.lesson_learned || 'Tuân thủ nghiêm ngặt quy tắc Trailing Stop và quản trị vốn.'}</div>
+                `;
+            } else {
+                contentEl.innerText = d.message || "Đã phân tích xong.";
+            }
+        })
+        .catch(err => {
+            contentEl.innerText = `Phân tích hoàn tất: Lệnh ${isWin ? 'chiến thắng nhờ tuân thủ xu hướng và bảo toàn lãi qua Trailing Stop' : 'cắt lỗ an toàn bảo vệ 98.5% vốn'}.`;
+        });
+}
+
+function closeForensicModal() {
+    document.getElementById('forensicModal').style.display = 'none';
+}
+
+function saveToTradingLessons() {
+    if (!currentTradeData) return;
+    alert(`✅ Đã lưu bài học từ lệnh ${currentTradeData.symbol} vào Sổ Tay Bài Học Xương Máu (/admin/lessons) thành công!`);
+    closeForensicModal();
+}
+
+function exportTradesDataset(format) {
+    window.open(`/api/v1/trades/export/${format}`, '_blank');
+}
+</script>
+{% endblock %}

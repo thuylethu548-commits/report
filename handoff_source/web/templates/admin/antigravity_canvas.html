@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity 2.0 — Web Agentic Canvas | Astra Quant</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Antigravity Canvas CSS -->
+    <link rel="stylesheet" href="/static/css/antigravity_canvas.css?v=2026092201">
+</head>
+<body class="agy-body">
+
+    <!-- 1. TOP APP BAR (Antigravity Style) -->
+    <header class="agy-topbar">
+        <div class="agy-brand">
+            <div class="agy-logo-badge">A</div>
+            <div class="agy-brand-title">
+                <span>Antigravity</span>
+                <span class="agy-version-pill">v2.0 Web Canvas</span>
+            </div>
+        </div>
+
+        <div class="agy-topbar-tabs">
+            <div class="agy-top-tab active">
+                <span>💬</span>
+                <span>sunMy / _botTrade</span>
+            </div>
+            <div class="agy-top-tab" onclick="insertSlashCommand('/goal')">
+                <span>⚡</span>
+                <span>9router API Compatibility</span>
+            </div>
+        </div>
+
+        <div class="agy-topbar-actions">
+            <a href="/admin/cockpit" class="agy-btn-top" title="Mở Cockpit Quản Trị">
+                <span>📊</span> Cockpit
+            </a>
+            <a href="/admin/performance" class="agy-btn-top" title="Mở Telemetry Hiệu Suất">
+                <span>📈</span> Performance
+            </a>
+            <a href="/admin/pixel_floor" class="agy-btn-top" title="Mở Trụ Sở Pixel 3D">
+                <span>🏢</span> Pixel Floor
+            </a>
+            <a href="http://localhost:20128/dashboard" target="_blank" class="agy-btn-top btn-primary" title="Mở 9Router Proxy (:20128)">
+                <span>🌐</span> 9Router Proxy
+            </a>
+        </div>
+    </header>
+
+    <!-- 2. MAIN 3-PANEL WORKSPACE -->
+    <main class="agy-workspace-container">
+
+        <!-- ================================================================
+             PANEL 1: Workspace Tree & Quota Telemetry (Sidebar)
+             ================================================================ -->
+        <aside class="agy-panel-sidebar" id="panel-sidebar">
+            <div class="agy-sidebar-header">
+                <button class="agy-btn-new-chat" onclick="location.reload()">
+                    <span style="font-size: 14px;">+</span>
+                    <span>Hội Thoại Mới (New Chat)</span>
+                </button>
+            </div>
+
+            <div class="agy-sidebar-content">
+                <!-- Navigation History -->
+                <div>
+                    <div class="agy-section-title">
+                        <span>Lịch Sử & Tác Vụ</span>
+                    </div>
+                    <div class="agy-nav-list">
+                        <div class="agy-nav-item active">
+                            <span>💬</span>
+                            <span>Astra Quant Desk (Live)</span>
+                        </div>
+                        <div class="agy-nav-item" onclick="insertSlashCommand('/schedule')">
+                            <span>⏰</span>
+                            <span>Scheduled Tasks (Cron)</span>
+                        </div>
+                        <div class="agy-nav-item" onclick="insertSlashCommand('/goal')">
+                            <span>🎯</span>
+                            <span>Pinned Conversations</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Tree -->
+                <div>
+                    <div class="agy-section-title">
+                        <span>Workspace Files</span>
+                        <span style="font-size: 9px; cursor: pointer; color: var(--agy-accent-cyan);" onclick="loadWorkspaceTree()" title="Làm mới cây thư mục">↻</span>
+                    </div>
+                    <div id="tree-container" class="agy-nav-list" style="max-height: 280px; overflow-y: auto;">
+                        <div style="font-size: 11px; color: var(--agy-text-sub); padding: 6px;">Đang quét cây thư mục...</div>
+                    </div>
+                </div>
+
+                <!-- Models & Quota Usage (Matching media_1790015149964.png) -->
+                <div>
+                    <div class="agy-section-title">
+                        <span>Models & Quota Usage</span>
+                    </div>
+                    <div class="agy-quota-card" id="quota-container">
+                        <div style="font-size: 10.5px; color: var(--agy-text-sub);">Đang tải hạn ngạch...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="agy-sidebar-footer">
+                <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
+                    <span>Online :8386</span>
+                </span>
+                <a href="/admin/settings" style="color: var(--agy-text-sub); text-decoration: none;" title="Cài đặt hệ thống">⚙️ Cài đặt</a>
+            </div>
+        </aside>
+
+        <!-- SPLITTER 1 -->
+        <div class="agy-splitter" id="splitter-1" title="Kéo để chỉnh kích thước Sidebar"></div>
+
+        <!-- ================================================================
+             PANEL 2: Agent Chat & Thought Canvas (Center)
+             ================================================================ -->
+        <section class="agy-panel-chat" id="panel-chat">
+            <div class="agy-chat-header">
+                <div class="agy-chat-title">
+                    <span>⚡ Astra Quant & Agent Nexus</span>
+                    <span class="agy-chat-meta-pill" id="current-model-badge">DeepSeek-V4-Flash</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 10.5px; color: var(--agy-text-sub); font-family: var(--agy-font-mono);">Active Position: 1 BTC LONG</span>
+                </div>
+            </div>
+
+            <!-- Messages Stream Area -->
+            <div class="agy-chat-messages-wrap" id="chat-messages">
+                
+                <!-- Initial Welcome Message from Agent -->
+                <div class="agy-msg-agent">
+                    <!-- Action Summary Card (Antigravity Style) -->
+                    <div class="agy-action-summary-card">
+                        <div class="agy-action-chips">
+                            <span class="agy-chip-stat">⚡ Explored 12 files, 6 tasks, ran 7 commands</span>
+                            <span class="agy-chip-diff" onclick="openFileInEditor('data/storage.py')">📝 data/storage.py <strong>+53 -0</strong></span>
+                            <span class="agy-chip-diff" onclick="openFileInEditor('web/templates/admin/performance.html')">📝 performance.html <strong>+310 -5</strong></span>
+                        </div>
+                        <button class="agy-btn-top" onclick="switchAuxTab('editor')" style="font-size: 10px; padding: 2px 7px;">Review Code</button>
+                    </div>
+
+                    <!-- Agent Thoughts -->
+                    <div class="agy-thought-box">
+                        <div class="agy-thought-header">
+                            <span>🧠</span>
+                            <span>Dòng suy nghĩ tác tử (DeepSeek-V4-Flash)</span>
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.85;">• Đã kết nối thành công hệ thống Antigravity 2.0 Web Canvas với backend FastAPI.</div>
+                        <div style="font-size: 11px; opacity: 0.85;">• Đã tích hợp Grok Build CLI (v1.0.40) và khớp nối session token từ tài liệu VPS.</div>
+                        <div style="font-size: 11px; opacity: 0.85;">• Panel 3 bên phải đã sẵn sàng cho bạn duyệt code và xem trước kế hoạch song song.</div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="agy-agent-body">
+                        <p>Chào bạn! Tôi là <strong>Antigravity 2.0 Web Agent</strong>. Bạn không cần phải mở dòng lệnh CLI nữa:</p>
+                        <ul>
+                            <li>Gõ lệnh hoặc yêu cầu ở thanh chat bên dưới.</li>
+                            <li>Xem các bước AI phân tích, dòng suy nghĩ và tệp đã sửa ngay giữa màn hình.</li>
+                            <li>Kiểm tra code, sửa file và xem sơ đồ Mermaid trực quan trên <strong>Panel 3 (Editor Check)</strong> bên phải!</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Input Dock -->
+            <div class="agy-chat-dock">
+                <!-- Slash Command Pills -->
+                <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;">
+                    <button class="agy-btn-top" style="font-size: 10.5px; padding: 2px 7px;" onclick="insertSlashCommand('/goal')">🎯 /goal</button>
+                    <button class="agy-btn-top" style="font-size: 10.5px; padding: 2px 7px;" onclick="insertSlashCommand('/schedule')">⏰ /schedule</button>
+                    <button class="agy-btn-top" style="font-size: 10.5px; padding: 2px 7px;" onclick="insertSlashCommand('/boost')">🚀 /boost</button>
+                    <button class="agy-btn-top" style="font-size: 10.5px; padding: 2px 7px;" onclick="insertSlashCommand('/browser')">🌐 /browser</button>
+                    <button class="agy-btn-top" style="font-size: 10.5px; padding: 2px 7px;" onclick="insertSlashCommand('Grok ơi phân tích thị trường')">🤖 Grok AI</button>
+                </div>
+
+                <!-- Input Container -->
+                <div class="agy-input-container">
+                    <textarea class="agy-textarea" id="chat-input" placeholder="Hỏi bất kỳ điều gì, gõ / để chọn lệnh, @ để gắn file context..."></textarea>
+                    
+                    <div class="agy-input-footer">
+                        <div class="agy-input-tools">
+                            <span style="font-size: 12px; color: var(--agy-text-sub); cursor: pointer;" title="Đính kèm file" onclick="document.getElementById('file-upload-input').click()">📎</span>
+                            <input type="file" id="file-upload-input" style="display: none;" onchange="alert('Đã đính kèm: ' + this.files[0].name)">
+                            
+                            <select class="agy-model-selector" id="model-selector" onchange="document.getElementById('current-model-badge').textContent = this.options[this.selectedIndex].text">
+                                <option value="deepseek-v4-flash" selected>DeepSeek-V4-Flash (Vyce AI)</option>
+                                <option value="claude-sonnet-4-6">Claude-Sonnet-4-6 (Cố Vấn Tối Cao)</option>
+                                <option value="gemini-3.8-flash">Gemini-3.8-Flash (Google Pro)</option>
+                                <option value="gw/grok-4.1-thinking">Grok-4.1-Thinking (xAI Gateway)</option>
+                                <option value="gw/grok-4">Grok-4 (xAI Gateway)</option>
+                                <option value="cx/gpt-5.6-terra">GPT-5.6-Terra (9Router Codex)</option>
+                            </select>
+                        </div>
+
+                        <button class="agy-btn-send" id="btn-send-chat" title="Gửi chỉ thị">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SPLITTER 2 -->
+        <div class="agy-splitter" id="splitter-2" title="Kéo để chỉnh kích thước Editor Check"></div>
+
+        <!-- ================================================================
+             PANEL 3: Auxiliary Inspector / Editor Check & Artifacts (Right)
+             ================================================================ -->
+        <aside class="agy-panel-auxiliary" id="panel-auxiliary">
+            
+            <!-- Auxiliary Tabs Header -->
+            <div class="agy-aux-tabs-bar">
+                <div class="agy-aux-tabs-list">
+                    <div class="agy-aux-tab active" data-tab="editor" onclick="switchAuxTab('editor')">
+                        <span>📝</span>
+                        <span>Editor Check</span>
+                    </div>
+                    <div class="agy-aux-tab" data-tab="artifact" onclick="switchAuxTab('artifact')">
+                        <span>📑</span>
+                        <span>Implementation Plan</span>
+                    </div>
+                    <div class="agy-aux-tab" data-tab="preview" onclick="switchAuxTab('preview')">
+                        <span>🌐</span>
+                        <span>Live Preview</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <button class="agy-btn-top" onclick="alert('Đã đồng bộ git status với đĩa cứng!')" style="font-size: 10px; padding: 2px 6px;" title="Kiểm tra Git Status">Git Status</button>
+                </div>
+            </div>
+
+            <!-- Auxiliary Content Panes -->
+            <div class="agy-aux-content-wrap">
+                
+                <!-- PANE 1: Code Editor Check -->
+                <div class="agy-editor-pane" id="pane-editor">
+                    <div class="agy-editor-toolbar">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="editor-filepath-label">data/storage.py</span>
+                            <span class="agy-version-pill" id="editor-lang-label" style="font-size: 8.5px; padding: 1px 4px;">PYTHON</span>
+                        </div>
+                        <button class="agy-btn-save" id="btn-save-file" onclick="saveCurrentFile()">💾 Lưu File</button>
+                    </div>
+                    <textarea class="agy-editor-textarea" id="editor-textarea" spellcheck="false" placeholder="Nội dung file sẽ hiển thị tại đây..."></textarea>
+                </div>
+
+                <!-- PANE 2: Live Artifact & Plan Viewer -->
+                <div class="agy-artifact-pane" id="pane-artifact" style="display: none;">
+                    <div class="agy-artifact-card">
+                        <div class="agy-artifact-header">
+                            <span style="font-weight: 800; color: #f8fafc; font-size: 13px;">Kế Hoạch Kiến Trúc Antigravity 2.0</span>
+                            <span class="agy-chip-diff" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">ACTIVE PLAN</span>
+                        </div>
+                        <div style="font-size: 11.5px; line-height: 1.6; color: #cbd5e1;">
+                            <p><strong>Kiến trúc Canvas Hợp Nhất 3 Cột:</strong></p>
+                            <p>• <strong>Panel 1 (Trái)</strong>: Cây thư mục dự án, danh sách phiên hội thoại, đồng hồ Quota % các mô hình Gemini, Claude, Grok, DeepSeek.</p>
+                            <p>• <strong>Panel 2 (Giữa)</strong>: Khung chat trực tuyến streaming, thẻ tóm tắt bước chạy và chip diff file màu xanh/đỏ.</p>
+                            <p>• <strong>Panel 3 (Phải)</strong>: Trình duyệt & chỉnh sửa file (Editor Check), sơ đồ quy trình và trình xem trước trang web live.</p>
+                        </div>
+                        <div style="margin-top: 14px; display: flex; gap: 8px;">
+                            <button class="agy-btn-top btn-primary" onclick="alert('✅ Đã phê duyệt kế hoạch (Approved)!')">Approve Plan</button>
+                            <button class="agy-btn-top" onclick="switchAuxTab('editor')">Xem Code Liên Quan</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANE 3: Live Preview Webview -->
+                <div class="agy-preview-pane" id="pane-preview" style="display: none;">
+                    <div class="agy-preview-bar">
+                        <span style="font-size: 11px;">🔗</span>
+                        <input type="text" class="agy-preview-url" id="preview-url-input" value="/admin/performance">
+                        <button class="agy-btn-top" onclick="refreshPreview()" style="font-size: 10px; padding: 2px 7px;">F5 Tải lại</button>
+                    </div>
+                    <iframe class="agy-iframe-preview" id="preview-iframe" src="/admin/performance"></iframe>
+                </div>
+
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="/static/js/antigravity_canvas.js?v=2026092201"></script>
+</body>
+</html>

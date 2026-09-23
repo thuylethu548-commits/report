@@ -1,0 +1,440 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block extra_css %}
+<style>
+.demo-grid-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 20px;
+}
+@media (max-width: 991px) {
+    .demo-grid-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+}
+.demo-chips-wrap {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+.demo-chips-wrap .btn {
+    flex: 1 1 auto;
+    min-width: 50px;
+    text-align: center;
+}
+.demo-header-badges {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+@media (max-width: 520px) {
+    .demo-sl-tp-row {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 20px;">
+    <!-- HEADER BAR -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                <span>SÀN GIAO DỊCH DEMO THỰC CHIẾN (TRADER DESK)</span>
+            </h1>
+            <p style="font-size: 13px; color: var(--text-sub);">
+                Trải nghiệm trực quan quy trình đặt lệnh, khóa hòa vốn <strong>Break-Even (+1.2%)</strong>, <strong>Dynamic Trailing Stop (+2.0%)</strong> và nhận thông báo tức thì về Telegram!
+            </p>
+        </div>
+
+        <div class="demo-header-badges">
+            <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">GIÁ THỊ TRƯỜNG:</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; color: var(--emerald);" id="demo-live-price">$--.--</span>
+            </div>
+            <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">TELEGRAM:</span>
+                <span class="badge badge-green" id="demo-tg-badge">CONNECTED</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="demo-grid-layout grid-2-1">
+        
+        <!-- LEFT: ORDER ENTRY DESK -->
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="card-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <span>Bảng Đặt Lệnh Giao Dịch Demo</span>
+                </div>
+                <span class="badge badge-blue">SPOT PAPER EXECUTION</span>
+            </div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 16px;">
+                
+                <!-- Symbol Selector -->
+                <div>
+                    <label class="form-label" style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">CẶP TIỀN THỰC CHIẾN (SYMBOL)</label>
+                    <select id="demo-symbol-select" class="form-control" style="font-weight: 700; font-size: 13px;">
+                        <option value="BTC/USDT" selected>BTC/USDT (Bitcoin)</option>
+                        <option value="ETH/USDT">ETH/USDT (Ethereum)</option>
+                        <option value="SOL/USDT">SOL/USDT (Solana)</option>
+                        <option value="BNB/USDT">BNB/USDT (Binance Coin)</option>
+                    </select>
+                </div>
+
+                <!-- Side Toggle -->
+                <div>
+                    <label class="form-label" style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">HƯỚNG LỆNH (ORDER SIDE)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button type="button" id="btn-side-buy" class="btn" onclick="selectDemoSide('BUY')" style="background: rgba(16, 185, 129, 0.15); color: var(--emerald); border-color: var(--emerald); font-weight: 800; padding: 10px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span>MUA (BUY / LONG)</span>
+                        </button>
+                        <button type="button" id="btn-side-sell" class="btn" onclick="selectDemoSide('SELL')" style="background: var(--panel-header-bg); color: var(--text-sub); border-color: var(--border); font-weight: 800; padding: 10px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            <span>BÁN (SELL / SHORT)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Amount in USDT -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label class="form-label" style="font-size: 12px; font-weight: 700; margin: 0;">KHỐI LƯỢNG VỐN (USDT)</label>
+                        <span style="font-size: 11px; color: var(--text-sub);">Số dư khả dụng: <strong id="demo-balance-label">$100.00</strong></span>
+                    </div>
+                    <input type="number" id="demo-amount-input" value="50.0" min="10" max="500" step="5" class="form-control" style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700;">
+                    
+                    <!-- Quick Amount Chips -->
+                    <div class="demo-chips-wrap">
+                        <button type="button" class="btn" onclick="setDemoAmount(10)" style="padding: 4px 10px; font-size: 11px;">$10</button>
+                        <button type="button" class="btn" onclick="setDemoAmount(25)" style="padding: 4px 10px; font-size: 11px;">$25</button>
+                        <button type="button" class="btn" onclick="setDemoAmount(50)" style="padding: 4px 10px; font-size: 11px; border-color: var(--primary);">⭐ $50</button>
+                        <button type="button" class="btn" onclick="setDemoAmount(100)" style="padding: 4px 10px; font-size: 11px;">$100</button>
+                        <button type="button" class="btn" onclick="setDemoAmount(200)" style="padding: 4px 10px; font-size: 11px;">$200</button>
+                    </div>
+                </div>
+
+                <!-- SL & TP Grid -->
+                <div class="demo-sl-tp-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label class="form-label" style="font-size: 11.5px; font-weight: 700; margin-bottom: 4px; display: block;">🛑 CẮT LỖ (STOP-LOSS)</label>
+                        <select id="demo-sl-select" class="form-control" style="font-size: 12px;">
+                            <option value="0.010">1.0% (Chặt chẽ)</option>
+                            <option value="0.015" selected>1.5% ATR (Chuẩn Astra)</option>
+                            <option value="0.020">2.0% (Rộng rãi)</option>
+                            <option value="0.030">3.0% (An toàn cao)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size: 11.5px; font-weight: 700; margin-bottom: 4px; display: block;">🎯 CHỐT LỜI (TAKE-PROFIT)</label>
+                        <select id="demo-tp-select" class="form-control" style="font-size: 12px;">
+                            <option value="0.020">2.0% (Scalping)</option>
+                            <option value="0.030" selected>3.0% ATR (Chuẩn Astra)</option>
+                            <option value="0.050">5.0% (Trend Ride)</option>
+                            <option value="0.080">8.0% (Sóng lớn)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Safeguards Feature Callout -->
+                <div style="background: var(--panel-header-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 11.5px; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="display: flex; align-items: center; gap: 6px; color: var(--emerald); font-weight: 700;">
+                        <span>🔒</span> Khóa Hòa Vốn Tự Động (Break-Even): Khi lãi đạt ≥ +1.2%
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; color: var(--primary); font-weight: 700;">
+                        <span>🚀</span> Dynamic Trailing Stop: Khi lãi ≥ +2.0%, bám đuổi đỉnh theo 1.0x ATR
+                    </div>
+                </div>
+
+                <!-- Execution Mode Checkbox -->
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+                    <input type="checkbox" id="demo-force-exec" checked style="width: 16px; height: 16px; cursor: pointer;">
+                    <label for="demo-force-exec" style="cursor: pointer; color: var(--text-main); font-weight: 600;">
+                        Khớp lệnh ngay lập tức (Bypass MTF Veto để test tính năng Trailing Stop)
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="button" id="btn-submit-demo-order" class="btn btn-primary" onclick="submitDemoOrder()" style="padding: 12px; font-size: 14px; font-weight: 800; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    <span>BẮN LỆNH MUA DEMO NGAY</span>
+                </button>
+
+            </div>
+        </div>
+
+        <!-- RIGHT: SCENARIO SANDBOX (MÔ PHỎNG BIẾN ĐỘNG THỊ TRƯỜNG) -->
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="card-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--purple);"><path d="M10 2v7.31L4.69 18a2 2 0 0 0 1.71 3h15.2a2 2 0 0 0 1.71-3L18 9.31V2"/></svg>
+                    <span>Hộp Thử Nghiệm Kịch Bản Thị Trường (Sandbox)</span>
+                </div>
+                <span class="badge badge-purple">INSTANT FEEDBACK</span>
+            </div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 14px;">
+                <p style="font-size: 12px; color: var(--text-sub); margin: 0;">
+                    Không cần chờ nến chạy nhiều giờ! Bạn có thể kích hoạt ngay các kịch bản để quan sát phản xạ của Bot và chuông báo Telegram:
+                </p>
+
+                <!-- Button 1: +1.3% Break Even -->
+                <button type="button" class="btn" onclick="simulatePriceMove(1.3)" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; text-align: left; border-left: 4px solid var(--emerald);">
+                    <div>
+                        <div style="font-size: 12.5px; font-weight: 800; color: var(--emerald);">Kịch Bản 1: Giá Tăng +1.3% (Break-Even)</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">Kích hoạt Khóa Hòa Vốn ➔ Dời SL lên Entry +0.2% fee</div>
+                    </div>
+                    <span class="badge badge-green">ZERO RISK</span>
+                </button>
+
+                <!-- Button 2: +2.5% Trailing Stop -->
+                <button type="button" class="btn" onclick="simulatePriceMove(2.5)" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; text-align: left; border-left: 4px solid var(--primary);">
+                    <div>
+                        <div style="font-size: 12.5px; font-weight: 800; color: var(--primary);">Kịch Bản 2: Giá Bứt Phá +2.5% (Trailing)</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">Kích hoạt Dynamic Trailing Stop ➔ Trượt SL bám đỉnh theo 1.0x ATR</div>
+                    </div>
+                    <span class="badge badge-blue">RIDE TREND</span>
+                </button>
+
+                <!-- Button 3: +3.0% Take Profit -->
+                <button type="button" class="btn" onclick="simulatePriceMove(3.2)" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; text-align: left; border-left: 4px solid var(--amber);">
+                    <div>
+                        <div style="font-size: 12.5px; font-weight: 800; color: var(--amber);">Kịch Bản 3: Chạm Đích Chốt Lời (+3.0%)</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">Lệnh tự đóng đút túi lợi nhuận ➔ Báo cáo USDT thực lãi về Telegram</div>
+                    </div>
+                    <span class="badge badge-amber">TAKE PROFIT</span>
+                </button>
+
+                <!-- Button 4: -1.8% Stop Loss & Post-Mortem -->
+                <button type="button" class="btn" onclick="simulatePriceMove(-1.8)" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; text-align: left; border-left: 4px solid var(--rose);">
+                    <div>
+                        <div style="font-size: 12.5px; font-weight: 800; color: var(--rose);">Kịch Bản 4: Giá Giật Giảm -1.8% (Cắt Lỗ)</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">Chạm SL ➔ Đóng lệnh ➔ Claude-3.6 Sonnet đúc kết Bài Học Xương Máu</div>
+                    </div>
+                    <span class="badge badge-rose">POST-MORTEM</span>
+                </button>
+
+                <!-- Button 5: Close All -->
+                <button type="button" class="btn" onclick="closeAllDemoPositions()" style="padding: 10px 14px; font-size: 12px; font-weight: 700; color: var(--text-sub); border-color: var(--border); display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--crimson);"><circle cx="12" cy="12" r="10"/><line x1="4.93" x2="19.07" y1="4.93" y2="19.07"/></svg>
+                    <span>Đóng Nhanh Toàn Bộ Vị Thế (Close Market)</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM: ACTIVE POSITIONS TABLE & TELEGRAM LOG -->
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                <span>Vị Thế Mở Thời Gian Thực (Active Demo Positions)</span>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted);">
+                Tự động cập nhật từng giây từ Binance Stream
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>MÃ LỆNH</th>
+                        <th>CẶP</th>
+                        <th>HƯỚNG</th>
+                        <th>KHỐI LƯỢNG</th>
+                        <th>GIÁ VÀO (ENTRY)</th>
+                        <th>GIÁ HIỆN TẠI</th>
+                        <th>LÃI/LỖ (PNL)</th>
+                        <th>STOP-LOSS HIỆN TẠI</th>
+                        <th>TAKE-PROFIT</th>
+                        <th>HÀNH ĐỘNG</th>
+                    </tr>
+                </thead>
+                <tbody id="demo-positions-tbody">
+                    <tr>
+                        <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                            Chưa có vị thế mở nào. Hãy bấm <strong>"BẮN LỆNH MUA DEMO"</strong> ở trên để bắt đầu trải nghiệm!
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentDemoSide = 'BUY';
+
+function selectDemoSide(side) {
+    currentDemoSide = side;
+    const btnBuy = document.getElementById('btn-side-buy');
+    const btnSell = document.getElementById('btn-side-sell');
+    const btnSubmit = document.getElementById('btn-submit-demo-order');
+    
+    if (side === 'BUY') {
+        btnBuy.style.background = 'rgba(16, 185, 129, 0.15)';
+        btnBuy.style.color = 'var(--emerald)';
+        btnBuy.style.borderColor = 'var(--emerald)';
+        btnSell.style.background = 'var(--panel-header-bg)';
+        btnSell.style.color = 'var(--text-sub)';
+        btnSell.style.borderColor = 'var(--border)';
+        btnSubmit.innerHTML = '<span>🚀</span> BẮN LỆNH MUA DEMO NGAY';
+        btnSubmit.className = 'btn btn-primary';
+    } else {
+        btnSell.style.background = 'rgba(244, 63, 94, 0.15)';
+        btnSell.style.color = 'var(--rose)';
+        btnSell.style.borderColor = 'var(--rose)';
+        btnBuy.style.background = 'var(--panel-header-bg)';
+        btnBuy.style.color = 'var(--text-sub)';
+        btnBuy.style.borderColor = 'var(--border)';
+        btnSubmit.innerHTML = '<span>🔴</span> BẮN LỆNH BÁN DEMO NGAY';
+        btnSubmit.className = 'btn';
+        btnSubmit.style.background = 'var(--rose)';
+        btnSubmit.style.color = '#fff';
+    }
+}
+
+function setDemoAmount(val) {
+    document.getElementById('demo-amount-input').value = val;
+}
+
+async function submitDemoOrder() {
+    const symbol = document.getElementById('demo-symbol-select')?.value || 'BTC/USDT';
+    const amount = parseFloat(document.getElementById('demo-amount-input').value) || 50.0;
+    const sl = parseFloat(document.getElementById('demo-sl-select').value) || 0.015;
+    const tp = parseFloat(document.getElementById('demo-tp-select').value) || 0.030;
+    const force = document.getElementById('demo-force-exec').checked;
+
+    const payload = {
+        symbol: symbol,
+        side: currentDemoSide,
+        amount_usdt: amount,
+        sl_pct: sl,
+        tp_pct: tp,
+        force: force
+    };
+
+    try {
+        const res = await fetch('/api/v1/demo/place_order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (res.ok) {
+            alert("🎉 " + result.message);
+            updateDemoPositions();
+        } else {
+            alert("❌ Lỗi đặt lệnh: " + (result.detail || result.message));
+        }
+    } catch (e) {
+        alert("Lỗi kết nối: " + e);
+    }
+}
+
+async function simulatePriceMove(changePct) {
+    try {
+        const res = await fetch('/api/v1/demo/simulate_tick', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ change_pct: changePct })
+        });
+        const result = await res.json();
+        alert("🔔 " + result.message);
+        updateDemoPositions();
+    } catch (e) {
+        alert("Lỗi mô phỏng: " + e);
+    }
+}
+
+async function closeAllDemoPositions() {
+    if (!confirm("Bạn có chắc chắn muốn đóng toàn bộ vị thế mở?")) return;
+    try {
+        const res = await fetch('/api/v1/demo/close_all', { method: 'POST' });
+        const result = await res.json();
+        alert("✅ " + result.message);
+        updateDemoPositions();
+    } catch (e) {
+        alert("Lỗi đóng vị thế: " + e);
+    }
+}
+
+async function updateDemoPositions() {
+    try {
+        const res = await fetch('/api/v1/status');
+        const data = await res.json();
+        
+        // Update price & balance
+        const priceEl = document.getElementById('demo-live-price');
+        if (priceEl && data.last_price) priceEl.innerText = '$' + data.last_price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        const balEl = document.getElementById('demo-balance-label');
+        if (balEl && data.balance_usdt) balEl.innerText = '$' + data.balance_usdt.toFixed(2);
+
+        // Update positions
+        const tbody = document.getElementById('demo-positions-tbody');
+        if (!tbody) return;
+
+        const positions = data.open_positions || [];
+        if (positions.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                        Chưa có vị thế mở nào. Hãy bấm <strong>"BẮN LỆNH MUA DEMO"</strong> ở trên để bắt đầu trải nghiệm!
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        positions.forEach(p => {
+            const isProfit = p.unrealized_pnl >= 0;
+            const pnlClass = isProfit ? 'color: var(--emerald); font-weight: 800;' : 'color: var(--rose); font-weight: 800;';
+            const sign = isProfit ? '+' : '';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;">${p.order_id}</td>
+                    <td style="font-weight: 700;">${p.symbol}</td>
+                    <td><span class="badge badge-${p.side === 'BUY' ? 'green' : 'red'}">${p.side}</span></td>
+                    <td style="font-family: 'JetBrains Mono', monospace;">${p.quantity}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace;">$${p.entry_price.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700;">$${p.current_price.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; ${pnlClass}">
+                        ${sign}$${p.unrealized_pnl.toFixed(4)} (${sign}${p.pnl_percent.toFixed(2)}%)
+                    </td>
+                    <td style="font-family: 'JetBrains Mono', monospace; color: var(--amber); font-weight: 700;">
+                        $${p.stop_loss.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                    </td>
+                    <td style="font-family: 'JetBrains Mono', monospace; color: var(--emerald); font-weight: 700;">
+                        $${p.take_profit.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                    </td>
+                    <td>
+                        <button type="button" class="btn" onclick="closeAllDemoPositions()" style="padding: 4px 8px; font-size: 11px; color: var(--rose); border-color: var(--rose);">
+                            Đóng Ngay
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (e) {
+        console.error("Demo status error:", e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateDemoPositions();
+    setInterval(updateDemoPositions, 2000);
+});
+</script>
+{% endblock %}

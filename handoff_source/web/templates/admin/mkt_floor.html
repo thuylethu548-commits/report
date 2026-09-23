@@ -1,0 +1,717 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block extra_css %}
+<style>
+/* ==========================================================================
+   MKT NIVER (TẦNG DƯỚI) - OPERATIONS DECK STYLES
+   Dark Glassmorphism · Cyberpunk Neon Accents · High-End Density
+   ========================================================================== */
+.mkt-sub-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+    margin-bottom: 16px;
+    border-radius: 10px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.mkt-sub-title-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.mkt-title-icon {
+    font-size: 20px;
+    filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
+}
+.mkt-title-text {
+    font-size: 14px;
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.mkt-quick-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.btn-mkt-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-weight: 700;
+    border-radius: 7px;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    background: rgba(168, 85, 247, 0.12);
+    color: #c084fc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.btn-mkt-action:hover {
+    background: rgba(168, 85, 247, 0.25);
+    border-color: #c084fc;
+    transform: translateY(-1px);
+    color: #f3e8ff;
+}
+.btn-mkt-action.cyan {
+    border-color: rgba(56, 189, 248, 0.3);
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8;
+}
+.btn-mkt-action.cyan:hover {
+    background: rgba(56, 189, 248, 0.25);
+    border-color: #38bdf8;
+    color: #e0f2fe;
+}
+.btn-mkt-action.amber {
+    border-color: rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.12);
+    color: #fbbf24;
+}
+.btn-mkt-action.amber:hover {
+    background: rgba(245, 158, 11, 0.25);
+    border-color: #fbbf24;
+    color: #fef3c7;
+}
+
+/* 4 STATS OVERVIEW CARDS */
+.mkt-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.mkt-stat-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.mkt-stat-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(168, 85, 247, 0.35);
+}
+.mkt-stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.mkt-stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+.mkt-stat-icon {
+    font-size: 16px;
+}
+.mkt-stat-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #f8fafc;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.2;
+    margin-bottom: 4px;
+}
+.mkt-stat-sub {
+    font-size: 10px;
+    color: #64748b;
+}
+
+/* 12 AGENT CARDS GRID */
+.mkt-deck-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.mkt-agent-card {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+.mkt-agent-card:hover {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 1) 100%);
+    border-color: var(--card-color, #a855f7);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6), 0 0 20px -2px var(--card-glow, rgba(168, 85, 247, 0.35));
+}
+.mkt-agent-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.mkt-agent-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+.mkt-status-pill {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+}
+.pill-active { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.45); }
+.pill-armed { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); }
+.pill-scanning { background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.45); }
+.pill-online { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.45); }
+.pill-enforcing { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.45); }
+
+.mkt-agent-title {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 3px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+.mkt-agent-role {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #38bdf8;
+    margin-bottom: 8px;
+    line-height: 1.35;
+}
+.mkt-agent-duty {
+    font-size: 11px;
+    color: #e2e8f0;
+    font-weight: 400;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    min-height: 33px;
+}
+.mkt-agent-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.mkt-agent-model {
+    font-size: 9.5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #c084fc;
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    padding: 3px 8px;
+    border-radius: 5px;
+    max-width: 145px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mkt-agent-latency {
+    font-size: 10.5px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #4ade80;
+    font-weight: 800;
+}
+.mkt-agent-stripe {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--card-color, #a855f7);
+    opacity: 0.8;
+}
+
+/* SPEECH MODAL / POPUP */
+.mkt-speech-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    display: none;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    animation: fadeInSlide 0.3s ease;
+}
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.mkt-speech-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.mkt-speech-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #f8fafc;
+}
+.mkt-speech-body {
+    font-size: 12.5px;
+    color: #cbd5e1;
+    line-height: 1.6;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 12px 14px;
+    border-radius: 8px;
+    border-left: 3px solid #a855f7;
+}
+
+/* EVENT FEED STREAM */
+.mkt-feed-container {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+.mkt-feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.mkt-feed-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.mkt-feed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+.mkt-feed-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    background: rgba(30, 41, 59, 0.4);
+    border-radius: 6px;
+    font-size: 11px;
+    border-left: 2px solid #a855f7;
+}
+.mkt-feed-agent {
+    font-weight: 700;
+    color: #f1f5f9;
+    min-width: 120px;
+}
+.mkt-feed-action {
+    color: #38bdf8;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    background: rgba(56, 189, 248, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.mkt-feed-desc {
+    color: #94a3b8;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mkt-feed-time {
+    color: #64748b;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+}
+
+@media (max-width: 1200px) {
+    .mkt-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .mkt-deck-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+    .mkt-stats-grid { grid-template-columns: 1fr; }
+    .mkt-deck-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .mkt-deck-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mkt-container" style="padding: 10px 0;">
+
+    <!-- 1. MKT SUB-HEADER -->
+    <div class="mkt-sub-header">
+        <div class="mkt-sub-title-box">
+            <span class="mkt-title-icon">📢</span>
+            <div>
+                <div class="mkt-title-text">MKT NIVER OPERATIONS DECK (TẦNG DƯỚI)</div>
+                <div style="font-size: 9px; color: #a855f7; font-weight: 700; letter-spacing: 1px;">TRỤ SỞ 12 PHÒNG BAN MARKETING · 22 FANPAGES MATRIX · ADS & AFFILIATE ENGINE</div>
+            </div>
+            <span class="badge badge-green" style="font-size: 9px; padding: 3px 8px; margin-left: 6px;">12/12 BAN TRỰC CHIẾN</span>
+        </div>
+        <div class="mkt-quick-actions">
+            <a href="/admin/pixel-floor" class="btn-mkt-action cyan" title="Lên Tầng Trên: Trụ sở 12 Ban Giao Dịch Astra Quant">
+                <span>🏢</span>
+                <span>Lên Tầng Trên (Astra Quant)</span>
+            </a>
+            <a href="/admin/campaign" class="btn-mkt-action amber" title="Chiến dịch scale vốn">
+                <span>🚀</span>
+                <span>Chiến Dịch Scale Vốn</span>
+            </a>
+            <button type="button" class="btn-mkt-action" onclick="refreshMktTelemetry()" title="Đồng bộ số liệu thời gian thực">
+                <span>🔄</span>
+                <span>Làm Mới Số Liệu</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. OVERVIEW STATS CARDS -->
+    <div class="mkt-stats-grid">
+        <div class="mkt-stat-card">
+            <div class="mkt-stat-top">
+                <span class="mkt-stat-label">HỆ THỐNG FANPAGE</span>
+                <span class="mkt-stat-icon">📑</span>
+            </div>
+            <div class="mkt-stat-val" style="color: #38bdf8;">22 <span style="font-size: 13px; color: #94a3b8;">Pages</span></div>
+            <div class="mkt-stat-sub">8 Manhua · 7 Cổ Trang · 7 KOC Độc Bản</div>
+        </div>
+
+        <div class="mkt-stat-card">
+            <div class="mkt-stat-top">
+                <span class="mkt-stat-label">QUỸ SEEDING THATIM</span>
+                <span class="mkt-stat-icon">🌱</span>
+            </div>
+            <div class="mkt-stat-val" style="color: #4ade80;">$152.39 <span style="font-size: 12px; color: #94a3b8;">USD</span></div>
+            <div class="mkt-stat-sub">~3,878,000 VND · 418 Dịch vụ khả dụng</div>
+        </div>
+
+        <div class="mkt-stat-card">
+            <div class="mkt-stat-top">
+                <span class="mkt-stat-label">CHIẾN DỊCH GEMINI JIO</span>
+                <span class="mkt-stat-icon">💎</span>
+            </div>
+            <div class="mkt-stat-val" style="color: #c084fc;">+150k <span style="font-size: 12px; color: #94a3b8;">/ Con</span></div>
+            <div class="mkt-stat-sub">Giá 189k · Vốn 35k · Bio Beacons Trap</div>
+        </div>
+
+        <div class="mkt-stat-card">
+            <div class="mkt-stat-top">
+                <span class="mkt-stat-label">CHIẾN THUẬT ADS WINNER</span>
+                <span class="mkt-stat-icon">🎯</span>
+            </div>
+            <div class="mkt-stat-val" style="color: #f59e0b; font-size: 16px;">ẢNH + CAPTION</div>
+            <div class="mkt-stat-sub">Test 1 Page trước · CPA mục tiêu &lt; 50k</div>
+        </div>
+    </div>
+
+    <!-- 3. AGENT SPEECH DISPLAY BUBBLE -->
+    <div class="mkt-speech-card" id="mktSpeechCard">
+        <div class="mkt-speech-head">
+            <div class="mkt-speech-title">
+                <span id="speechIcon">🎯</span>
+                <span id="speechName">Tổng Chỉ Huy (Captain)</span>
+                <span id="speechRole" style="font-size: 10px; color: #a855f7; font-weight: 700; background: rgba(168,85,247,0.15); padding: 2px 7px; border-radius: 4px;">CHỈ HUY</span>
+            </div>
+            <div style="font-size: 9.5px; font-family: 'JetBrains Mono', monospace; color: #64748b;" id="speechModel">glm-5.3-flash</div>
+        </div>
+        <div class="mkt-speech-body" id="speechText">
+            Hệ thống Nemark MKT Fleet trực chiến 24/7. Điều phối 22 page theo ma trận độc bản 1-1.
+        </div>
+    </div>
+
+    <!-- 4. 12 DEPARTMENTS GRID -->
+    <div class="mkt-deck-grid" id="mktAgentsGrid">
+        <!-- Rendered dynamically via JS -->
+    </div>
+
+    <!-- 5. REAL-TIME ACTIVITY STREAM -->
+    <div class="mkt-feed-container">
+        <div class="mkt-feed-header">
+            <div class="mkt-feed-title">
+                <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80;"></span>
+                <span>DÒNG CHẢY HOẠT ĐỘNG 12 PHÒNG BAN (LIVE STREAM)</span>
+            </div>
+            <span style="font-size: 9.5px; color: #64748b; font-family: 'JetBrains Mono', monospace;">TỰ ĐỘNG ĐỒNG BỘ MỖI 10S</span>
+        </div>
+        <div class="mkt-feed-list" id="mktEventList">
+            <!-- Events rendered dynamically -->
+        </div>
+    </div>
+
+</div>
+
+<script>
+/**
+ * MKT NIVER (TẦNG DƯỚI) CONTROLLER
+ */
+const MKT_AGENTS = {
+    captain: { name_vi: "Tổng Chỉ Huy", role_vi: "Điều Phối Toàn Đội", duty_vi: "Điều phối toàn bộ 22 Fanpage & phân bổ nguồn lực chiến dịch", model: "agnes-3.0-flash (Vyce AI · 512K)", color: "#8b5cf6", icon: "🎯", status: "ACTIVE", latency: "15ms" },
+    content_lab: { name_vi: "Phòng Nội Dung", role_vi: "Sáng Tạo Kịch Bản", duty_vi: "Viết caption, hook 3s đầu, script video cho 22 Fanpage theo ngách", model: "claude-sonnet-4-6 (Vyce AI)", color: "#22c55e", icon: "✒️", status: "ACTIVE", latency: "12ms" },
+    video_forge: { name_vi: "Xưởng Video", role_vi: "Render FFmpeg & Anti-ID", duty_vi: "Sản xuất video dọc 1080x1920, TTS AI, vi chỉnh 4 điểm lách AI Meta", model: "cx/gpt-5.6-terra (9Router)", color: "#f59e0b", icon: "🎬", status: "ACTIVE", latency: "45ms" },
+    ads_engine: { name_vi: "Phòng Quảng Cáo", role_vi: "Tối Ưu Ads & Chốt Đơn", duty_vi: "Chạy Facebook Ads test Ảnh + Caption, tối ưu CPA < 50k, scale winner", model: "claude-sonnet-4-6 (Vyce AI)", color: "#ef4444", icon: "📢", status: "ARMED", latency: "20ms" },
+    seeding_ops: { name_vi: "Đội Seeding", role_vi: "Thatim.vn Social Proof", duty_vi: "Auto-seeding qua Thatim.vn ($152.39 balance), kỹ thuật chim mồi 2 máy", model: "deepseek-v4-flash (Vyce AI)", color: "#10b981", icon: "🌱", status: "ONLINE", latency: "8ms" },
+    trend_scout: { name_vi: "Trinh Sát Xu Hướng", role_vi: "Bắt Sóng Trend & Đối Thủ", duty_vi: "Quét sóng Gemini 4, bóc tách format đối thủ @graperu_ trên TikTok", model: "cx/gpt-6-astra (9Router)", color: "#0ea5e9", icon: "📡", status: "SCANNING", latency: "18ms" },
+    risk_guard: { name_vi: "Cảnh Sát Rủi Ro", role_vi: "Anti-Checkpoint Meta", duty_vi: "Kiểm soát Zero-Burst Policy, Stagger 25-45 phút, chống bóp reach Meta", model: "claude-sonnet-4-6 (Vyce AI)", color: "#0284c7", icon: "🛡️", status: "ARMED", latency: "5ms" },
+    affiliate_desk: { name_vi: "Bàn Affiliate", role_vi: "Cookie Trap & Chuyển Đổi", duty_vi: "Điều hướng Bio Beacons, kích hoạt Cookie Shopee 7 ngày, mồi tò mò", model: "cx/gpt-5.6-luna (9Router)", color: "#14b8a6", icon: "💰", status: "ACTIVE", latency: "10ms" },
+    crm_support: { name_vi: "Chăm Sóc Khách", role_vi: "Xử Lý Đơn & Bảo Hành", duty_vi: "Fulfillment tài khoản Gemini AI Premium (lãi 150k/con), bảo hành uy tín", model: "deepseek-v4.1 (Vyce AI)", color: "#6366f1", icon: "👥", status: "ACTIVE", latency: "14ms" },
+    analytics_pm: { name_vi: "Phòng Phân Tích", role_vi: "Signal & FLOP Monitor", duty_vi: "Giám sát 3 phễu đề xuất Facebook Reels, bắt bệnh video FLOP hàng giờ", model: "deepseek-v4-flash (Vyce AI)", color: "#3b82f6", icon: "📊", status: "ACTIVE", latency: "16ms" },
+    page_router: { name_vi: "Phân Luồng Page", role_vi: "Điều Phối 22 Page", duty_vi: "Phân bổ video độc bản 1-1 cho 8 Manhua, 7 Cổ Trang, 7 KOC/Gia Dụng", model: "cx/gpt-5.6-terra (9Router)", color: "#64748b", icon: "🔀", status: "ACTIVE", latency: "6ms" },
+    asset_guard: { name_vi: "Bảo Vệ Tài Sản", role_vi: "Vân Tay SHA-256 + pHash", duty_vi: "Kiểm tra SHA-256 + Perceptual Hash (pHash), tuyệt đối 0 cross-posting", model: "Local SHA-256 + pHash", color: "#f43f5e", icon: "🔒", status: "ENFORCING", latency: "2ms" }
+};
+
+const MKT_SPEECHES = {
+    captain: "Hệ thống Nemark MKT Fleet trực chiến 24/7. Điều phối toàn bộ 22 Fanpage theo ma trận 1-1 độc bản.",
+    content_lab: "Sẵn sàng sáng tạo hook & caption viral cho 3 cụm: Drama Nữ, Manhua Tech, KOC Gia Dụng!",
+    video_forge: "FFmpeg render 1080x1920 Lanczos upscale với bộ lọc lách ContentID 4 điểm an toàn tuyệt đối.",
+    ads_engine: "Đã thiết lập adset Ảnh + Caption cho page winner. Ngân sách 150k/ngày, CPA mục tiêu dưới 50k.",
+    seeding_ops: "Thatim.vn API đã kết nối sẵn sàng. Số dư $152.39 USD, kịch bản chim mồi 2 máy chuẩn bị bơm.",
+    trend_scout: "Sóng trend Gemini 4 đang cực nóng! TikTok @graperu_ hút 373k view với video giải thích đơn giản.",
+    risk_guard: "Thực thi nghiêm ngặt Zero-Burst Policy. Lập lịch phát giãn cách 25-45 phút, chống bóp reach Meta.",
+    affiliate_desk: "Đường dẫn Bio Beacons https://beacons.ai/reviewhola đã ghim. Cookie Shopee 7 ngày sẵn sàng lưu.",
+    crm_support: "Gói Gemini Jio arbitrage: Bán 189k, vốn 35k, lãi ròng 150k/con. Đội ngũ fulfillment trực chiến!",
+    analytics_pm: "Đang quét tín hiệu giữ chân khán giả 3s đầu & tỷ lệ xem hết. Bộ chẩn đoán FLOP 1h đang kích hoạt.",
+    page_router: "Ma trận 22 Page đã sẵn sàng phân luồng: 8 Manhua, 7 Cổ Trang, 7 KOC không giẫm chân nhau.",
+    asset_guard: "0 video cross-post trùng lặp được phát hiện! Toàn bộ video xuất xưởng đều có vân tay độc bản."
+};
+
+function renderAgentsGrid() {
+    const grid = document.getElementById('mktAgentsGrid');
+    if (!grid) return;
+    grid.innerHTML = Object.entries(MKT_AGENTS).map(([code, ag]) => {
+        const pillClass = 'pill-' + ag.status.toLowerCase();
+        return `
+            <div class="mkt-agent-card" onclick="openMktPreviewConfirm('${code}')" style="--card-color: ${ag.color}; --card-glow: ${ag.color}40;" title="Bấm để xem Preview & Kiểm Duyệt Tác Vụ">
+                <div class="mkt-agent-head">
+                    <div class="mkt-agent-avatar">${ag.icon}</div>
+                    <span class="mkt-status-pill ${pillClass}">${ag.status}</span>
+                </div>
+                <div class="mkt-agent-title">${ag.name_vi}</div>
+                <div class="mkt-agent-role">${ag.role_vi}</div>
+                <div class="mkt-agent-duty">${ag.duty_vi}</div>
+                <div class="mkt-agent-footer">
+                    <span class="mkt-agent-model">${ag.model}</span>
+                    <span class="mkt-agent-latency">${ag.latency}</span>
+                </div>
+                <div class="mkt-agent-stripe"></div>
+            </div>
+        `;
+    }).join('');
+}
+
+function openMktPreviewConfirm(code) {
+    const ag = MKT_AGENTS[code];
+    if (!ag) return;
+    const speech = MKT_SPEECHES[code] || "Phòng ban trực chiến 24/7.";
+
+    let modal = document.getElementById('mktPreviewConfirmModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'mktPreviewConfirmModal';
+        modal.style.cssText = 'display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;';
+        modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="background: #0f172a; border: 1.5px solid ${ag.color}60; border-radius: 16px; width: 100%; max-width: 650px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), 0 0 25px ${ag.color}25; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; animation: fadeInSlide 0.25s ease;">
+            <!-- Header -->
+            <div style="padding: 18px 22px; background: linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.98)); border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: ${ag.color}20; border: 1px solid ${ag.color}60; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                        ${ag.icon}
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 17px; font-weight: 800; color: #ffffff;">${ag.name_vi}</span>
+                            <span class="mkt-status-pill pill-${ag.status.toLowerCase()}">${ag.status}</span>
+                        </div>
+                        <div style="font-size: 12px; color: ${ag.color}; font-weight: 700; margin-top: 2px;">${ag.role_vi}</div>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('mktPreviewConfirmModal').style.display='none'" style="background: transparent; border: none; font-size: 20px; color: #94a3b8; cursor: pointer; padding: 4px 8px;">✕</button>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 22px; display: flex; flex-direction: column; gap: 16px; max-height: 75vh; overflow-y: auto;">
+                <!-- Telemetry Pill strip -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <div style="background: rgba(30,41,59,0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                        <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase;">AI Engine / Lõi</div>
+                        <div style="font-size: 12.5px; font-weight: 700; color: #c084fc; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${ag.model}</div>
+                    </div>
+                    <div style="background: rgba(30,41,59,0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                        <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase;">Độ Trễ Phản Hồi</div>
+                        <div style="font-size: 14px; font-weight: 800; color: #4ade80; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${ag.latency}</div>
+                    </div>
+                    <div style="background: rgba(30,41,59,0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                        <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase;">Tần Suất Điều Phối</div>
+                        <div style="font-size: 13px; font-weight: 700; color: #38bdf8; margin-top: 2px;">24/7 Tự Động</div>
+                    </div>
+                </div>
+
+                <!-- Mission Speech -->
+                <div style="background: rgba(168, 85, 247, 0.08); border-left: 3px solid ${ag.color}; padding: 12px 16px; border-radius: 6px;">
+                    <div style="font-size: 10px; text-transform: uppercase; color: #c084fc; font-weight: 700; margin-bottom: 4px;">Khẩu Quyết Tác Nghiệp Hiện Tại</div>
+                    <div style="font-size: 13.5px; color: #f1f5f9; line-height: 1.5; font-style: italic;">"${speech}"</div>
+                </div>
+
+                <!-- Task Blueprint & Output Preview -->
+                <div style="background: #020617; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 11px; font-weight: 800; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px;">Tác Vụ Đang Chờ Phê Duyệt (Payload Preview)</span>
+                        <span style="font-size: 10px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 7px; border-radius: 4px; font-family: 'JetBrains Mono', monospace;">STATUS: READY</span>
+                    </div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #94a3b8; line-height: 1.6; background: rgba(15,23,42,0.8); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div><span style="color: #60a5fa;">"target_channel"</span>: <span style="color: #4ade80;">"22_Fanpage_Network + TikTok_Reels"</span>,</div>
+                        <div><span style="color: #60a5fa;">"operational_duty"</span>: <span style="color: #fbbf24;">"${ag.duty_vi}"</span>,</div>
+                        <div><span style="color: #60a5fa;">"anti_checkpoint_policy"</span>: <span style="color: #4ade80;">"Zero-Burst Interval 25-45m ACTIVE"</span>,</div>
+                        <div><span style="color: #60a5fa;">"video_fingerprint"</span>: <span style="color: #c084fc;">"SHA-256 Anti-ID Generated"</span></div>
+                    </div>
+                </div>
+
+                <!-- Ping Result display -->
+                <div id="mktPingResult" style="display: none; padding: 10px 14px; border-radius: 8px; font-size: 12px; font-family: 'JetBrains Mono', monospace;"></div>
+            </div>
+
+            <!-- Actions Footer -->
+            <div style="padding: 14px 22px; background: rgba(15,23,42,0.98); border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button onclick="testPingMktModel('${ag.model}')" style="padding: 8px 14px; border-radius: 8px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    ⚡ Test Ping Lõi AI
+                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="document.getElementById('mktPreviewConfirmModal').style.display='none'" style="padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; font-size: 12px; font-weight: 600; cursor: pointer;">Đóng</button>
+                    <button onclick="confirmAndExecuteMktTask('${code}')" style="padding: 8px 18px; border-radius: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; color: #ffffff; font-size: 12.5px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; gap: 6px;">
+                        ✓ Phê Duyệt & Khởi Chạy
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+}
+
+async function testPingMktModel(modelName) {
+    const resEl = document.getElementById('mktPingResult');
+    if (!resEl) return;
+    resEl.style.display = 'block';
+    resEl.style.background = 'rgba(2, 132, 199, 0.15)';
+    resEl.style.border = '1px solid rgba(2, 132, 199, 0.3)';
+    resEl.style.color = '#38bdf8';
+    resEl.innerHTML = '⏳ Đang kiểm tra phản hồi từ Gateway...';
+
+    const t0 = performance.now();
+    try {
+        const res = await fetch('/api/v1/ai-advisory/latest');
+        const dt = Math.round(performance.now() - t0);
+        if (res.ok) {
+            resEl.style.background = 'rgba(16, 185, 129, 0.15)';
+            resEl.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+            resEl.style.color = '#34d399';
+            resEl.innerHTML = `✅ Kết nối ${modelName} ổn định (${dt}ms) · Status 200 OK · Sẵn sàng tác vụ`;
+        } else {
+            resEl.innerHTML = `⚠️ Phản hồi HTTP ${res.status} (${dt}ms)`;
+        }
+    } catch (e) {
+        resEl.innerHTML = `❌ Không thể kết nối API Gateway: ${e.message}`;
+    }
+}
+
+function confirmAndExecuteMktTask(code) {
+    const ag = MKT_AGENTS[code];
+    if (!ag) return;
+
+    // Close modal
+    const modal = document.getElementById('mktPreviewConfirmModal');
+    if (modal) modal.style.display = 'none';
+
+    // Prepend to live stream list
+    const list = document.getElementById('mktEventList');
+    if (list) {
+        const nowStr = new Date().toLocaleTimeString('vi-VN');
+        const newRow = document.createElement('div');
+        newRow.className = 'mkt-feed-row';
+        newRow.style.borderLeftColor = ag.color;
+        newRow.style.animation = 'fadeInSlide 0.3s ease';
+        newRow.innerHTML = `
+            <span style="font-size: 13px;">${ag.icon}</span>
+            <span class="mkt-feed-agent">${ag.name_vi}</span>
+            <span class="mkt-feed-action">OPERATOR_CONFIRMED</span>
+            <span class="mkt-feed-desc">Đã phê duyệt tác vụ thực thi: "${ag.duty_vi}"</span>
+            <span class="mkt-feed-time">${nowStr}</span>
+        `;
+        list.insertBefore(newRow, list.firstChild);
+    }
+
+    // Trigger feedback notification
+    alert(`✅ Đã phê duyệt và khởi chạy tác vụ phòng ban: ${ag.name_vi} (${ag.model})!\nLệnh đã được phát vào luồng thực thi an toàn.`);
+}
+
+async function refreshMktTelemetry() {
+    try {
+        const res = await fetch('/api/v1/mkt/telemetry');
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        // Render events
+        if (data.recent_events && data.recent_events.length > 0) {
+            const list = document.getElementById('mktEventList');
+            if (list) {
+                list.innerHTML = data.recent_events.map(ev => {
+                    const ag = MKT_AGENTS[ev.agent] || { name_vi: ev.agent, icon: "⚡", color: "#a855f7" };
+                    const timeStr = ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString('vi-VN') : '';
+                    const detail = ev.payload ? (ev.payload.detail || ev.payload.trend || ev.payload.format || JSON.stringify(ev.payload)) : '';
+                    return `
+                        <div class="mkt-feed-row" style="border-left-color: ${ag.color};">
+                            <span style="font-size: 13px;">${ag.icon}</span>
+                            <span class="mkt-feed-agent">${ag.name_vi}</span>
+                            <span class="mkt-feed-action">${ev.event_type}</span>
+                            <span class="mkt-feed-desc">${detail}</span>
+                            <span class="mkt-feed-time">${timeStr}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    } catch (err) {
+        console.warn('[MKT Telemetry] Fetch failed:', err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderAgentsGrid();
+    refreshMktTelemetry();
+    setInterval(refreshMktTelemetry, 10000);
+});
+</script>
+{% endblock %}

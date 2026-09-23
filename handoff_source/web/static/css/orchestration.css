@@ -1,0 +1,860 @@
+/* ==========================================================================
+   ASTRA DESK — AI & API ORCHESTRATION SETTINGS STYLESHEET
+   Matches reference UI (User Screenshot 2) perfectly
+   ========================================================================== */
+
+.orch-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Header Area */
+.orch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.orch-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.orch-icon-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+[data-theme="dark"] .orch-icon-badge {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.orch-title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0 0 4px 0;
+    color: var(--text-main);
+}
+
+.orch-subtitle {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin: 0;
+    line-height: 1.4;
+    max-width: 780px;
+}
+
+.orch-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.orch-ai-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s ease;
+}
+
+[data-theme="dark"] .orch-ai-btn {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+}
+
+.orch-ai-btn:hover {
+    background: rgba(37, 99, 235, 0.15);
+    border-color: #2563eb;
+}
+
+.orch-ai-btn-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.orch-ai-btn-title {
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.orch-ai-btn-sub {
+    font-size: 10.5px;
+    color: var(--text-sub);
+    font-weight: 500;
+}
+
+.orch-doc-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.orch-doc-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Tab Navigation Bar */
+.orch-tabs-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.orch-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+    text-align: left;
+    color: var(--text-sub);
+}
+
+.orch-tab-btn:hover {
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--text-main);
+}
+
+.orch-tab-btn.active {
+    background: rgba(37, 99, 235, 0.08);
+    color: #2563eb;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .orch-tab-btn.active {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.orch-tab-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.orch-tab-btn.active .orch-tab-num {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.orch-tab-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.orch-tab-title {
+    font-size: 12.5px;
+    line-height: 1.2;
+}
+
+.orch-tab-sub {
+    font-size: 10px;
+    color: var(--text-sub);
+    font-weight: 500;
+}
+
+.orch-tab-btn.active .orch-tab-sub {
+    color: #2563eb;
+    opacity: 0.85;
+}
+
+[data-theme="dark"] .orch-tab-btn.active .orch-tab-sub {
+    color: #93c5fd;
+}
+
+/* Tab Panels */
+.orch-panel {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 540px;
+}
+
+.orch-panel.active {
+    display: flex;
+}
+
+/* Grid Top (Tab 1) */
+.orch-grid-top {
+    display: grid;
+    grid-template-columns: 2.1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 1080px) {
+    .orch-grid-top {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cards */
+.orch-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.orch-card-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.orch-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.orch-card-desc {
+    font-size: 12px;
+    color: var(--text-sub);
+    margin: 2px 0 0 0;
+}
+
+.orch-card-body {
+    padding: 16px 18px;
+    flex: 1;
+}
+
+/* Table Style */
+.orch-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+}
+
+.orch-table th {
+    text-align: left;
+    padding: 10px 12px;
+    color: var(--text-sub);
+    font-size: 11px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    background: rgba(148, 163, 184, 0.04);
+}
+
+.orch-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+.orch-table tr:last-child td {
+    border-bottom: none;
+}
+
+.orch-table tr:hover td {
+    background: rgba(148, 163, 184, 0.03);
+}
+
+/* Provider Row */
+.orch-prov-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.orch-prov-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.orch-prov-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.orch-prov-name {
+    font-weight: 700;
+    font-size: 12.5px;
+    color: var(--text-main);
+}
+
+.orch-prov-sub {
+    font-size: 10.5px;
+    color: var(--text-sub);
+}
+
+/* Key Masked */
+.orch-key-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-sub);
+    background: rgba(148, 163, 184, 0.08);
+    padding: 3px 8px;
+    border-radius: 5px;
+}
+
+.orch-eye-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-sub);
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.orch-eye-btn:hover {
+    color: var(--primary);
+}
+
+/* Status Dot Badge */
+.orch-status-active {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #10b981;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.orch-status-active::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+.orch-status-offline {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #ef4444;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.orch-status-offline::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ef4444;
+}
+
+/* Modern iOS-Style Toggle Switch */
+.orch-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.orch-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.orch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: .2s;
+    border-radius: 20px;
+}
+
+[data-theme="dark"] .orch-slider {
+    background-color: #475569;
+}
+
+.orch-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .2s;
+    border-radius: 50%;
+}
+
+input:checked + .orch-slider {
+    background-color: #2563eb;
+}
+
+input:checked + .orch-slider:before {
+    transform: translateX(16px);
+}
+
+/* System Overview 4-Stat Box */
+.orch-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.orch-stat-item {
+    background: rgba(148, 163, 184, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.orch-stat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.orch-stat-val {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.1;
+}
+
+.orch-stat-lbl {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 2px;
+}
+
+/* Middle 3 Cards Grid */
+.orch-grid-three {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1.3fr;
+    gap: 20px;
+}
+
+@media (max-width: 1080px) {
+    .orch-grid-three {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Fallback Chain Badges */
+.orch-fallback-chain {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.orch-chain-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(148, 163, 184, 0.08);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.orch-chain-arrow {
+    color: var(--text-sub);
+    font-size: 11px;
+}
+
+.orch-chain-add {
+    padding: 6px 12px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.orch-chain-add:hover {
+    border-color: var(--primary);
+    background: rgba(37, 99, 235, 0.05);
+}
+
+/* Circuit Breaker Controls */
+.orch-cb-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.orch-cb-field {
+    flex: 1;
+}
+
+.orch-cb-field label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-sub);
+    margin-bottom: 5px;
+}
+
+.orch-cb-field input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.orch-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+}
+
+.orch-toggle-info {
+    font-size: 12px;
+}
+
+.orch-toggle-title {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.orch-toggle-desc {
+    font-size: 11px;
+    color: var(--text-sub);
+}
+
+/* Bottom AI Suggestion Banner */
+.orch-ai-banner {
+    background: linear-gradient(90deg, rgba(37, 99, 235, 0.08) 0%, rgba(147, 51, 234, 0.08) 100%);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.orch-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 280px;
+}
+
+.orch-sparkle-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(37, 99, 235, 0.15);
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.orch-banner-text {
+    font-size: 12.5px;
+    color: var(--text-main);
+    line-height: 1.4;
+}
+
+.orch-banner-text strong {
+    color: #2563eb;
+}
+
+.orch-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Model Catalog Grid (Tab 2) */
+.orch-catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.orch-model-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.15s ease;
+}
+
+.orch-model-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.orch-model-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.orch-model-name {
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--text-main);
+}
+
+.orch-model-provider {
+    font-size: 11px;
+    color: var(--text-sub);
+}
+
+.orch-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.orch-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--text-sub);
+}
+
+.orch-tag.blue { background: rgba(37, 99, 235, 0.1); color: #2563eb; }
+.orch-tag.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.orch-tag.purple { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
+.orch-tag.amber { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+/* Quota & Token Meters (Tab 4) */
+.orch-quota-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.orch-quota-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.orch-meter-bar {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(148, 163, 184, 0.15);
+    overflow: hidden;
+    margin: 8px 0;
+}
+
+.orch-meter-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Health Check Ping Table (Tab 5) */
+.orch-ping-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.orch-ping-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.orch-latency-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+}
+
+.orch-latency-bar {
+    height: 6px;
+    border-radius: 3px;
+    flex: 1;
+    background: rgba(148, 163, 184, 0.15);
+    overflow: hidden;
+}
+
+.orch-latency-fill {
+    height: 100%;
+    border-radius: 3px;
+}
+
+/* Spinner */
+.orch-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: orch-spin 0.8s linear infinite;
+}
+
+@keyframes orch-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Master Mode Switcher (Setup Gốc vs AI Orchestration) */
+.orch-mode-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px;
+    margin-bottom: 6px;
+}
+
+.orch-mode-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-sub);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.orch-mode-btn:hover {
+    background: rgba(148, 163, 184, 0.08);
+    color: var(--text-main);
+}
+
+.orch-mode-btn.active {
+    background: var(--bg-main);
+    color: var(--primary);
+    border-color: var(--border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .orch-mode-btn.active {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+}
+
+.orch-mode-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+

@@ -1,0 +1,4309 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/pixel_floor.css?v=28.0_rpg_live">
+<style>
+
+/* RPG MODAL INLINE SHIELD TO PREVENT STYLING/CACHE GLITCHES */
+#agentRpgStatModal {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(2, 6, 23, 0.92) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 100005 !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.agent-rpg-modal-box {
+    max-width: 920px !important;
+    width: 100% !important;
+    max-height: 92vh !important;
+    overflow-y: auto !important;
+    background: #090e1a !important;
+    border: 1px solid rgba(56, 189, 248, 0.45) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 35px rgba(56, 189, 248, 0.25) !important;
+    position: relative !important;
+    z-index: 100006 !important;
+    padding: 20px !important;
+}
+
+/* TACTICAL MISSION DOCK - EMBEDDED INLINE TO PREVENT CACHE GLITCHES */
+.tactical-mission-dock {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(10, 15, 29, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 12px;
+    padding: 6px 14px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.15);
+    z-index: 9999;
+    pointer-events: auto;
+    white-space: nowrap;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.tactical-mission-dock.is-dragged {
+    transform: none !important;
+    bottom: auto !important;
+    position: fixed !important;
+}
+
+.tactical-mission-dock.is-dragging {
+    transition: none !important;
+    user-select: none !important;
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95), 0 0 30px rgba(56, 189, 248, 0.45) !important;
+    border-color: #38bdf8 !important;
+}
+
+.dock-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #64748b;
+    font-size: 14px;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.dock-drag-handle:hover {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.4);
+}
+
+.dock-drag-handle:active,
+.tactical-mission-dock.is-dragging .dock-drag-handle {
+    cursor: grabbing;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.3);
+}
+
+.dock-actions-cluster {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 4px;
+    flex-shrink: 0;
+}
+
+.dock-collapse-btn,
+.dock-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: #94a3b8;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dock-collapse-btn:hover {
+    color: #f59e0b;
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.18);
+}
+
+.dock-reset-btn:hover {
+    color: #38bdf8;
+    border-color: #38bdf8;
+    background: rgba(56, 189, 248, 0.18);
+}
+
+/* Collapsed state for Tactical Mission Dock (Neat & Compact) */
+.tactical-mission-dock.dock-collapsed {
+    padding: 4px 10px !important;
+    gap: 6px !important;
+    border-radius: 24px !important;
+    background: rgba(10, 15, 29, 0.95) !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.8), 0 0 16px rgba(56, 189, 248, 0.25) !important;
+}
+
+.tactical-mission-dock.dock-collapsed .dock-divider,
+.tactical-mission-dock.dock-collapsed .dock-tools,
+.tactical-mission-dock.dock-collapsed .dock-hint {
+    display: none !important;
+}
+
+.tactical-mission-dock.dock-collapsed .dock-pillar {
+    padding: 3px 8px !important;
+    border-radius: 16px !important;
+    gap: 5px !important;
+}
+
+.tactical-mission-dock.dock-collapsed .dock-num {
+    width: 16px !important;
+    height: 16px !important;
+    font-size: 9px !important;
+}
+
+.tactical-mission-dock.dock-collapsed .dock-tag {
+    font-size: 10px !important;
+}
+
+.tactical-mission-dock.dock-collapsed .dock-val {
+    display: none !important;
+}
+
+.dock-pillar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    border-radius: 8px !important;
+    padding: 6px 12px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    user-select: none !important;
+}
+
+.dock-pillar:hover {
+    background: rgba(30, 41, 59, 0.95) !important;
+    border-color: rgba(56, 189, 248, 0.6) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25) !important;
+}
+
+.dock-pillar.active {
+    background: rgba(14, 116, 144, 0.35) !important;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.4) !important;
+}
+
+.dock-pillar#wpn-slot-1.active {
+    background: rgba(16, 185, 129, 0.25) !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.4) !important;
+}
+
+.dock-pillar#wpn-slot-2.active {
+    background: rgba(168, 85, 247, 0.25) !important;
+    border-color: #a855f7 !important;
+    box-shadow: 0 0 16px rgba(168, 85, 247, 0.4) !important;
+}
+
+.dock-pillar#wpn-slot-3.active {
+    background: rgba(239, 68, 68, 0.25) !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.4) !important;
+}
+
+.dock-num {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    color: #94a3b8 !important;
+}
+
+.dock-pillar.active .dock-num {
+    background: #38bdf8 !important;
+    color: #0f172a !important;
+    border-color: #38bdf8 !important;
+}
+
+.dock-pillar#wpn-slot-1.active .dock-num {
+    background: #10b981 !important;
+    border-color: #10b981 !important;
+}
+
+.dock-pillar#wpn-slot-2.active .dock-num {
+    background: #a855f7 !important;
+    border-color: #a855f7 !important;
+}
+
+.dock-pillar#wpn-slot-3.active .dock-num {
+    background: #ef4444 !important;
+    border-color: #ef4444 !important;
+}
+
+.dock-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1px !important;
+}
+
+.dock-tag {
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px !important;
+    color: #f8fafc !important;
+}
+
+.dock-val {
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    color: #94a3b8 !important;
+}
+
+.dock-pillar#wpn-slot-1 .dock-val { color: #10b981 !important; }
+.dock-pillar#wpn-slot-2 .dock-val { color: #c084fc !important; }
+.dock-pillar#wpn-slot-3 .dock-val { color: #f87171 !important; }
+
+.dock-divider {
+    width: 1px !important;
+    height: 28px !important;
+    background: rgba(148, 163, 184, 0.2) !important;
+    margin: 0 4px !important;
+}
+
+.dock-tools {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.dock-tool-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    background: rgba(30, 41, 59, 0.7) !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    border-radius: 6px !important;
+    padding: 6px 10px !important;
+    color: #cbd5e1 !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.dock-tool-btn:hover {
+    background: rgba(56, 189, 248, 0.25) !important;
+    border-color: #38bdf8 !important;
+    color: #38bdf8 !important;
+    transform: translateY(-1px) !important;
+}
+
+.dock-hint {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 10px !important;
+    color: #64748b !important;
+    padding-left: 6px !important;
+    border-left: 1px solid rgba(148, 163, 184, 0.15) !important;
+}
+
+/* ==========================================================================
+   CYBER INTERCOM STYLES (BOSS <-> AGENT DIALOGUE)
+   ========================================================================== */
+.intercom-agent-pill {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+.intercom-agent-pill:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #f8fafc;
+}
+.intercom-agent-pill.active {
+    background: rgba(139, 92, 246, 0.3);
+    border-color: #a855f7;
+    color: #f8fafc;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.35);
+}
+.intercom-prompt-chip {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    color: #cbd5e1;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 4px 9px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.intercom-prompt-chip:hover {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: #38bdf8;
+    color: #38bdf8;
+}
+.intercom-msg {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 84%;
+    animation: modalFadeIn 0.2s ease;
+}
+.intercom-msg.boss-msg {
+    align-self: flex-end;
+}
+.intercom-msg.agent-msg {
+    align-self: flex-start;
+}
+.intercom-msg .msg-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: #64748b;
+    font-family: 'JetBrains Mono', monospace;
+}
+.intercom-msg.boss-msg .msg-header {
+    justify-content: flex-end;
+    color: #f59e0b;
+}
+.intercom-msg.agent-msg .msg-header {
+    color: #38bdf8;
+}
+.intercom-msg .msg-bubble {
+    padding: 9px 13px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+.intercom-msg.boss-msg .msg-bubble {
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.35), rgba(14, 165, 233, 0.25));
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #f8fafc;
+    border-top-right-radius: 2px;
+}
+.intercom-msg.agent-msg .msg-bubble {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    color: #e2e8f0;
+    border-top-left-radius: 2px;
+}
+.typing-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 10px 14px !important;
+}
+.typing-dots .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #38bdf8;
+    animation: typingPulse 1.2s infinite ease-in-out;
+}
+.typing-dots .dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingPulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1.1); opacity: 1; }
+}
+
+/* 5D QUANTUM TENSOR HUD BAR (COMPACT & RESPONSIVE & DRAGGABLE) */
+.q5d-hud-bar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(168, 85, 247, 0.45);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 14px rgba(168, 85, 247, 0.2);
+    border-radius: 8px;
+    padding: 4px 10px;
+    height: 38px;
+    cursor: default;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.25s ease;
+    user-select: none;
+    white-space: nowrap;
+    margin-left: 4px;
+}
+.q5d-hud-bar:hover {
+    border-color: #c084fc;
+    background: rgba(24, 18, 54, 0.95);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8), 0 0 20px rgba(168, 85, 247, 0.4);
+}
+.q5d-hud-bar.is-floating {
+    position: fixed !important;
+    z-index: 10000 !important;
+    margin: 0 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), 0 0 25px rgba(168, 85, 247, 0.35) !important;
+}
+.q5d-hud-bar.is-dragging {
+    transition: none !important;
+    cursor: grabbing !important;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.95), 0 0 35px rgba(168, 85, 247, 0.5) !important;
+    border-color: #c084fc !important;
+}
+.q5d-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 22px;
+    color: #a855f7;
+    font-size: 13px;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    transition: color 0.2s ease;
+}
+.q5d-drag-handle:hover {
+    color: #e9d5ff;
+}
+.q5d-drag-handle:active,
+.q5d-hud-bar.is-dragging .q5d-drag-handle {
+    cursor: grabbing;
+    color: #f3e8ff;
+}
+.q5d-collapse-btn,
+.q5d-reset-btn,
+.q5d-3d-toggle-btn {
+    background: transparent;
+    border: none;
+    color: #a855f7;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+.q5d-collapse-btn:hover,
+.q5d-reset-btn:hover,
+.q5d-3d-toggle-btn:hover {
+    background: rgba(168, 85, 247, 0.25);
+    color: #e9d5ff;
+}
+.q5d-3d-toggle-btn.is-off {
+    color: #64748b;
+    opacity: 0.6;
+}
+
+/* Collapsed state for 5D Tensor */
+.q5d-hud-bar.q5d-collapsed {
+    padding: 3px 8px;
+    height: 30px;
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.92);
+    border-color: rgba(168, 85, 247, 0.6);
+}
+.q5d-hud-bar.q5d-collapsed .q5d-badge-status,
+.q5d-hud-bar.q5d-collapsed .q5d-score-max,
+.q5d-hud-bar.q5d-collapsed .q5d-dims-preview,
+.q5d-hud-bar.q5d-collapsed .q5d-title-text {
+    display: none !important;
+}
+.q5d-hud-bar.q5d-collapsed .q5d-score-num {
+    font-size: 11px;
+}
+.q5d-pulse-glow {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #a855f7;
+    box-shadow: 0 0 8px #a855f7;
+    animation: q5dPulse 1.8s infinite;
+}
+@keyframes q5dPulse {
+    0%, 100% { transform: scale(0.9); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 14px #c084fc; }
+}
+.q5d-label-box {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #e2e8f0;
+    letter-spacing: 0.5px;
+    font-family: 'JetBrains Mono', monospace;
+}
+.q5d-score-box {
+    display: flex;
+    align-items: baseline;
+    gap: 1px;
+}
+.q5d-score-num {
+    font-size: 13px;
+    font-weight: 900;
+    color: #c084fc;
+    font-family: 'JetBrains Mono', monospace;
+}
+.q5d-score-max {
+    font-size: 9px;
+    font-weight: 700;
+    color: #64748b;
+}
+.q5d-badge-status {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: rgba(168, 85, 247, 0.2);
+    color: #d8b4fe;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    letter-spacing: 0.3px;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.q5d-dims-preview {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(7, 13, 30, 0.96);
+    border: 1px solid rgba(168, 85, 247, 0.6);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9), 0 0 20px rgba(168, 85, 247, 0.3);
+    border-radius: 8px;
+    padding: 6px 10px;
+    z-index: 1000;
+    pointer-events: none;
+}
+.q5d-hud-bar:hover .q5d-dims-preview {
+    display: flex;
+}
+.q5d-dim-item {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(15, 23, 42, 0.8);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+}
+.q5d-dim-item.coh {
+    color: #c084fc;
+    background: rgba(168, 85, 247, 0.2);
+    border-color: rgba(168, 85, 247, 0.4);
+}
+
+/* PROXIMITY INTERACT TOAST (AUTONOMOUS LIFE) */
+.proximity-interact-toast {
+    position: absolute;
+    bottom: 82px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(11, 19, 43, 0.94);
+    border: 1px solid #38bdf8;
+    border-radius: 12px;
+    padding: 10px 18px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 24px rgba(56, 189, 248, 0.3);
+    z-index: 10000;
+    cursor: pointer;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    animation: proxSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+}
+@keyframes proxSlideUp {
+    from { opacity: 0; transform: translate(-50%, 15px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+.prox-avatar {
+    font-size: 24px;
+}
+.prox-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.prox-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #38bdf8;
+}
+.prox-speech {
+    font-size: 11px;
+    font-style: italic;
+    color: #fde68a;
+}
+.prox-hint {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+.prox-hint kbd {
+    background: #0f172a;
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 800;
+}
+
+/* 5D QUANTUM MODAL */
+.q5d-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 10002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.q5d-modal-card {
+    background: #070e24;
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 30px rgba(56, 189, 248, 0.3);
+    width: 95vw;
+    max-width: 820px;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 22px;
+}
+.q5d-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+}
+.q5d-modal-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+}
+.q5d-close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #94a3b8;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.q5d-close-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: #fff;
+}
+
+/* ==========================================================================
+   ASTRA QUANT CAMPUS V3.0 — PINTEREST CYBERPUNK STYLING SYSTEM
+   ========================================================================== */
+
+/* 1. CAMPUS WINGS TAB BAR */
+.campus-wings-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    background: rgba(11, 19, 43, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 12px;
+    margin-bottom: 18px;
+    overflow-x: auto;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.wing-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.wing-tab-btn:hover {
+    color: #f8fafc;
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.3);
+}
+
+.wing-tab-btn.active {
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.35), rgba(99, 102, 241, 0.35));
+    border-color: #38bdf8;
+    color: #fff;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+}
+
+.wing-tab-badge {
+    font-size: 9.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+}
+
+.wing-tab-btn.active .wing-tab-badge {
+    background: #0284c7;
+    color: #fff;
+}
+
+/* 2. SLEEK COMPACT DEPARTMENT CARDS (Fixed Height 240px, NO Overflows) */
+.dept-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+    margin-bottom: 22px;
+}
+
+@media (max-width: 1400px) {
+    .dept-cards-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+@media (max-width: 960px) {
+    .dept-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 600px) {
+    .dept-cards-grid { grid-template-columns: 1fr !important; }
+}
+
+.dept-sleek-card {
+    background: radial-gradient(circle at 80% 20%, rgba(15, 23, 42, 0.95), rgba(8, 14, 30, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 240px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+
+.dept-sleek-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--dept-color, #38bdf8);
+    opacity: 0.7;
+    transition: opacity 0.25s;
+}
+
+.dept-sleek-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--dept-color, #38bdf8);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.2);
+}
+
+.dept-sleek-card:hover::before {
+    opacity: 1;
+    box-shadow: 0 0 10px var(--dept-color, #38bdf8);
+}
+
+.dept-card-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.dept-avatar-badge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dept-avatar-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1.5px solid;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #020617;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dept-avatar-box:hover {
+    transform: scale(1.12);
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.6) !important;
+}
+
+.dept-avatar-box img {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    image-rendering: pixelated;
+}
+
+.dept-mood-mini-tag {
+    font-size: 9.5px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid;
+    white-space: nowrap;
+}
+
+.dept-top-right-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.dept-num-tag {
+    font-size: 9.5px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+}
+
+.dept-status-pill {
+    font-size: 9px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+.dept-card-main-title {
+    margin-top: 4px;
+}
+
+.dept-title-text {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dept-officer-text {
+    font-size: 10px;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+}
+
+.dept-model-strip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    padding: 3px 6px;
+    background: rgba(2, 6, 23, 0.7);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+}
+
+.dept-model-tag { color: #c084fc; font-weight: 700; white-space: nowrap; }
+.dept-provider-tag { color: #64748b; white-space: nowrap; }
+.dept-ping-tag { margin-left: auto; font-weight: 700; white-space: nowrap; }
+
+.dept-quote-bubble {
+    background: rgba(2, 6, 23, 0.85);
+    border-left: 2.5px solid;
+    border-radius: 0 6px 6px 0;
+    padding: 6px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: #cbd5e1;
+    line-height: 1.35;
+    height: 38px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+}
+
+.dept-card-bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    gap: 6px;
+}
+
+.dept-kpi-compact {
+    display: flex;
+    flex-direction: column;
+}
+
+.kpi-c-label { font-size: 9px; color: #64748b; font-family: 'JetBrains Mono', monospace; }
+.kpi-c-val { font-size: 10.5px; font-weight: 700; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+
+.dept-btn-sleek {
+    font-size: 9.5px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid;
+    background: rgba(15, 23, 42, 0.8);
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.dept-btn-sleek:hover {
+    background: var(--dept-color, #38bdf8);
+    color: #fff !important;
+    box-shadow: 0 0 10px var(--dept-color, #38bdf8);
+}
+
+/* 3. ADVERSARIAL DEBATE REALTIME FEED (Telegram Style) */
+.debate-feed-card {
+    background: #0b1329;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+}
+
+.debate-item-box {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    transition: border-color 0.2s;
+}
+
+.debate-item-box:hover {
+    border-color: rgba(56, 189, 248, 0.35);
+}
+
+.debate-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.debate-badge-tag {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.debate-meta-tags {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 9.5px;
+    color: #94a3b8;
+}
+
+.debate-speech-text {
+    font-size: 11px;
+    color: #f1f5f9;
+    line-height: 1.4;
+    margin-top: 3px;
+}
+
+/* 4. BOTTOM TWO-COLUMN GRID */
+.pixel-bottom-duo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 18px;
+}
+
+@media (max-width: 960px) {
+    .pixel-bottom-duo-grid { grid-template-columns: 1fr; }
+}
+
+.model-health-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 10px; background: rgba(15, 23, 42, 0.6); border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+}
+.mh-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* BOSS CARD INTERACTIVE UPGRADES (SOI BOSS & NHẬP THỂ) */
+.game-boss-card {
+    width: 270px !important;
+    height: 80px !important;
+    padding: 8px 10px !important;
+}
+.boss-avatar-wrap {
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.boss-avatar-wrap:hover {
+    transform: scale(1.08);
+}
+.boss-pulse-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 9px;
+    height: 9px;
+    background: #10b981;
+    border: 1.5px solid #0f172a;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
+    animation: bossPulseGlow 1.6s infinite alternate;
+}
+@keyframes bossPulseGlow {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 12px #10b981; }
+}
+.boss-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+.boss-header-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    cursor: pointer;
+}
+.boss-header-line b {
+    color: #fde68a;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.boss-header-line:hover b {
+    color: #38bdf8;
+    text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+.boss-bars-compact {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+}
+.boss-bars-compact .game-stat-bar {
+    flex: 1;
+    height: 9px;
+    margin: 0;
+}
+.boss-bars-compact .game-stat-bar .bar-label {
+    font-size: 7.5px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+.boss-actions-row {
+    display: flex;
+    gap: 5px;
+    margin-top: 1px;
+}
+.btn-boss-action {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 3px 6px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    background: rgba(15, 23, 42, 0.85);
+    color: #cbd5e1;
+    white-space: nowrap;
+    user-select: none;
+}
+.btn-boss-action:hover {
+    transform: translateY(-1px);
+}
+.btn-tele-boss {
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+}
+.btn-tele-boss:hover {
+    background: rgba(56, 189, 248, 0.25);
+    border-color: #38bdf8;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+.btn-possess-boss {
+    border-color: rgba(168, 85, 247, 0.45);
+    color: #c084fc;
+}
+.btn-possess-boss:hover {
+    background: rgba(168, 85, 247, 0.25);
+    border-color: #a855f7;
+    color: #fff;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+}
+.btn-possess-boss.active-possessed {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(236, 72, 153, 0.5)) !important;
+    border-color: #f472b6 !important;
+    color: #fff !important;
+    box-shadow: 0 0 16px rgba(244, 114, 182, 0.7) !important;
+    animation: possessPulse 1.5s infinite alternate !important;
+}
+@keyframes possessPulse {
+    0% { box-shadow: 0 0 8px rgba(244, 114, 182, 0.4); }
+    100% { box-shadow: 0 0 18px rgba(244, 114, 182, 0.95); }
+}
+
+/* ==========================================================================
+   GAME LOADING OVERLAY (CYBERPUNK AAA BOOT SEQUENCE)
+   ========================================================================== */
+@keyframes autoDismissOverlay {
+    0%, 75% {
+        opacity: 1;
+        visibility: visible;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+.game-loading-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 999999;
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.98) 0%, rgba(3, 7, 18, 0.99) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    pointer-events: auto;
+    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: autoDismissOverlay 1.2s ease-out forwards;
+}
+
+.game-loading-overlay.hidden,
+.game-loading-overlay[style*="display: none"] {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    display: none !important;
+}
+
+.game-loading-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 580px;
+    width: 90%;
+    padding: 36px 32px;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 20px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.game-loading-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #38bdf8, #f59e0b, transparent);
+    animation: scanTop 3s linear infinite;
+}
+
+@keyframes scanTop {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(50%); }
+}
+
+/* Reactor Logo Animation */
+.loading-reactor {
+    position: relative;
+    width: 86px;
+    height: 86px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reactor-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid transparent;
+}
+
+.reactor-ring.outer {
+    width: 86px;
+    height: 86px;
+    border-top-color: #38bdf8;
+    border-bottom-color: #0284c7;
+    animation: spinClockwise 2.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+
+.reactor-ring.middle {
+    width: 62px;
+    height: 62px;
+    border-left-color: #f59e0b;
+    border-right-color: #fbbf24;
+    animation: spinCounterClockwise 1.8s linear infinite;
+}
+
+.reactor-ring.inner {
+    width: 40px;
+    height: 40px;
+    border-top-color: #10b981;
+    border-bottom-color: #059669;
+    animation: spinClockwise 1.2s ease-in-out infinite;
+}
+
+.reactor-core {
+    font-size: 26px;
+    color: #f8fafc;
+    filter: drop-shadow(0 0 10px #38bdf8);
+    animation: pulseCore 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes spinClockwise {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spinCounterClockwise {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-360deg); }
+}
+
+@keyframes pulseCore {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    100% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 16px #f59e0b); }
+}
+
+.loading-title {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #f8fafc;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 6px;
+    text-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+}
+
+.loading-subtitle {
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.loading-bar-wrap {
+    width: 100%;
+    height: 10px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+    position: relative;
+}
+
+.loading-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #0284c7, #38bdf8, #f59e0b);
+    border-radius: 4px;
+    transition: width 0.15s ease-out;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
+    position: relative;
+}
+
+.loading-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.2) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 20px 20px;
+    animation: moveStripes 1s linear infinite;
+}
+
+@keyframes moveStripes {
+    0% { background-position: 0 0; }
+    100% { background-position: 20px 20px; }
+}
+
+.loading-status-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    margin-bottom: 18px;
+}
+
+.loading-status-pct {
+    font-weight: 800;
+    color: #38bdf8;
+    font-size: 13px;
+}
+
+.loading-terminal-logs {
+    width: 100%;
+    height: 80px;
+    background: rgba(3, 7, 18, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    color: #64748b;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.loading-terminal-logs .terminal-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.loading-terminal-logs .terminal-line.active {
+    color: #38bdf8;
+    font-weight: 600;
+}
+
+.loading-terminal-logs .terminal-line.success {
+    color: #10b981;
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   3-WAY EXECUTIVE DIALOGUE CONTAINER (PATROL HUD)
+   ========================================================================== */
+.patrol-dialogue-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 10px;
+}
+
+.dialogue-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 11px;
+    line-height: 1.45;
+    transition: all 0.3s ease;
+}
+
+.dialogue-speaker {
+    font-weight: 800;
+    white-space: nowrap;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.boss-speaker {
+    background: rgba(245, 158, 11, 0.25);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.officer-speaker {
+    background: rgba(56, 189, 248, 0.25);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.astra-speaker {
+    background: rgba(168, 85, 247, 0.25);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.dialogue-text {
+    color: #e2e8f0;
+    flex: 1;
+}
+
+.dialogue-line.active-speaking {
+    transform: scale(1.02);
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.4));
+}
+
+/* ==========================================================================
+   5D DIGITAL TWIN & GIS COCKPIT HUD STYLES (TELLUX / CESIUM WEBGIS)
+   ========================================================================== */
+.world-mode-switch-group {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(10, 15, 30, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 4px;
+}
+.btn-floor-mode {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8;
+    font-size: 11.5px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 5px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+}
+.btn-floor-mode:hover {
+    color: #f8fafc;
+    background: rgba(56, 189, 248, 0.15);
+}
+.btn-floor-mode.active {
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.45), rgba(99, 102, 241, 0.45));
+    border-color: #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+}
+
+.gis-cockpit-hud {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(8, 14, 28, 0.92);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 12px;
+    padding: 8px 16px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85), 0 0 25px rgba(56, 189, 248, 0.15);
+    z-index: 100;
+    pointer-events: auto;
+    gap: 12px;
+    flex-wrap: wrap;
+    animation: modalFadeIn 0.3s ease;
+}
+.gis-cockpit-panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.gis-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 9px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+}
+.gis-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: q5dPulse 1.5s infinite;
+}
+.gis-telemetry-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    font-family: 'JetBrains Mono', monospace;
+}
+.gis-k {
+    font-size: 8.5px;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.gis-v {
+    font-size: 11px;
+    color: #f8fafc;
+    font-weight: 800;
+}
+.gis-divider {
+    width: 1px;
+    height: 24px;
+    background: rgba(148, 163, 184, 0.25);
+    margin: 0 4px;
+}
+.gis-btn {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.gis-btn:hover {
+    color: #f8fafc;
+    border-color: #38bdf8;
+    background: rgba(56, 189, 248, 0.2);
+}
+.gis-btn.active {
+    background: rgba(2, 132, 199, 0.35);
+    border-color: #38bdf8;
+    color: #38bdf8;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+.gis-btn-preset {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+.gis-btn-preset.cyber {
+    background: rgba(14, 165, 233, 0.15);
+    border-color: rgba(56, 189, 248, 0.35);
+    color: #38bdf8;
+}
+.gis-btn-preset.sunset {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.35);
+    color: #fbbf24;
+}
+.gis-btn-preset.matrix {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.35);
+    color: #34d399;
+}
+.gis-btn-preset:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 10px currentColor;
+}
+.gis-btn-action {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #e2e8f0;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.gis-btn-action:hover {
+    background: rgba(56, 189, 248, 0.25);
+    border-color: #38bdf8;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .gis-cockpit-hud {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 8px 10px;
+        bottom: 8px;
+        left: 8px;
+        right: 8px;
+    }
+    .gis-cockpit-panel {
+        justify-content: space-between;
+    }
+    .world-mode-switch-group {
+        width: 100%;
+        justify-content: center;
+    }
+}
+/* --------------------------------------------------------------------------
+   CYBER SUPERCAR COCKPIT HUD & FPV MINIMAL RETICLE
+   -------------------------------------------------------------------------- */
+.fpv-crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fpv-dot {
+    width: 4px;
+    height: 4px;
+    background: #00f0ff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #00f0ff, 0 0 16px rgba(0, 240, 255, 0.6);
+}
+.fpv-circle {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid rgba(0, 240, 255, 0.4);
+    border-radius: 50%;
+    box-sizing: border-box;
+}
+
+.car-cockpit-hud {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    pointer-events: auto;
+}
+.car-hud-panel {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(3, 7, 18, 0.96) 100%);
+    border: 1.5px solid rgba(0, 240, 255, 0.5);
+    border-radius: 14px;
+    padding: 12px 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 240, 255, 0.25);
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 320px;
+}
+.car-hud-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 6px;
+}
+.car-hud-icon {
+    font-size: 18px;
+}
+.car-hud-name {
+    font-weight: 800;
+    font-size: 13px;
+    color: #f8fafc;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.car-hud-badge {
+    margin-left: auto;
+    font-size: 9px;
+    font-weight: 800;
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+.car-hud-dashboard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.speedometer-container {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 240, 255, 0.25);
+}
+.speed-val {
+    font-size: 32px;
+    font-weight: 900;
+    font-family: 'Courier New', monospace;
+    color: #00f0ff;
+    text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+    line-height: 1;
+    min-width: 52px;
+    text-align: right;
+}
+.speed-unit {
+    font-size: 11px;
+    font-weight: 800;
+    color: #94a3b8;
+}
+.nitro-gauge-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.nitro-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 800;
+    color: #f8fafc;
+}
+.nitro-label span:last-child {
+    color: #38bdf8;
+    font-family: monospace;
+}
+.nitro-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.nitro-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00f0ff 0%, #38bdf8 50%, #d946ef 100%);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+    transition: width 0.08s ease;
+}
+.car-hud-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 10px;
+    color: #cbd5e1;
+}
+.car-key {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 10px;
+}
+.car-key b {
+    color: #38bdf8;
+}
+.car-nitro-key b {
+    color: #d946ef;
+}
+.btn-exit-car {
+    margin-left: auto;
+    background: rgba(239, 68, 68, 0.25);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #fca5a5;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-exit-car:hover {
+    background: rgba(239, 68, 68, 0.5);
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Confetti Celebration Canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Fixed Real-time Alert Toast Container -->
+<div id="pixel-alert-container"></div>
+
+<div class="pixel-floor-wrapper">
+
+    <!-- 1. TOP LIVE TICKER STRIP -->
+    <div class="pixel-ticker-header-bar">
+        <div class="ticker-pairs-wrap">
+            <div class="ticker-pair-card">
+                <span class="ticker-symbol">BTC/USDT</span>
+                <span class="ticker-price bullish" id="ticker-BTCUSDT">--</span>
+            </div>
+            <div class="ticker-pair-card">
+                <span class="ticker-symbol">ETH/USDT</span>
+                <span class="ticker-price bullish" id="ticker-ETHUSDT">--</span>
+            </div>
+            <div class="ticker-pair-card">
+                <span class="ticker-symbol">SOL/USDT</span>
+                <span class="ticker-price bearish" id="ticker-SOLUSDT">--</span>
+            </div>
+            <div class="ticker-pair-card">
+                <span class="ticker-symbol">BNB/USDT</span>
+                <span class="ticker-price bullish" id="ticker-BNBUSDT">--</span>
+            </div>
+        </div>
+
+        <div class="ticker-right-tools">
+            <div class="live-badge-glow">
+                <span class="live-dot-pulse"></span>
+                <span>AUDIT MODE · RECENT RECORD</span>
+            </div>
+            <div class="clock-display" id="pixel-live-clock">--:--:-- GMT+7</div>
+            <div style="font-size: 11px; color: #64748b; font-family: 'JetBrains Mono', monospace;" id="pixel-live-date">--/--/----</div>
+        </div>
+    </div>
+
+    <!-- 2. HERO BANNER: THIÊN CƠ CÁC V3.0 -->
+    <div class="thien-co-hero">
+        <div class="thien-co-hero-bg"></div>
+        <div class="thien-co-hero-overlay"></div>
+        <div class="thien-co-hero-content">
+            <div class="hero-branding">
+                <div class="hero-seal-badge">天機</div>
+                <div class="hero-titles">
+                    <h1>THIÊN CƠ CÁC · TRỤ SỞ ASTRA QUANT V3.0</h1>
+                    <div class="hero-subtitle">
+                        <span>Astra Quant Labs</span>
+                        <span>·</span>
+                        <span style="color: #38bdf8;">Tầng 404 Institutional Floor</span>
+                        <span>·</span>
+                        <span style="color: #10b981;">12 phòng ban · 4 phân khu</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-metrics-strip">
+                <div class="hero-metric-item">
+                    <span class="hero-metric-label">Số dư từ hệ thống</span>
+                    <span class="hero-metric-val" id="hero-bal-val" style="color: #38bdf8;">$30.00</span>
+                </div>
+                <div class="hero-metric-item">
+                    <span class="hero-metric-label">Tổng PnL</span>
+                    <span class="hero-metric-val" id="hero-pnl-val" style="color: #10b981;">+$0.3328</span>
+                </div>
+                <div class="hero-metric-item">
+                    <span class="hero-metric-label">Tỷ Lệ Veto AI</span>
+                    <span class="hero-metric-val" id="hero-veto-val" style="color: #ef4444;">74 Veto (Bảo Toàn Vốn)</span>
+                </div>
+                <div class="hero-metric-item">
+                    <span class="hero-metric-label">Agents xác minh online</span>
+                    <span class="hero-metric-val" id="hero-agents-val" style="color: #c084fc;">12 / 12 Phòng Ban</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Alert Marquee & Controls -->
+        <div class="hero-actions-bar">
+            <div class="hero-alert-banner">
+                <span class="hero-alert-tag" id="hero-alert-tag">⚡ THÔNG BÁO MỚI</span>
+                <span class="hero-alert-text" id="hero-alert-text">12 phòng ban · 4 phân khu · Trạng thái cập nhật từ hệ thống.</span>
+            </div>
+
+            <div class="hero-btn-group">
+                <button class="btn-cyber" id="btn-toggle-sound" onclick="toggleAudio()">🔊 Âm Thanh: BẬT</button>
+                <div class="test-btn-group" hidden>
+                    <span style="font-size: 10px; color: #64748b; font-family: 'JetBrains Mono', monospace;">Nổ Alert:</span>
+                    <button class="btn-alert-test btn-alert-green" onclick="testAlert('green')" title="Test Khớp Lệnh / Lãi">🟢 Xanh</button>
+                    <button class="btn-alert-test btn-alert-red" onclick="testAlert('red')" title="Test AI Veto / Cắt Lỗ">🔴 Đỏ</button>
+                    <button class="btn-alert-test btn-alert-purple" onclick="testAlert('purple')" title="Test Tín Hiệu Chiến Lược">🟣 Tím</button>
+                    <button class="btn-alert-test btn-alert-gold" onclick="testAlert('gold')" title="Test Chốt Lời / Trailing">🟡 Vàng</button>
+                </div>
+                <button class="btn-cyber btn-cyber-primary" onclick="fetchPixelFloorTelemetry(true)">🔄 Làm Mới</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. CAMPUS WINGS TAB BAR (4 PHÂN KHU CÔNG TY) -->
+        <!-- 3. CAMPUS WINGS TAB BAR (4 PHÂN KHU DOANH NGHIỆP) -->
+    <div class="campus-wings-bar">
+        <button class="wing-tab-btn active" onclick="filterCampusWing('all', this)">
+            <span>🏢</span>
+            <span>Tất Cả Tầng Trade</span>
+            <span class="wing-tab-badge">12 BAN</span>
+        </button>
+        <button class="wing-tab-btn" onclick="filterCampusWing('executive', this)">
+            <span>💼</span>
+            <span>Ban Điều Hành & CRO</span>
+            <span class="wing-tab-badge">2 BAN</span>
+        </button>
+        <button class="wing-tab-btn" onclick="filterCampusWing('trading', this)">
+            <span>⚡</span>
+            <span>Sàn Giao Dịch & OMS</span>
+            <span class="wing-tab-badge">3 BAN</span>
+        </button>
+        <button class="wing-tab-btn" onclick="filterCampusWing('research', this)">
+            <span>📊</span>
+            <span>Viện Quant & Breakout</span>
+            <span class="wing-tab-badge">3 BAN</span>
+        </button>
+        <button class="wing-tab-btn" onclick="filterCampusWing('operations', this)">
+            <span>🛡️</span>
+            <span>Kiểm Soát & Hậu Cần</span>
+            <span class="wing-tab-badge">4 BAN</span>
+        </button>
+    </div>
+
+    <!-- 4. SÀN 3D INTERACTIVE STAGE (4 PHÒNG CHUYÊN BIỆT) -->
+    <div class="office-stage-container" id="office-stage-container">
+        <div class="office-stage-header">
+            <div class="office-stage-title-wrap">
+                <div class="world-mode-switch-group">
+                    <button type="button" class="btn-floor-mode active" id="btn-mode-campus" onclick="switchFloorMode('campus')" title="Trụ sở vận hành Sàn Trade 12 ban 3D Isometric (Tầng Trên)">
+                        🏢 Sàn Trade (Tầng Trên)
+                    </button>
+                    <button type="button" class="btn-floor-mode" id="btn-mode-twin" onclick="switchFloorMode('twin')" title="Phòng 5D Digital Twin chuẩn Tellux WebGIS bên cạnh Sàn Trade với 3,500 hạt vector thanh khoản">
+                        🌐 Phòng 5D Digital Twin (Bên Cạnh)
+                    </button>
+                    <button type="button" class="btn-floor-mode" id="btn-mode-mkt" onclick="switchFloorMode('mkt')" title="Tầng Dưới B1: 12 Phòng Ban MKT Niver, Điều phối 22 Fanpage Ads & Seeding Booster">
+                        📢 Tầng Dưới: MKT Niver
+                    </button>
+                </div>
+                <span class="office-stage-badge" id="office-stage-subbadge">3D TẦNG TRADE (TẦNG TRÊN · 12 BAN QUANT)</span>
+            </div>
+
+            <div class="office-stage-controls" id="campus-stage-controls">
+                <button class="btn-office-tool active" id="btn-cam-god" onclick="officeEngine?.setCameraMode('god')" title="Toàn cảnh bao quát trụ sở 12 phòng ban">👁️ View Thượng Đế</button>
+                <button class="btn-office-tool" id="btn-cam-fpv" onclick="officeEngine?.setCameraMode('fpv')" title="Góc nhìn thứ nhất trực tiếp qua mắt Boss">👤 Góc Nhìn Thứ 1 (FPV)</button>
+                <button class="btn-office-tool" id="btn-cam-shoulder" onclick="officeEngine?.setCameraMode('shoulder')" title="Góc nhìn thứ 2 qua vai Boss">🎯 Góc Nhìn Thứ 2 (Góc Vai)</button>
+                <button class="btn-office-tool" id="btn-cam-follow" onclick="officeEngine?.setCameraMode('follow')" title="Góc nhìn thứ 3 bám đuôi Boss">🏃 Góc Nhìn Thứ 3 (Bám Đuôi)</button>
+                <button class="btn-office-tool" id="btn-cam-tactical" onclick="officeEngine?.setCameraMode('tactical')" title="Bản đồ tác chiến từ trên đỉnh xuống">🗺️ Tactical 2D</button>
+                <button class="btn-office-tool" id="btn-auto-patrol" onclick="officeEngine?.toggleAutonomousPatrol()" title="Boss & Astra tự động tuần tra 12 phòng ban như người thật" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.25)); border-color: #f59e0b; color: #fde68a;">🤖 CEO Auto Patrol</button>
+                <button class="btn-office-tool" id="btn-patrol" onclick="officeEngine?.patrolNextDept()">🔄 Thị Sát Tuần Tra</button>
+                <button class="btn-office-tool" id="btn-coffee" onclick="officeEngine?.triggerCoffee()">☕ Tiệc Cà Phê</button>
+                <button class="btn-office-tool" id="btn-hud-audio" onclick="toggleOfficeAudio()"><span id="hud-audio-icon">🔊</span> Âm Thanh</button>
+                <button class="btn-office-tool" id="btn-hud-fullscreen" onclick="officeEngine?.toggleFullscreen()">⛶ Phóng To</button>
+            </div>
+        </div>
+
+        <div class="office-viewport" id="office-viewport">
+            <!-- Canvas 3D Three.js: Trụ sở 3D thực tế với 12 trạm mô hình 3D, màn hình chart động, cây xanh, hologram và sprites -->
+            <canvas id="office-stage-canvas" class="office-stage-canvas"></canvas>
+
+            <!-- 5D CYBER DIGITAL TWIN WORLD CONTAINER (TELLUX / WEBGIS) -->
+            <div id="three-world-container" style="position: absolute; inset: 0; z-index: 15; display: none; width: 100%; height: 100%; overflow: hidden; border-radius: 12px;"></div>
+
+            <!-- 📢 MKT NIVER LOWER OPERATIONS DECK (TẦNG DƯỚI - 12 BAN MKT & ADS) -->
+            <div id="mkt-floor-container" style="position: absolute; inset: 0; z-index: 22; display: none; width: 100%; height: 100%; overflow-y: auto; border-radius: 12px; background: radial-gradient(circle at 50% 25%, #0f172a 0%, #030712 100%); padding: 16px; border: 1px solid rgba(168, 85, 247, 0.25);">
+                <!-- Top Telemetry Ribbon -->
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 9px; padding: 10px 14px; margin-bottom: 12px; backdrop-filter: blur(8px); flex-wrap: wrap; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 16px;">📢</span>
+                        <div>
+                            <div style="font-size: 12.5px; font-weight: 800; color: #f8fafc; letter-spacing: 0.5px;">MKT NIVER OPERATIONS DECK (TẦNG DƯỚI)</div>
+                            <div style="font-size: 9px; color: #c084fc; font-weight: 700;">HỆ THỐNG 12 PHÒNG BAN MARKETING · 22 FANPAGES · ADS & THATIM SEEDING</div>
+                        </div>
+                        <span style="font-size: 8.5px; padding: 2px 7px; border-radius: 4px; background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); font-weight: 800; margin-left: 6px;">12/12 BAN TRỰC CHIẾN</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; align-items: center; flex-wrap: wrap;">
+                        <span style="color: #38bdf8;">📑 22 FANPAGES</span>
+                        <span style="color: #64748b;">|</span>
+                        <span style="color: #4ade80;">🌱 THATIM: $152.39</span>
+                        <span style="color: #64748b;">|</span>
+                        <span style="color: #c084fc;">💎 GEMINI: +150K/ĐƠN</span>
+                        <span style="color: #64748b;">|</span>
+                        <span style="color: #f59e0b;">🎯 ADS: ẢNH + CAPTION</span>
+                        <span style="color: #64748b;">|</span>
+                        <a href="/admin/mkt-floor" target="_blank" style="padding: 4px 10px; background: rgba(168, 85, 247, 0.2); border: 1px solid #c084fc; color: #e9d5ff; border-radius: 6px; text-decoration: none; font-weight: 800; font-size: 10px;">MỞ FULL TRANG ↗</a>
+                    </div>
+                </div>
+
+                <!-- Speech Bubble in Viewport -->
+                <div id="mkt-stage-speech" style="display: none; background: rgba(15, 23, 42, 0.9); border: 1px solid #a855f7; border-radius: 9px; padding: 10px 14px; margin-bottom: 12px; font-size: 11.5px; color: #f1f5f9; box-shadow: 0 4px 16px rgba(0,0,0,0.4);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <span id="mkt-stage-speech-icon" style="font-size: 16px;">🎯</span>
+                        <strong id="mkt-stage-speech-name" style="color: #c084fc;">Tổng Chỉ Huy</strong>
+                        <span id="mkt-stage-speech-model" style="font-size: 8.5px; font-family: 'JetBrains Mono', monospace; color: #64748b; margin-left: auto;">glm-5.3-flash</span>
+                    </div>
+                    <div id="mkt-stage-speech-text" style="color: #cbd5e1; line-height: 1.4;">Báo cáo trực chiến phòng ban...</div>
+                </div>
+
+                <!-- 12 Agent Mini Deck Grid -->
+                <div id="mkt-stage-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                    <!-- Injected by pixel_floor.js -->
+                </div>
+            </div>
+
+            <!-- CYBER GIS COCKPIT HUD (GIS SANDCASTLE & PHYSICAL INFRASTRUCTURE TELEMETRY) -->
+            <div id="gis-cockpit-hud" class="gis-cockpit-hud" style="display: none; z-index: 25;">
+                <!-- Telemetry Metrics -->
+                <div class="gis-cockpit-panel">
+                    <div class="gis-badge"><span class="gis-pulse"></span> 5D DIGITAL TWIN</div>
+                    <div class="gis-telemetry-item">
+                        <span class="gis-k">FPS / LATENCY:</span>
+                        <span class="gis-v" id="gis-fps-val">60 FPS (16.6ms)</span>
+                    </div>
+                    <div class="gis-telemetry-item">
+                        <span class="gis-k">GPU PARTICLES:</span>
+                        <span class="gis-v" id="gis-particles-val" style="color: #38bdf8;">3,500 Streamlines</span>
+                    </div>
+                    <div class="gis-telemetry-item">
+                        <span class="gis-k">FLOW VECTOR:</span>
+                        <span class="gis-v" id="gis-flow-val" style="color: #10b981;">BULLS ROTATION (+2.8x)</span>
+                    </div>
+                    <div class="gis-divider"></div>
+                    <div class="gis-telemetry-item">
+                        <span class="gis-k">⚡ LƯỚI ĐIỆN:</span>
+                        <span class="gis-v" id="gis-power-val" style="color: #f59e0b;">14.8 kW (Tier-4 · 230V)</span>
+                    </div>
+                    <div class="gis-telemetry-item">
+                        <span class="gis-k">🌐 BĂNG THÔNG:</span>
+                        <span class="gis-v" id="gis-bandwidth-val" style="color: #06b6d4;">1.45 Gbps (18.2k pkts/s)</span>
+                    </div>
+                    <div class="gis-telemetry-item">
+                        <span class="gis-k">📡 VI BA / WI-FI:</span>
+                        <span class="gis-v" id="gis-telecom-val" style="color: #c084fc;">Wi-Fi 7 · SG-1 18ms</span>
+                    </div>
+                </div>
+
+                <!-- Layer Toggles & Camera Tools -->
+                <div class="gis-cockpit-panel">
+                    <div class="gis-layer-toggles" style="display: inline-flex; gap: 4px; align-items: center;">
+                        <span style="font-size: 9px; color: #64748b; font-weight: 700; margin-right: 2px;">LAYERS:</span>
+                        <button type="button" class="gis-btn active" id="btn-layer-power" onclick="toggleWorldLayer('power')" title="Bật/Tắt Lưới điện cao thế & Trạm PDU">⚡ Điện</button>
+                        <button type="button" class="gis-btn active" id="btn-layer-fiber" onclick="toggleWorldLayer('fiber')" title="Bật/Tắt Cáp quang định tuyến & Data Packets">🌐 Cáp Quang</button>
+                        <button type="button" class="gis-btn active" id="btn-layer-telecom" onclick="toggleWorldLayer('telecom')" title="Bật/Tắt Tháp Ăng-ten Vi ba & Sóng Wi-Fi 7">📡 Sóng Wi-Fi</button>
+                        <button type="button" class="gis-btn active" id="btn-layer-server" onclick="toggleWorldLayer('server')" title="Bật/Tắt Cụm Tủ Rack Máy Chủ 42U">🖥️ Máy Chủ</button>
+                    </div>
+
+                    <div class="gis-divider"></div>
+                    <button type="button" class="gis-btn active" id="btn-gis-mode-orbit" onclick="setWorldEngineMode('ORBIT')">🌐 Orbit 3D</button>
+                    <button type="button" class="gis-btn" id="btn-gis-mode-flyover" onclick="setWorldEngineMode('FLYOVER')">🚁 Flyover 360°</button>
+
+                    <div class="gis-divider"></div>
+                    <button type="button" class="gis-btn-preset cyber" onclick="setWorldEnginePreset('CYBERPUNK')">🌌 Cyber</button>
+                    <button type="button" class="gis-btn-preset sunset" onclick="setWorldEnginePreset('SUNSET')">🌅 Sunset</button>
+                    <button type="button" class="gis-btn-preset matrix" onclick="setWorldEnginePreset('MATRIX')">⚡ Matrix</button>
+
+                    <div class="gis-divider"></div>
+                    <button type="button" class="gis-btn-action" onclick="resetWorldCamera()">🎯 Reset</button>
+                    <button type="button" class="gis-btn-action" onclick="cycleWorldVectorMode()">🌀 Đổi Dòng</button>
+                </div>
+            </div>
+
+
+
+            <!-- PROXIMITY INTERACTION TOAST (AUTONOMOUS LIFE) -->
+            <div class="proximity-interact-toast" id="proximityInteractToast" style="display: none;" onclick="officeEngine?.interactWithNearbyAgent()">
+                <div class="prox-avatar" id="proxAvatar">💬</div>
+                <div class="prox-content">
+                    <div class="prox-title" id="proxTitle">Palermo (Trưởng Ban Xu Hướng)</div>
+                    <div class="prox-speech" id="proxSpeech">"Sếp cần kiểm tra kèo nào cứ ới em!"</div>
+                    <div class="prox-hint">Nhấn <kbd>F</kbd> hoặc <kbd>E</kbd> để Bật Bộ Đàm Đối Thoại</div>
+                </div>
+            </div>
+
+            <!-- CYBERPUNK GAME LOADING OVERLAY (TẢI TÀI NGUYÊN ENGINE & KẾT NỐI HỆ THỐNG NÃO BỘ) -->
+            <div class="game-loading-overlay" id="gameLoadingOverlay" onclick="dismissLoadingOverlay()">
+                <div class="game-loading-card" onclick="event.stopPropagation()">
+                    <button type="button" onclick="dismissLoadingOverlay()" style="position: absolute; top: 12px; right: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; font-size: 11px; font-weight: 700; border-radius: 6px; padding: 4px 10px; cursor: pointer;">✕ Vào Sàn Ngay</button>
+                    <div class="loading-reactor">
+                        <div class="reactor-ring outer"></div>
+                        <div class="reactor-ring middle"></div>
+                        <div class="reactor-ring inner"></div>
+                        <div class="reactor-core">⚡</div>
+                    </div>
+                    <div class="loading-title">ASTRA QUANT · TẦNG TRADE (12 PHÒNG BAN)</div>
+                    <div class="loading-subtitle">KHỞI TẠO THREE.JS WEBGL2 ENGINE · KẾT NỐI HỆ THỐNG NÃO BỘ AI</div>
+                    
+                    <div class="loading-bar-wrap">
+                        <div class="loading-bar-fill" id="gameLoadingBarFill"></div>
+                    </div>
+                    <div class="loading-status-row">
+                        <span class="loading-status-text" id="gameLoadingStatusText">Đang kết nối hệ thống 3D...</span>
+                        <span class="loading-status-pct" id="gameLoadingPct">100%</span>
+                    </div>
+
+                    <div class="loading-terminal-logs" id="gameLoadingLogs">
+                        <div class="terminal-line active">> [BOOT] Khởi động Astra Enterprise Tầng Trade v4.2...</div>
+                        <div class="terminal-line success">> [READY] Hệ thống 12 phòng ban đã sẵn sàng!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ULTRA-FAST LOADING SCRIPT: ANIMATES SWIFTLY & AUTO-DISMISSES WITH MULTIPLE FAIL-SAFES -->
+            <script>
+            window.dismissLoadingOverlay = function() {
+                const overlay = document.getElementById('gameLoadingOverlay');
+                if (overlay) {
+                    overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
+                    overlay.style.pointerEvents = 'none';
+                }
+            };
+
+            (function() {
+                const overlay = document.getElementById('gameLoadingOverlay');
+                const fill = document.getElementById('gameLoadingBarFill');
+                const pctEl = document.getElementById('gameLoadingPct');
+                const textEl = document.getElementById('gameLoadingStatusText');
+                const logsEl = document.getElementById('gameLoadingLogs');
+                if (!overlay) return;
+
+                let progress = 0;
+                const totalDuration = 350; // 350ms ultra fast
+                const stepInterval = 25;
+                const increment = 100 / (totalDuration / stepInterval);
+
+                const timer = setInterval(() => {
+                    progress = Math.min(progress + increment, 100);
+                    if (fill) fill.style.width = progress + '%';
+                    if (pctEl) pctEl.textContent = Math.floor(progress) + '%';
+
+                    if (progress >= 100) {
+                        clearInterval(timer);
+                        window.dismissLoadingOverlay();
+                    }
+                }, stepInterval);
+
+                // Fail-safe 1: 600ms timeout
+                setTimeout(window.dismissLoadingOverlay, 600);
+
+                // Fail-safe 2: on window load
+                window.addEventListener('load', () => setTimeout(window.dismissLoadingOverlay, 200));
+            })();
+            </script>
+
+
+            <!-- LỚP HUD GAME HIỆN ĐẠI (CHỈ MỘT LỚP DUY NHẤT, KHÔNG CHỒNG CHÉO) -->
+            <div class="game-hud-overlay" id="gameHudOverlay">
+                <!-- Top Navigation & Live Stats Bar -->
+                <div class="game-top-hud">
+                    <div class="game-brand">
+                        <b>ASTRA DESK</b>
+                        <small>TRADING · AI · AUTOMATION</small>
+                    </div>
+                    <div class="game-top-stat">
+                        <b id="game-online-count" style="color: #10b981;">12/12</b>
+                        <small>Agent trực chiến</small>
+                    </div>
+                    <div class="game-top-stat">
+                        <b id="game-pnl-today" style="color: #10b981;">+$0.6750 USDT</b>
+                        <small id="game-pnl-sub">PnL hôm nay (Tổng: +$4.3324)</small>
+                    </div>
+                    <div class="game-top-stat">
+                        <b id="game-clock">--:--:--</b>
+                        <small id="game-date">--/--/----</small>
+                    </div>
+                    <div class="game-top-stat">
+                        <b style="color: #38bdf8;">☀️ 28°C · Nắng đẹp</b>
+                        <small>Cyber Hub · Sài Gòn</small>
+                    </div>
+
+                    <!-- 5D QUANTUM CONFLUENCE TENSOR WIDGET (DRAGGABLE & COLLAPSIBLE) -->
+                    <div class="q5d-hud-bar" id="q5dHudBar" title="Nhấp xem chi tiết Ma Trận 5D · Kéo thả để di chuyển">
+                        <span class="q5d-drag-handle" id="q5dDragHandle" title="Kéo thả 5D Tensor tự do">⠿</span>
+                        <div class="q5d-pulse-glow" id="q5dPulseGlow"></div>
+                        <div class="q5d-label-box" onclick="officeEngine?.openQuantum5dModal()" style="cursor: pointer;">
+                            <span class="q5d-core-icon">⚛️</span>
+                            <span class="q5d-title-text">5D TENSOR</span>
+                        </div>
+                        <div class="q5d-score-box" onclick="officeEngine?.openQuantum5dModal()" style="cursor: pointer;">
+                            <span class="q5d-score-num" id="q5dScoreNum">78.2</span>
+                            <span class="q5d-score-max">/100</span>
+                        </div>
+                        <div class="q5d-badge-status" id="q5dBadgeStatus" onclick="officeEngine?.openQuantum5dModal()" style="cursor: pointer;">ASTRA PHÊ CHUẨN</div>
+                        <div class="q5d-dims-preview">
+                            <span class="q5d-dim-item" id="q5dDim1" title="D1: Price Action">D1: 72</span>
+                            <span class="q5d-dim-item" id="q5dDim2" title="D2: Orderbook Depth">D2: 76</span>
+                            <span class="q5d-dim-item" id="q5dDim3" title="D3: Gaussian Volatility σ">D3: 78</span>
+                            <span class="q5d-dim-item" id="q5dDim4" title="D4: NLP Sentiment">D4: 64</span>
+                            <span class="q5d-dim-item" id="q5dDim5" title="D5: Risk & Funding">D5: 80</span>
+                            <span class="q5d-dim-item coh" id="q5dDimCoh" title="Quantum Phase Coherence">γ: 79.6%</span>
+                        </div>
+                        <button type="button" class="q5d-3d-toggle-btn" id="btnToggle3dCore" onclick="event.stopPropagation(); toggle3dQuantumCore()" title="Ẩn/Hiện Lõi 3D Tensor ở giữa phòng ban">🔮</button>
+                        <button type="button" class="q5d-collapse-btn" id="btnQ5dCollapse" onclick="event.stopPropagation(); toggleQ5dCollapse()" title="Thu gọn / Mở rộng 5D Tensor">◀</button>
+                        <button type="button" class="q5d-reset-btn" id="btnQ5dReset" onclick="event.stopPropagation(); resetQ5dPosition()" title="Đặt lại vị trí gốc" style="display: none;">↺</button>
+                    </div>
+
+                    <a class="game-hud-link" href="javascript:void(0)" onclick="openQuickReportModal()">📊 Báo Cáo</a>
+                    <a class="game-hud-link" href="/admin/audit-logs">🛡️ Kiểm Toán</a>
+                    <a class="game-hud-link" href="/admin/settings">⚙️ Cài Đặt</a>
+                </div>
+
+                <!-- 1. PUBG TACTICAL COMPASS TAPE (TOP CENTER) -->
+                <div class="pubg-compass-wrap" id="pubgCompassWrap">
+                    <div class="pubg-compass-pointer">▼</div>
+                    <div class="pubg-compass-strip-container">
+                        <div class="pubg-compass-strip" id="pubgCompassStrip"></div>
+                    </div>
+                    <div class="pubg-compass-degree-badge" id="pubgCompassDegree">000° N</div>
+                </div>
+
+                <!-- 2. PUBG TACTICAL CROSSHAIR & INTERACTION PROMPT -->
+                <div class="pubg-crosshair" id="pubgCrosshair">
+                    <div class="crosshair-line top"></div>
+                    <div class="crosshair-line bottom"></div>
+                    <div class="crosshair-line left"></div>
+                    <div class="crosshair-line right"></div>
+                    <div class="crosshair-dot"></div>
+                    <div class="pubg-interact-prompt" id="pubgInteractPrompt" style="display: none;">
+                        <span class="pubg-f-key">[ F ]</span>
+                        <span class="pubg-prompt-text" id="pubgPromptText">TƯƠNG TÁC TRẠM</span>
+                    </div>
+                </div>
+
+                <!-- 2.1 PURE FPV MINIMAL RETICLE -->
+                <div class="fpv-crosshair" id="fpv-crosshair" style="display: none;">
+                    <div class="fpv-dot"></div>
+                    <div class="fpv-circle"></div>
+                </div>
+
+                <!-- 2.3 CYBER SUPERCAR COCKPIT HUD (SPEEDOMETER & NITRO GAUGE) -->
+                <div class="car-cockpit-hud" id="car-cockpit-hud" style="display: none;">
+                    <div class="car-hud-panel">
+                        <div class="car-hud-header">
+                            <span class="car-hud-icon">🏎️</span>
+                            <span class="car-hud-name" id="car-name-display">LAMBORGHINI AVENTADOR SVJ</span>
+                            <span class="car-hud-badge">V12 770HP · OVERCLOCK</span>
+                        </div>
+                        <div class="car-hud-dashboard">
+                            <div class="speedometer-container">
+                                <div class="speed-val" id="car-speed-val">0</div>
+                                <div class="speed-unit">KM/H</div>
+                            </div>
+                            <div class="nitro-gauge-container">
+                                <div class="nitro-label">
+                                    <span>NITRO BOOST [SPACE]</span>
+                                    <span id="car-nitro-val">100%</span>
+                                </div>
+                                <div class="nitro-bar">
+                                    <div class="nitro-fill" id="car-nitro-fill" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="car-hud-controls">
+                            <span class="car-key"><b>W/S</b> Ga & Thắng</span>
+                            <span class="car-key"><b>A/D</b> Đánh lái</span>
+                            <span class="car-key car-nitro-key"><b>SPACE</b> Phun Nitro</span>
+                            <button type="button" class="btn-exit-car" onclick="officeEngine?.exitSupercar()">[ESC / F] Xuống Xe</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2.5 TACTICAL SMART PATROL HUD (GLASSMORPHIC MINI-CARD) -->
+                <div class="tactical-patrol-hud" id="tacticalPatrolHud" style="display: none;">
+                    <div class="patrol-hud-header">
+                        <div class="patrol-hud-badge" id="patrolHudBadge">⚡ PHÒNG 04 • OMS</div>
+                        <div class="patrol-priority-tag normal" id="patrolPriorityTag">🛡️ AN TOÀN 100%</div>
+                        <div class="patrol-hud-step" id="patrolHudStep">TRẠM 1/12</div>
+                        <button type="button" class="patrol-close-btn" onclick="officeEngine?.stopPatrol()" title="Dừng tuần tra (Esc)">✕</button>
+                    </div>
+                    <div class="patrol-hud-body">
+                        <div class="patrol-officer-info">
+                            <span class="patrol-officer-avatar" id="patrolOfficerAvatar">👨‍💻</span>
+                            <div class="patrol-officer-text">
+                                <b class="patrol-station-title" id="patrolStationTitle">Ban Khớp Lệnh & Thực Thi OMS</b>
+                                <span class="patrol-officer-sub" id="patrolOfficerSub">Smart Order Router v3.0 · Binance Live</span>
+                            </div>
+                        </div>
+                        <div class="patrol-live-metrics">
+                            <div class="patrol-metric-chip">
+                                <small>PnL Thực Tế</small>
+                                <b id="patrolMetricPnl" style="color: #10b981;">+$0.4556</b>
+                            </div>
+                            <div class="patrol-metric-chip">
+                                <small>Vị Thế / Lệnh</small>
+                                <b id="patrolMetricPos">13 Vị thế</b>
+                            </div>
+                            <div class="patrol-metric-chip">
+                                <small>Drawdown</small>
+                                <b id="patrolMetricDd" style="color: #38bdf8;">0.00%</b>
+                            </div>
+                            <div class="patrol-metric-chip">
+                                <small>Cảnh Báo Veto</small>
+                                <b id="patrolMetricVeto" style="color: #10b981;">0 VETO</b>
+                            </div>
+                        </div>
+                                                <!-- 3-WAY EXECUTIVE DIALOGUE: BOSS ➔ OFFICER ➔ THƯ KÝ ASTRA -->
+                        <div class="patrol-dialogue-container" id="patrolDialogueContainer">
+                            <div class="dialogue-line boss-line" id="patrolBossLine">
+                                <span class="dialogue-speaker boss-speaker">👑 BOSS:</span>
+                                <span class="dialogue-text" id="patrolBossText">"Astra, kiểm tra tình hình vận hành phòng ban này ngay!"</span>
+                            </div>
+                            <div class="dialogue-line officer-line" id="patrolOfficerLine">
+                                <span class="dialogue-speaker officer-speaker" id="patrolOfficerSpeaker">👨‍💻 TRƯỞNG PHÒNG:</span>
+                                <span class="dialogue-text" id="patrolOfficerText">"Báo cáo Boss: Tất cả chỉ số đang trong ngưỡng an toàn tối đa."</span>
+                            </div>
+                            <div class="dialogue-line astra-line" id="patrolAstraLine">
+                                <span class="dialogue-speaker astra-speaker">🤖 THƯ KÝ ASTRA:</span>
+                                <span class="dialogue-text" id="patrolAstraText">"AI Model đã xác thực dữ liệu khớp lệnh và tuân thủ kỷ luật 100%."</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="patrol-hud-footer">
+                        <div class="patrol-controls">
+                            <button type="button" class="patrol-btn secondary" onclick="officeEngine?.patrolPrevDept()" title="Trạm trước">
+                                ◀ Trước
+                            </button>
+                            <button type="button" class="patrol-btn primary" onclick="officeEngine?.patrolNextDept()" title="Trạm tiếp theo (Space / T)">
+                                Tiếp Theo ▶ <kbd>T</kbd>
+                            </button>
+                            <button type="button" class="patrol-btn action" onclick="officeEngine?.openCurrentDeptDetail()" title="Xem chi tiết trạm (F)">
+                                🔍 Xem Chi Tiết <kbd>F</kbd>
+                            </button>
+                            <button type="button" class="patrol-btn stop" onclick="officeEngine?.stopPatrol()" title="Dừng tuần tra (Esc)">
+                                ⏹ Dừng <kbd>Esc</kbd>
+                            </button>
+                        </div>
+                        <div class="patrol-timer-progress">
+                            <div class="patrol-progress-bar" id="patrolProgressBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. UNIFIED TACTICAL MISSION DOCK (SLEEK & INSTITUTIONAL) -->
+                
+    <!-- MOBILE VIRTUAL JOYSTICK & TOUCH CONTROLS (AUTO-ACTIVE ON MOBILE) -->
+    <div id="mobile-touch-layer">
+        <div id="virtual-joystick-container">
+            <div id="virtual-joystick-base">
+                <div id="virtual-joystick-knob"></div>
+            </div>
+            <span class="joystick-hint">🕹️ CẦN GẠT DI CHUYỂN</span>
+        </div>
+        <div id="mobile-camera-touch-zone">
+            <span class="touch-hint-label">👆 Vuốt để xoay góc nhìn 3D</span>
+        </div>
+        <button type="button" id="btn-mobile-jump" onclick="officeEngine?.triggerJump()" title="Nhảy">
+            🚀
+        </button>
+    </div>
+
+    <!-- MOBILE FLOATING ACTION BUTTONS (FAB) -->
+    <div class="mobile-fabs-row">
+        <button type="button" class="mobile-fab" onclick="toggleMobileBossCard()" title="Xem Boss & Astra">
+            👑 Boss
+        </button>
+        <button type="button" class="mobile-fab" onclick="toggleMobileRadarPanel()" title="Xem Radar & PnL">
+            📊 Radar
+        </button>
+        <button type="button" class="mobile-fab" onclick="officeEngine?.toggleTacticalView()" title="Đổi FPV / TPP">
+            🎮 FPV/TPP
+        </button>
+    </div>
+
+<div class="tactical-mission-dock" id="tacticalMissionDock">
+                    <div class="dock-drag-handle" id="dockDragHandle" title="Kéo thả thanh OMS & Quant Lab tự do (Thượng đế kéo thả chủ động)">⠿</div>
+
+                    <!-- 3 Core Pillars -->
+                    <div class="dock-pillar active" id="wpn-slot-1" onclick="officeEngine?.selectToolSlot(1)" title="Khớp lệnh thực chiến (Phím 1)">
+                        <span class="dock-num">1</span>
+                        <div class="dock-info">
+                            <span class="dock-tag">⚡ OMS LIVE</span>
+                            <span class="dock-val" id="dock-val-slot-1">1 VỊ THẾ (BTC)</span>
+                        </div>
+                    </div>
+                    <div class="dock-pillar" id="wpn-slot-2" onclick="officeEngine?.selectToolSlot(2)" title="Phòng Thí Nghiệm Quant (Phím 2)">
+                        <span class="dock-num">2</span>
+                        <div class="dock-info">
+                            <span class="dock-tag">🔬 QUANT LAB</span>
+                            <span class="dock-val" id="dock-val-slot-2">TENSOR 71.9</span>
+                        </div>
+                    </div>
+                    <div class="dock-pillar" id="wpn-slot-3" onclick="officeEngine?.selectToolSlot(3)" title="Hội Đồng Rủi Ro (Phím 3)">
+                        <span class="dock-num">3</span>
+                        <div class="dock-info">
+                            <span class="dock-tag">🛡️ DUAL-VETO</span>
+                            <span class="dock-val" id="dock-val-slot-3">0.00% DD</span>
+                        </div>
+                    </div>
+
+                    <div class="dock-divider"></div>
+
+                    <!-- Quick Tools -->
+                    <div class="dock-tools">
+                        <button type="button" class="dock-tool-btn" onclick="openCyberIntercomModal('Astra')" title="Đàm thoại trực tiếp với các Tác tử AI (Boss Intercom)" style="background: rgba(139, 92, 246, 0.25); border-color: rgba(168, 85, 247, 0.5); color: #c084fc;">
+                            <span>🎙️</span> Đàm Thoại
+                        </button>
+                        <button type="button" class="dock-tool-btn" onclick="officeEngine?.patrolNextDept()" title="Tự động tuần tra qua các phòng ban">
+                            <span>🧭</span> Tuần Tra
+                        </button>
+                        <button type="button" class="dock-tool-btn" onclick="officeEngine?.resetToIsometric()" title="Đặt lại góc nhìn trung tâm 3D">
+                            <span>🎯</span> Trung Tâm
+                        </button>
+                        <button type="button" class="dock-tool-btn" onclick="officeEngine?.toggleTacticalView()" title="Chuyển đổi góc nhìn 3D (Phím V)">
+                            <span>🎮</span> Góc Nhìn
+                        </button>
+                        <button type="button" class="dock-tool-btn" onclick="officeEngine?.triggerCoffee()" title="Tiệc cà phê giải lao">
+                            <span>☕</span>
+                        </button>
+                        <button type="button" class="dock-tool-btn" onclick="officeEngine?.triggerTeamBuildingCelebration()" title="Ăn Mừng Big Win & Thưởng Team Building cho dàn Giáo Sư / Tiến Sĩ AI" style="background: rgba(245, 158, 11, 0.25); border-color: rgba(245, 158, 11, 0.5); color: #fbbf24; font-weight: 700;">
+                            <span>🎊</span> Team Building
+                        </button>
+                        <button type="button" class="dock-tool-btn" onclick="teleportToBalcony()" title="Dịch chuyển tức thời ra Ban Công Siêu Xe Ferrari & Megacity Skyline (Phím B)" style="background: rgba(220, 38, 38, 0.25); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; font-weight: 700;">
+                            <span>🏎️</span> Siêu Xe Ferrari
+                        </button>
+                        <button type="button" class="dock-tool-btn" onclick="officeEngine?.triggerCyberElevator()" title="Đi Thang Máy Kính Cyber chuyển tầng giữa Sàn Trade & Tầng MKT Niver (Phím E)" style="background: rgba(56, 189, 248, 0.25); border-color: rgba(56, 189, 248, 0.5); color: #7dd3fc; font-weight: 700;">
+                            <span>🛗</span> Thang Máy Kính
+                        </button>
+                    </div>
+
+                    <div class="dock-hint">
+                        <span style="color: #38bdf8; font-weight: 700;">Nhấp đúp / Phím 1–9: Smart Zoom Cận Cảnh</span>
+                        <span>•</span>
+                        <span style="color: #ef4444; font-weight: 700;">Phím B: Ra Ban Công Siêu Xe</span>
+                        <span>•</span>
+                        <span style="color: #38bdf8; font-weight: 700;">Phím E: Đi Thang Máy</span>
+                        <span>•</span>
+                        <span style="color: #10b981; font-weight: 700;">Phím F/ESC: Lái / Xuống Xe</span>
+                        <span>•</span>
+                        <span>WASD: Di chuyển</span>
+                    </div>
+
+                    <!-- Actions: Collapse & Reset -->
+                    <div class="dock-actions-cluster">
+                        <button type="button" class="dock-collapse-btn" id="btnDockCollapse" onclick="toggleDockCollapse()" title="Thu gọn / Mở rộng thanh công cụ">▼</button>
+                        <button type="button" class="dock-reset-btn" id="btnDockReset" onclick="resetDockPosition()" title="Đặt lại vị trí mặc định ở đáy màn hình">↺</button>
+                    </div>
+                </div>
+
+                <!-- Right Company & Tactical Radar Panel -->
+                <aside class="game-company-panel">
+                    <div class="minimap-header">
+                        <span class="radar-dot"></span> RADAR PHÂN KHU
+                    </div>
+                    <div class="minimap-canvas-wrapper" style="position: relative; width: 130px; height: 130px; margin: 0 auto;">
+                        <canvas id="hud-minimap-canvas" width="130" height="130" style="display: block; cursor: crosshair;"></canvas>
+                        <div id="minimap-radar-tooltip" style="display: none; position: absolute; bottom: 135px; right: -15px; width: 230px; background: rgba(5, 12, 28, 0.96); border: 1px solid #38bdf8; border-radius: 8px; padding: 8px 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.85), 0 0 15px rgba(56, 189, 248, 0.35); pointer-events: none; z-index: 999; backdrop-filter: blur(12px); font-family: 'JetBrains Mono', monospace;"></div>
+                    </div>
+                    <div style="font-size: 8px; color: #94a3b8; text-align: center; margin: 4px 0 2px 0; font-family: 'JetBrains Mono', monospace;">🎯 Nhấp điểm radar: Zoom 3D & Mở RPG Sheet</div>
+                    <div class="minimap-legend">
+                        <span style="color: #f59e0b;">● ĐH</span>
+                        <span style="color: #06b6d4;">● OMS</span>
+                        <span style="color: #a855f7;">● Quant</span>
+                        <span style="color: #10b981;">● Vault</span>
+                    </div>
+                    <h3 style="margin-top: 10px;">TRẠNG THÁI VẬN HÀNH</h3>
+                    <dl>
+                        <div><dt>Đội ngũ online</dt><dd id="game-panel-online" style="color: #10b981; font-weight: 800;">12 / 12</dd></div>
+                        <div><dt>Hard Risk Gate</dt><dd id="game-panel-risk" style="color: #10b981; font-weight: 800;">AN TOÀN 100%</dd></div>
+                        <div><dt>Hạ tầng uptime</dt><dd id="game-panel-uptime" style="color: #a855f7; font-weight: 800;">99.99%</dd></div>
+                    </dl>
+                    <h3>HIỆU SUẤT TRADING</h3>
+                    <dl>
+                        <div><dt>PnL hôm nay</dt><dd id="game-panel-pnl" style="color: #10b981; font-weight: 800;">+$0.3328</dd></div>
+                        <div><dt>Win Rate</dt><dd id="game-panel-winrate" style="color: #fde68a; font-weight: 800;">66.7%</dd></div>
+                        <div><dt>Số lệnh khớp</dt><dd id="game-panel-trades" style="color: #38bdf8; font-weight: 800;">6 lệnh</dd></div>
+                    </dl>
+                </aside>
+
+                <!-- Mini Toggle for Boss & Astra HUD -->
+                <button type="button" class="btn-hud-boss-toggle" id="btnHudBossToggle" onclick="toggleBossAstraHud()" title="Thu gọn / Mở rộng bảng Boss & Astra">
+                    <span id="hud-boss-toggle-icon">▼</span>
+                    <span id="hud-boss-toggle-text">Thu Gọn HUD</span>
+                </button>
+
+                <!-- Boss Card with Quick Teleport & Nhập Thể Controls -->
+                <section class="game-boss-card" id="gameBossCard">
+                    <div class="boss-avatar-wrap" onclick="officeEngine?.focusOnBoss()" title="Nhấp để Teleport camera soi Boss">
+                        <img src="/static/images/sprites/sprite_01_pm.png" alt="Boss" class="pixel-avatar">
+                        <span class="boss-pulse-dot" title="Boss đang trực tuyến"></span>
+                    </div>
+                    <div class="boss-card-info">
+                        <div class="boss-header-line" onclick="officeEngine?.focusOnBoss()" title="Nhấp để Teleport camera vào Phòng Tổng Tư Lệnh">
+                            <b>👑 BOSS · CEO / COMMANDER</b>
+                            <span style="font-size: 8px; color: #f59e0b; font-weight: 800; background: rgba(245, 158, 11, 0.15); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(245, 158, 11, 0.3);">CEO SUITE</span>
+                        </div>
+                        <div class="boss-bars-compact">
+                            <div class="game-stat-bar hp" title="Uy tín & Sinh lực lãnh đạo">
+                                <div class="bar-fill" style="width: 100%;"></div>
+                                <span class="bar-label">HP 100%</span>
+                            </div>
+                            <div class="game-stat-bar mp" title="Năng lượng điều hành & Chiến lược">
+                                <div class="bar-fill" style="width: 88%;"></div>
+                                <span class="bar-label">MP 88%</span>
+                            </div>
+                        </div>
+                        <div class="boss-actions-row">
+                            <button type="button" class="btn-boss-action btn-tele-boss" id="btnFocusBoss" onclick="officeEngine?.focusOnBoss()" title="Teleport camera theo dõi vị trí Boss">👁️ Soi Boss</button>
+                            <button type="button" class="btn-boss-action btn-possess-boss" id="btnPossessBoss" onclick="officeEngine?.possessBoss()" title="Nhập thể trực tiếp điều khiển Boss (phím W-A-S-D, Space nhảy, Esc thoát)">🔮 Nhập Thể</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Astra Assistant Dialogue -->
+                <section class="game-dialogue" id="gameDialogue" aria-live="polite">
+                    <img src="/static/images/sprites/sprite_06_community.png" alt="Astra" class="pixel-avatar">
+                    <div class="dialogue-content">
+                        <b>Trợ lý AI Astra</b>
+                        <p id="astra-dialogue">Chào Boss! Tổng hành dinh 3D ASTRA DESK đang hoạt động với đầy đủ 12 phòng ban chuyên biệt. Boss có thể click vào sàn để di chuyển hoặc nhấp vào phòng ban để xem hồ sơ!</p>
+                    </div>
+                </section>
+
+                <!-- Bottom Quick Actions (Đã gộp hoàn toàn vào Tactical Dock & Top Bar) -->
+
+                <!-- Hover Tooltip -->
+                <div id="office-hud-tooltip" class="office-hud-tooltip" style="display: none;">
+                    <div class="hud-tooltip-header">
+                        <span class="hud-tooltip-badge" id="hud-badge">01 · PM</span>
+                        <span class="hud-tooltip-status" id="hud-status">ONLINE</span>
+                    </div>
+                    <div class="hud-tooltip-title" id="hud-title">Ban Điều Hành PM</div>
+                    <div class="hud-tooltip-officer" id="hud-officer">Antigravity Lead PM</div>
+                    <div class="hud-tooltip-metric" id="hud-metric">Phân bổ vốn: 100% USDT</div>
+                    <div class="hud-tooltip-hint">Nhấp chuột để mở chi tiết phòng ban ↗</div>
+                </div>
+
+                <!-- Active Wing Focus Banner -->
+                <div class="wing-focus-banner" id="wingFocusBanner" style="display: none;">
+                    <span id="wingFocusBannerText">🎯 FOCUS: KHU ĐIỀU HÀNH & CRO</span>
+                </div>
+
+                <!-- Guidance caption -->
+                <div class="game-map-caption">
+                    🖱️ CLICK CHUỘT TRÁI ĐỂ ĐIỀU KHIỂN BOSS DI CHUYỂN · XOAY 3D VỚI CHUỘT PHẢI / CUỘN ĐỂ ZOOM · NHẤP PHÒNG BAN ĐỂ XEM HỒ SƠ
+                </div>
+            </div>
+        </div>
+
+        <div class="office-event-log-ticker" id="officeEventLogTicker" onclick="toggleTickerLogDrawer(event)">
+            <span class="event-ticker-tag" id="office-ticker-tag">⚡ LUỒNG THỰC THI:</span>
+            <span class="event-ticker-msg" id="office-ticker-msg">Đang tải bản ghi hoạt động gần nhất…</span>
+            <span class="event-ticker-stat" id="office-ticker-stat">CHỜ DỮ LIỆU</span>
+            <button type="button" class="btn-ticker-dropdown" id="btn-ticker-dropdown" onclick="toggleTickerLogDrawer(event)" title="Xem nhật ký các luồng thực thi gần nhất">
+                <span>Chi Tiết Luồng</span>
+                <span id="ticker-arrow" style="transition: transform 0.2s;">▼</span>
+            </button>
+        </div>
+
+        <!-- DROPDOWN DRAWER: LỊCH SỬ LUỒNG THỰC THI -->
+        <div id="ticker-log-drawer" class="ticker-log-drawer" style="display: none;">
+            <div class="ticker-drawer-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 13px;">⚡</span>
+                    <strong style="font-size: 11.5px; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">NHẬT KÝ ĐIỀU PHỐI & PHẢN ỨNG THỰC CHIẾN (EXECUTION FEED)</strong>
+                </div>
+                <span style="font-size: 10px; color: #64748b; font-family: 'JetBrains Mono', monospace;">Tự động cập nhật thời gian thực</span>
+            </div>
+            <div id="ticker-log-items" class="ticker-log-items">
+                <div class="ticker-log-item-empty">Đang đồng bộ luồng thực thi từ Risk Council & OMS...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. MƯỜI HAI THẺ PHÒNG BAN DẠNG COMPACT SLEEK (PINTEREST CYBERPUNK) -->
+    <div class="dept-section-container" id="deptSectionContainer">
+        <div class="dept-section-header" onclick="toggleDeptCardsDropdown()" id="deptSectionHeader">
+            <div class="dept-header-left">
+                <span class="dept-header-icon">📋</span>
+                <span class="dept-header-title">HỒ SƠ 12 PHÒNG BAN TÁC CHIẾN (FLEET STATIONS)</span>
+                <span class="badge badge-cyan" style="font-size: 10px; padding: 2px 8px; border: 1px solid #38bdf8; color: #38bdf8; background: rgba(56,189,248,0.1);">12/12 ONLINE</span>
+            </div>
+            
+            <div class="dept-header-right">
+                <!-- Quick filter pills -->
+                <div class="dept-quick-filters" onclick="event.stopPropagation()">
+                    <button type="button" class="dept-filter-pill active" onclick="filterDeptCards('all', this)">Tất Cả (12)</button>
+                    <button type="button" class="dept-filter-pill" onclick="filterDeptCards('executive', this)">Điều Hành (3)</button>
+                    <button type="button" class="dept-filter-pill" onclick="filterDeptCards('trading', this)">Sàn OMS (3)</button>
+                    <button type="button" class="dept-filter-pill" onclick="filterDeptCards('quant', this)">Quant Lab (3)</button>
+                    <button type="button" class="dept-filter-pill" onclick="filterDeptCards('security', this)">Vault (3)</button>
+                </div>
+                
+                <button type="button" class="btn-dept-toggle" id="btnDeptToggle">
+                    <span id="dept-toggle-icon" style="transition: transform 0.2s;">▼</span>
+                    <span id="dept-toggle-text">Thu Gọn</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="dept-cards-grid" id="deptCardsGrid">
+
+        <!-- DEPT 01: LEAD_PM (Wing: executive) -->
+        <div class="dept-sleek-card" id="card-lead_pm" data-wing="executive" onclick="openDeptDetailModal('lead_pm')" style="--dept-color: #38bdf8;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" onclick="event.stopPropagation(); openAgentRpgSheet('Astra')" title="Nhấp để soi Bảng Chỉ Số RPG của Astra" style="border-color: #38bdf8; box-shadow: 0 0 12px #38bdf833;">
+                        <img src="/static/images/sprites/sprite_01_pm.png" alt="lead_pm">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-lead_pm" style="color: #38bdf8; border-color: #38bdf844; background: #38bdf815;">
+                        👨‍💼 Thư Thái / Điều Phối
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #38bdf8;">01 · ĐIỀU HÀNH & CHIẾN LƯỢC</span>
+                    <span class="dept-status-pill badge-green" id="status-lead_pm">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Ban Điều Hành PM</div>
+                <div class="dept-officer-text">Antigravity Lead PM (Gemini 3.8 / GPT-5.6)</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 gemini-3.8-flash</span>
+                <span class="dept-provider-tag">Google Gemini</span>
+                <span class="dept-ping-tag" id="ping-lead_pm" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-lead_pm" style="border-left-color: #38bdf8;">
+                💬 <span class="quote-text-inner" id="quote-lead_pm">Điều phối vốn an toàn. Đảm bảo 12 phòng ban phối hợp nhịp nhàng theo kỷ luật.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Phân bổ vốn:</span>
+                    <span class="kpi-c-val" style="color: #38bdf8;">50U Test / 450U Vault</span>
+                </div>
+                <a href="/admin/settings" class="dept-btn-sleek" style="border-color: #38bdf844; color: #38bdf8;" onclick="event.stopPropagation()">CẤU HÌNH SÀN ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 02: RISK_COUNCIL (Wing: executive) -->
+        <div class="dept-sleek-card" id="card-risk_council" data-wing="executive" onclick="openDeptDetailModal('risk_council')" style="--dept-color: #ef4444;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" onclick="event.stopPropagation(); openAgentRpgSheet('Rik')" title="Nhấp để soi Bảng Chỉ Số RPG của Rik" style="border-color: #ef4444; box-shadow: 0 0 12px #ef444433;">
+                        <img src="/static/images/sprites/sprite_02_risk.png" alt="risk_council">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-risk_council" style="color: #ef4444; border-color: #ef444444; background: #ef444415;">
+                        🛡️ Phản Biện / Veto
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #ef4444;">02 · QUẢN TRỊ RỦI RO</span>
+                    <span class="dept-status-pill badge-amber" id="status-risk_council">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Hội Đồng Rủi Ro (CRO)</div>
+                <div class="dept-officer-text">Agent Rik — Claude-Sonnet-4-6 (Vyce AI)</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 claude-sonnet-4-6</span>
+                <span class="dept-provider-tag">Vyce AI</span>
+                <span class="dept-ping-tag" id="ping-risk_council" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-risk_council" style="border-left-color: #ef4444;">
+                💬 <span class="quote-text-inner" id="quote-risk_council">Bảo toàn vốn là số 1! Phủ quyết mọi tín hiệu vào cản hoặc R:R xấu.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Cơ chế bảo vệ:</span>
+                    <span class="kpi-c-val" style="color: #ef4444;">Hard Risk Gate 2%</span>
+                </div>
+                <a href="/admin/lessons" class="dept-btn-sleek" style="border-color: #ef444444; color: #ef4444;" onclick="event.stopPropagation()">SỔ TAY BÀI HỌC ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 03: NEWS_SCOUT (Wing: operations) -->
+        <div class="dept-sleek-card" id="card-news_scout" data-wing="operations" onclick="openDeptDetailModal('news_scout')" style="--dept-color: #06b6d4;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" onclick="event.stopPropagation(); openAgentRpgSheet('Hash')" title="Nhấp để soi Bảng Chỉ Số RPG của Hash" style="border-color: #06b6d4; box-shadow: 0 0 12px #06b6d433;">
+                        <img src="/static/images/sprites/sprite_03_scout.png" alt="news_scout">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-news_scout" style="color: #06b6d4; border-color: #06b6d444; background: #06b6d415;">
+                        📡 Cảnh Báo / Săn Tin
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #06b6d4;">03 · TRINH SÁT TIN TỨC</span>
+                    <span class="dept-status-pill badge-green" id="status-news_scout">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Trinh Sát Tin Tức & NLP</div>
+                <div class="dept-officer-text">Agent Hash — GPT-5.6-Terra (9Router)</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 cx/gpt-5.6-terra</span>
+                <span class="dept-provider-tag">9Router</span>
+                <span class="dept-ping-tag" id="ping-news_scout" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-news_scout" style="border-left-color: #06b6d4;">
+                💬 <span class="quote-text-inner" id="quote-news_scout">Quét macro sentiment & on-chain ví cá voi liên tục 24/7.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Tốc độ phản ứng:</span>
+                    <span class="kpi-c-val" style="color: #06b6d4;">< 150ms Telemetry</span>
+                </div>
+                <a href="/admin/audit-logs" class="dept-btn-sleek" style="border-color: #06b6d444; color: #06b6d4;" onclick="event.stopPropagation()">NHẬT KÝ AUDIT ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 04: QUANT_LAB (Wing: research) -->
+        <div class="dept-sleek-card" id="card-quant_lab" data-wing="research" onclick="openDeptDetailModal('quant_lab')" style="--dept-color: #a855f7;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" onclick="event.stopPropagation(); openAgentRpgSheet('Palermo')" title="Nhấp để soi Bảng Chỉ Số RPG của Palermo" style="border-color: #a855f7; box-shadow: 0 0 12px #a855f733;">
+                        <img src="/static/images/sprites/sprite_04_quant.png" alt="quant_lab">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-quant_lab" style="color: #a855f7; border-color: #a855f744; background: #a855f715;">
+                        📊 Định Lượng / Tối Ưu
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #a855f7;">04 · CHIẾN LƯỢC ĐỊNH LƯỢNG</span>
+                    <span class="dept-status-pill badge-purple" id="status-quant_lab">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Phòng Thí Nghiệm Quant</div>
+                <div class="dept-officer-text">Agent Palermo — DeepSeek-V4.1 (Vyce AI)</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 deepseek-v4.1</span>
+                <span class="dept-provider-tag">Vyce AI</span>
+                <span class="dept-ping-tag" id="ping-quant_lab" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-quant_lab" style="border-left-color: #a855f7;">
+                💬 <span class="quote-text-inner" id="quote-quant_lab">Hội đồng phân kỳ RSI & giao cắt EMA 20/50 khung 15m/1h.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Chiến lược:</span>
+                    <span class="kpi-c-val" style="color: #a855f7;">EMA Trend & MeanRev</span>
+                </div>
+                <a href="/admin/quantum" class="dept-btn-sleek" style="border-color: #a855f744; color: #a855f7;" onclick="event.stopPropagation()">QUANT COCKPIT ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 05: BREAKOUT_HUNTER (Wing: research) -->
+        <div class="dept-sleek-card" id="card-breakout_hunter" data-wing="research" onclick="openDeptDetailModal('breakout_hunter')" style="--dept-color: #f97316;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" style="border-color: #f97316; box-shadow: 0 0 12px #f9731633; cursor: pointer;" onclick="event.stopPropagation(); openAgentRpgSheet('Tory')" title="Xem Hồ Sơ RPG: Tory">
+                        <img src="/static/images/sprites/sprite_05_execution.png" alt="breakout_hunter">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-breakout_hunter" style="color: #f97316; border-color: #f9731644; background: #f9731615;">
+                        ⚡ Rình Mồi / Breakout
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #f97316;">05 · SĂN ĐỘT PHÁ</span>
+                    <span class="dept-status-pill badge-amber" id="status-breakout_hunter">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Đội Săn Breakout</div>
+                <div class="dept-officer-text">Agent Tory — Qwen-3.8-Flash (Alibaba / Vyce)</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 qwen-3.8-flash</span>
+                <span class="dept-provider-tag">Vyce AI</span>
+                <span class="dept-ping-tag" id="ping-breakout_hunter" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-breakout_hunter" style="border-left-color: #f97316;">
+                💬 <span class="quote-text-inner" id="quote-breakout_hunter">Donchian 20 nến đang nén chặt, canh breakout volume spike.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Chiến lược:</span>
+                    <span class="kpi-c-val" style="color: #f97316;">—</span>
+                </div>
+                <a href="/admin/quantum" class="dept-btn-sleek" style="border-color: #f9731644; color: #f97316;" onclick="event.stopPropagation()">QUANT COCKPIT ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 06: VOLATILITY_LAB (Wing: research) -->
+        <div class="dept-sleek-card" id="card-volatility_lab" data-wing="research" onclick="openDeptDetailModal('volatility_lab')" style="--dept-color: #eab308;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" style="border-color: #eab308; box-shadow: 0 0 12px #eab30833; cursor: pointer;" onclick="event.stopPropagation(); openAgentRpgSheet('Volt')" title="Xem Hồ Sơ RPG: Volt">
+                        <img src="/static/images/sprites/sprite_04_quant.png" alt="volatility_lab">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-volatility_lab" style="color: #eab308; border-color: #eab30844; background: #eab30815;">
+                        🌊 Thận Trọng / Regime
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #eab308;">06 · BIẾN ĐỘNG & REGIME</span>
+                    <span class="dept-status-pill badge-amber" id="status-volatility_lab">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Phòng Đo Biến Động</div>
+                <div class="dept-officer-text">Agent Volt — Groq Llama-3.3-70B</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 llama-3.3-70b-versatile</span>
+                <span class="dept-provider-tag">Groq</span>
+                <span class="dept-ping-tag" id="ping-volatility_lab" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-volatility_lab" style="border-left-color: #eab308;">
+                💬 <span class="quote-text-inner" id="quote-volatility_lab">ADX-14 phân loại chế độ thị trường để tự động tinh chỉnh đòn bẩy.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Chỉ số:</span>
+                    <span class="kpi-c-val" style="color: #eab308;">—</span>
+                </div>
+                <a href="/admin/quantum" class="dept-btn-sleek" style="border-color: #eab30844; color: #eab308;" onclick="event.stopPropagation()">QUANT COCKPIT ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 07: EXECUTION_OMS (Wing: trading) -->
+        <div class="dept-sleek-card" id="card-execution_oms" data-wing="trading" onclick="openDeptDetailModal('execution_oms')" style="--dept-color: #ec4899;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" style="border-color: #ec4899; box-shadow: 0 0 12px #ec489933; cursor: pointer;" onclick="event.stopPropagation(); openAgentRpgSheet('Meme')" title="Xem Hồ Sơ RPG: Meme">
+                        <img src="/static/images/sprites/sprite_05_execution.png" alt="execution_oms">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-execution_oms" style="color: #ec4899; border-color: #ec489944; background: #ec489915;">
+                        🎯 Trực Chiến / Trailing
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #ec4899;">07 · THỰC THI & KHỚP LỆNH</span>
+                    <span class="dept-status-pill badge-green" id="status-execution_oms">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Bộ Phận Khớp Lệnh OMS</div>
+                <div class="dept-officer-text">Agent Meme — Groq Llama-3.3-70B</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 llama-3.3-70b-versatile</span>
+                <span class="dept-provider-tag">Groq</span>
+                <span class="dept-ping-tag" id="ping-execution_oms" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-execution_oms" style="border-left-color: #ec4899;">
+                💬 <span class="quote-text-inner" id="quote-execution_oms">Sẵn sàng khóa lãi Trailing và dời SL về hòa vốn khi lãi +1.0%.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Vị thế & Phí:</span>
+                    <span class="kpi-c-val" style="color: #ec4899;">—</span>
+                </div>
+                <a href="/admin/trader-demo" class="dept-btn-sleek" style="border-color: #ec489944; color: #ec4899;" onclick="event.stopPropagation()">TRADER DEMO ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 08: SPOT_DCA (Wing: trading) -->
+        <div class="dept-sleek-card" id="card-spot_dca" data-wing="trading" onclick="openDeptDetailModal('spot_dca')" style="--dept-color: #14b8a6;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" style="border-color: #14b8a6; box-shadow: 0 0 12px #14b8a633; cursor: pointer;" onclick="event.stopPropagation(); openAgentRpgSheet('Sniper')" title="Xem Hồ Sơ RPG: Sniper">
+                        <img src="/static/images/sprites/sprite_06_community.png" alt="spot_dca">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-spot_dca" style="color: #14b8a6; border-color: #14b8a644; background: #14b8a615;">
+                        💎 Điềm Tĩnh / Tích Sản
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #14b8a6;">08 · SPOT DCA SWING</span>
+                    <span class="dept-status-pill badge-green" id="status-spot_dca">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Phòng Spot DCA Engine</div>
+                <div class="dept-officer-text">Agent Sniper — Claude-Sonnet-4-6 (Vyce AI)</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 claude-sonnet-4-6</span>
+                <span class="dept-provider-tag">Vyce AI</span>
+                <span class="dept-ping-tag" id="ping-spot_dca" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-spot_dca" style="border-left-color: #14b8a6;">
+                💬 <span class="quote-text-inner" id="quote-spot_dca">SOL $110 là vùng hỗ trợ tuần cứng, túc tắc DCA thêm 0.09 SOL. Bảo vệ kho 450U.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Holding:</span>
+                    <span class="kpi-c-val" style="color: #14b8a6;">—</span>
+                </div>
+                <a href="/admin/trader-demo" class="dept-btn-sleek" style="border-color: #14b8a644; color: #14b8a6;" onclick="event.stopPropagation()">SPOT DESK ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 09: ARBITRAGE_DESK (Wing: trading) -->
+        <div class="dept-sleek-card" id="card-arbitrage_desk" data-wing="trading" onclick="openDeptDetailModal('arbitrage_desk')" style="--dept-color: #8b5cf6;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" style="border-color: #8b5cf6; box-shadow: 0 0 12px #8b5cf633; cursor: pointer;" onclick="event.stopPropagation(); openAgentRpgSheet('Deck')" title="Xem Hồ Sơ RPG: Deck">
+                        <img src="/static/images/sprites/sprite_04_quant.png" alt="arbitrage_desk">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-arbitrage_desk" style="color: #8b5cf6; border-color: #8b5cf644; background: #8b5cf615;">
+                        💹 Săn Chênh Lệch Giá
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #8b5cf6;">09 · CHÊNH LỆCH GIÁ</span>
+                    <span class="dept-status-pill badge-purple" id="status-arbitrage_desk">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Trung Tâm Arbitrage</div>
+                <div class="dept-officer-text">Agent Deck — Nvidia Nemotron-3.5 (OpenRouter)</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 nvidia/nemotron-3.5:free</span>
+                <span class="dept-provider-tag">OpenRouter</span>
+                <span class="dept-ping-tag" id="ping-arbitrage_desk" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-arbitrage_desk" style="border-left-color: #8b5cf6;">
+                💬 <span class="quote-text-inner" id="quote-arbitrage_desk">Quét funding rate chênh lệch giữa các sàn để ăn yield rủi ro thấp.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Funding Rate:</span>
+                    <span class="kpi-c-val" style="color: #8b5cf6;">—</span>
+                </div>
+                <a href="/admin/quantum" class="dept-btn-sleek" style="border-color: #8b5cf644; color: #8b5cf6;" onclick="event.stopPropagation()">QUANT COCKPIT ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 10: ACCOUNTING_PM (Wing: operations) -->
+        <div class="dept-sleek-card" id="card-accounting_pm" data-wing="operations" onclick="openDeptDetailModal('accounting_pm')" style="--dept-color: #10b981;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" style="border-color: #10b981; box-shadow: 0 0 12px #10b98133; cursor: pointer;" onclick="event.stopPropagation(); openAgentRpgSheet('Core')" title="Xem Hồ Sơ RPG: Core">
+                        <img src="/static/images/sprites/sprite_01_pm.png" alt="accounting_pm">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-accounting_pm" style="color: #10b981; border-color: #10b98144; background: #10b98115;">
+                        📝 Đúc Kết / Sharpe
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #10b981;">10 · KẾ TOÁN & BÀI HỌC</span>
+                    <span class="dept-status-pill badge-green" id="status-accounting_pm">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Phòng Kế Toán & Post-Mortem</div>
+                <div class="dept-officer-text">Agent Core — DeepSeek-V4-Flash (Vyce AI)</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 deepseek-v4-flash</span>
+                <span class="dept-provider-tag">Vyce AI</span>
+                <span class="dept-ping-tag" id="ping-accounting_pm" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-accounting_pm" style="border-left-color: #10b981;">
+                💬 <span class="quote-text-inner" id="quote-accounting_pm">Đã tích lũy 19 bài học post-mortem. Phân tích Sharpe & PnL liên tục.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Sharpe Ratio:</span>
+                    <span class="kpi-c-val" style="color: #10b981;">—</span>
+                </div>
+                <a href="/admin/performance" class="dept-btn-sleek" style="border-color: #10b98144; color: #10b981;" onclick="event.stopPropagation()">HIỆU SUẤT ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 11: COMMUNITY_AFFILIATE (Wing: operations) -->
+        <div class="dept-sleek-card" id="card-community_affiliate" data-wing="operations" onclick="openDeptDetailModal('community_affiliate')" style="--dept-color: #3b82f6;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" style="border-color: #3b82f6; box-shadow: 0 0 12px #3b82f633; cursor: pointer;" onclick="event.stopPropagation(); openAgentRpgSheet('Square')" title="Xem Hồ Sơ RPG: Square">
+                        <img src="/static/images/sprites/sprite_06_community.png" alt="community_affiliate">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-community_affiliate" style="color: #3b82f6; border-color: #3b82f644; background: #3b82f615;">
+                        📢 Hào Hứng / Kết Nối
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #3b82f6;">11 · KHÁCH HÀNG & SQUARE</span>
+                    <span class="dept-status-pill badge-green" id="status-community_affiliate">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Trung Tâm CRM & Square</div>
+                <div class="dept-officer-text">Agent Square — GPT-5.6-Luna (9Router)</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 cx/gpt-5.6-luna</span>
+                <span class="dept-provider-tag">9Router</span>
+                <span class="dept-ping-tag" id="ping-community_affiliate" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-community_affiliate" style="border-left-color: #3b82f6;">
+                💬 <span class="quote-text-inner" id="quote-community_affiliate">Đã đồng bộ mã giới thiệu Binance GRO_28502_O41DR & Telegram bot.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Mã Giới Thiệu:</span>
+                    <span class="kpi-c-val" style="color: #3b82f6;">—</span>
+                </div>
+                <a href="/admin/clients" class="dept-btn-sleek" style="border-color: #3b82f644; color: #3b82f6;" onclick="event.stopPropagation()">CRM CLIENTS ↗</a>
+            </div>
+        </div>
+
+        <!-- DEPT 12: CVAR_STRESS (Wing: operations) -->
+        <div class="dept-sleek-card" id="card-cvar_stress" data-wing="operations" onclick="openDeptDetailModal('cvar_stress')" style="--dept-color: #f43f5e;">
+            <div class="dept-card-top-row">
+                <div class="dept-avatar-badge-wrap">
+                    <div class="dept-avatar-box" style="border-color: #f43f5e; box-shadow: 0 0 12px #f43f5e33; cursor: pointer;" onclick="event.stopPropagation(); openAgentRpgSheet('Prof')" title="Xem Hồ Sơ RPG: Prof">
+                        <img src="/static/images/sprites/sprite_02_risk.png" alt="cvar_stress">
+                    </div>
+                    <span class="dept-mood-mini-tag" id="mood-badge-cvar_stress" style="color: #f43f5e; border-color: #f43f5e44; background: #f43f5e15;">
+                        🔒 Gác Cổng Ký Quỹ
+                    </span>
+                </div>
+                <div class="dept-top-right-meta">
+                    <span class="dept-num-tag" style="color: #f43f5e;">12 · KIỂM SOÁT KÝ QUỸ</span>
+                    <span class="dept-status-pill badge-amber" id="status-cvar_stress">● UNVERIFIED</span>
+                </div>
+            </div>
+
+            <div class="dept-card-main-title">
+                <div class="dept-title-text">Phòng CVaR & Stress Test</div>
+                <div class="dept-officer-text">Agent Prof — Groq GPT-OSS-120B</div>
+            </div>
+
+            <!-- Model pill tag -->
+            <div class="dept-model-strip">
+                <span class="dept-model-tag" title="Primary AI Model">🤖 openai/gpt-oss-120b</span>
+                <span class="dept-provider-tag">Groq</span>
+                <span class="dept-ping-tag" id="ping-cvar_stress" style="color: #10b981;">—</span>
+            </div>
+
+            <!-- Persona Quote Speech Bubble -->
+            <div class="dept-quote-bubble" id="bubble-cvar_stress" style="border-left-color: #f43f5e;">
+                💬 <span class="quote-text-inner" id="quote-cvar_stress">Stress test margin Futures liên tục. Giám sát liquidation & CVaR 95%.</span>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="dept-card-bottom-bar">
+                <div class="dept-kpi-compact">
+                    <span class="kpi-c-label">Margin Health:</span>
+                    <span class="kpi-c-val" style="color: #f43f5e;">—</span>
+                </div>
+                <a href="/admin/performance" class="dept-btn-sleek" style="border-color: #f43f5e44; color: #f43f5e;" onclick="event.stopPropagation()">HIỆU SUẤT ↗</a>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 6. ADVERSARIAL DEBATE REALTIME FEED (TELEGRAM BOT STYLE) -->
+    <div class="debate-feed-card" style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 16px;">💬</span>
+                <span style="font-size: 13px; font-weight: 800; color: #f8fafc; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;">NHẬT KÝ TRANH BIỆN THỰC CHIẾN (ADVERSARIAL DEBATE FEED)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px;">
+                <span style="color: #10b981;">● TELEGRAM BOT SYNC</span>
+                <span style="color: #64748b;">Khung M15/1H</span>
+            </div>
+        </div>
+
+        <div id="telegram-debate-feed-list">
+            <!-- Sample live items from database / Telegram feed -->
+            <div class="debate-item-box" style="border-left: 3px solid #ef4444;">
+                <div class="debate-header-row">
+                    <span class="debate-badge-tag" style="color: #ef4444;">🔴 [AI VETO - PHỦ QUYẾT BẢO TOÀN VỐN]</span>
+                    <div class="debate-meta-tags">
+                        <span>Cặp: <strong style="color:#38bdf8;">BTC/USDT</strong></span>
+                        <span>Rủi ro: <strong style="color:#ef4444;">5/5</strong></span>
+                        <span>Tự tin: <strong style="color:#10b981;">95%</strong></span>
+                        <span>05:30</span>
+                    </div>
+                </div>
+                <div class="debate-speech-text">
+                    <em>"Bear conclusively dismantles this signal. Catastrophic 0.15:1 reward:risk, 75% stop-loss wiping equity, and a 30USD account with no risk management. A 0.23% target cannot justify a 1.5% loss scenario. This is gambling, not trading."</em>
+                </div>
+            </div>
+
+            <div class="debate-item-box" style="border-left: 3px solid #a855f7;">
+                <div class="debate-header-row">
+                    <span class="debate-badge-tag" style="color: #a855f7;">🔔 [TÍN HIỆU CHIẾN LƯỢC] RSI_Bollinger</span>
+                    <div class="debate-meta-tags">
+                        <span>Tài sản: <strong style="color:#38bdf8;">BTC/USDT</strong></span>
+                        <span>BUY @ <strong>$81,051.00</strong></span>
+                        <span>SL: $79,835 | TP: $81,238</span>
+                        <span>05:30</span>
+                    </div>
+                </div>
+                <div class="debate-speech-text">
+                    Tín hiệu mua quá bán khung M15 phát sinh tại $81,051.00. Chuyển giao Hội Đồng Rủi Ro thẩm định.
+                </div>
+            </div>
+
+            <div class="debate-item-box" style="border-left: 3px solid #ef4444;">
+                <div class="debate-header-row">
+                    <span class="debate-badge-tag" style="color: #ef4444;">🔴 [AI VETO - PHỦ QUYẾT BẢO TOÀN VỐN]</span>
+                    <div class="debate-meta-tags">
+                        <span>Cặp: <strong style="color:#38bdf8;">1000PEPE/USDT</strong></span>
+                        <span>Rủi ro: <strong style="color:#ef4444;">5/5</strong></span>
+                        <span>Tự tin: <strong style="color:#10b981;">92%</strong></span>
+                        <span>05:15</span>
+                    </div>
+                </div>
+                <div class="debate-speech-text">
+                    <em>"Fatal flaws: structure conflict across timeframes, liquidity-hunt wick, stop placement within single-candle kill zone. Memecoin mean-reversion lacks edge; overnight full exposure in weekend void = guaranteed liquidation risk."</em>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. BOTTOM DASHBOARD: 5 MIDDLE KPI CARDS -->
+    <div class="pixel-middle-kpi-grid">
+        <div class="middle-kpi-card">
+            <div class="kpi-icon-square kpi-icon-blue">💼</div>
+            <div class="kpi-info-col">
+                <div class="kpi-label-text">Số Dư Ký Quỹ (Margin)</div>
+                <div class="kpi-value-text" id="kpi-balance-display">—</div>
+                <div class="kpi-sub-text">Chờ dữ liệu có nguồn</div>
+            </div>
+        </div>
+
+        <div class="middle-kpi-card">
+            <div class="kpi-icon-square kpi-icon-green">📦</div>
+            <div class="kpi-info-col">
+                <div class="kpi-label-text">Vị Thế Đang Mở</div>
+                <div class="kpi-value-text" id="kpi-open-pos-display" style="color: #10b981;">—</div>
+                <div class="kpi-sub-text">Chờ dữ liệu có nguồn</div>
+            </div>
+        </div>
+
+        <div class="middle-kpi-card">
+            <div class="kpi-icon-square kpi-icon-purple">📊</div>
+            <div class="kpi-info-col">
+                <div class="kpi-label-text">Tổng Lệnh Đã Chạy</div>
+                <div class="kpi-value-text" id="kpi-today-trades-display">—</div>
+                <div class="kpi-sub-text">Chờ dữ liệu có nguồn</div>
+            </div>
+        </div>
+
+        <div class="middle-kpi-card">
+            <div class="kpi-icon-square kpi-icon-rose">🎯</div>
+            <div class="kpi-info-col">
+                <div class="kpi-label-text">Win Rate</div>
+                <div class="kpi-value-text" style="color: #10b981;" id="kpi-winrate-display">—</div>
+                <div class="kpi-sub-text">Chờ dữ liệu có nguồn</div>
+            </div>
+        </div>
+
+        <div class="middle-kpi-card">
+            <div class="kpi-icon-square kpi-icon-amber">💰</div>
+            <div class="kpi-info-col">
+                <div class="kpi-label-text">Tổng PnL Tích Lũy</div>
+                <div class="kpi-value-text" style="color: #10b981;" id="kpi-pnl-display">—</div>
+                <div class="kpi-sub-text">Chờ dữ liệu có nguồn</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. BOTTOM DUO PANELS: SPOT PORTFOLIO & MODEL HEALTH -->
+    <div class="pixel-bottom-duo-grid">
+        <!-- Spot Portfolio Panel -->
+        <div class="tri-card">
+            <div class="tri-card-header">
+                <div class="tri-card-title">
+                    <span>💎</span> SPOT PORTFOLIO · DCA SWING ENGINE
+                </div>
+                <span style="font-size: 10px; color: #14b8a6; font-family: 'JetBrains Mono', monospace;" id="spot-mode-badge">● PAPER DCA MODE</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;" id="spot-portfolio-container">
+                <div class="model-health-row">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #14b8a6; font-weight: 800;">SOL/USDT</span>
+                        <span style="color: #94a3b8; font-size: 10px;">0.09 SOL @ ~$110.50</span>
+                    </div>
+                    <span style="color: #10b981; font-weight: 700;" id="spot-sol-pnl">+0.03% PnL</span>
+                </div>
+                <div class="model-health-row">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #f97316; font-weight: 800;">BTC/USDT</span>
+                        <span style="color: #94a3b8; font-size: 10px;">0.001 BTC LONG (Futures @ $80,970.10)</span>
+                    </div>
+                    <span style="color: #10b981; font-weight: 700;" id="spot-btc-pnl">+$0.14 USDT</span>
+                </div>
+                <div class="model-health-row">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #38bdf8; font-weight: 800;">USDT Free</span>
+                        <span style="color: #94a3b8; font-size: 10px;">Số dư khả dụng sàn</span>
+                    </div>
+                    <span style="color: #f8fafc; font-weight: 700;" id="spot-usdt-free">$4.92 USDT</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Health Panel (7 Nguồn) -->
+        <div class="tri-card">
+            <div class="tri-card-header">
+                <div class="tri-card-title">
+                    <span>⚡</span> TÀI NGUYÊN AI & MODEL (NGUỒN CẤU HÌNH)
+                </div>
+                <span style="font-size: 10px; color: #10b981; font-family: 'JetBrains Mono', monospace;">CHƯA CÓ HEALTH CHECK</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px;" id="model-health-container">
+                <div class="model-health-row" id="mh-vyce">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-dot" style="background: #a855f7; box-shadow: 0 0 8px #a855f7;"></span>
+                        <span style="color: #a855f7; font-weight: 700;">Vyce AI</span>
+                        <span style="color: #64748b; font-size: 10px;">(Claude-4.6 / DS-V4.1)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-latency" id="mh-lat-vyce" style="color: #f8fafc; font-weight: 700;">--ms</span>
+                        <span class="mh-status" id="mh-st-vyce" style="color: #10b981;">—</span>
+                    </div>
+                </div>
+                <div class="model-health-row" id="mh-groq">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-dot" style="background: #f97316; box-shadow: 0 0 8px #f97316;"></span>
+                        <span style="color: #f97316; font-weight: 700;">Groq</span>
+                        <span style="color: #64748b; font-size: 10px;">(Llama-3.3 / Qwen / OSS)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-latency" id="mh-lat-groq" style="color: #f8fafc; font-weight: 700;">--ms</span>
+                        <span class="mh-status" id="mh-st-groq" style="color: #10b981;">—</span>
+                    </div>
+                </div>
+                <div class="model-health-row" id="mh-gemini">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-dot" style="background: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
+                        <span style="color: #38bdf8; font-weight: 700;">Google Gemini</span>
+                        <span style="color: #64748b; font-size: 10px;">(Gemini 3.8 / 2.0 Flash)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-latency" id="mh-lat-gemini" style="color: #f8fafc; font-weight: 700;">--ms</span>
+                        <span class="mh-status" id="mh-st-gemini" style="color: #10b981;">—</span>
+                    </div>
+                </div>
+                <div class="model-health-row" id="mh-ninerouter">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+                        <span style="color: #10b981; font-weight: 700;">9Router VPS</span>
+                        <span style="color: #64748b; font-size: 10px;">(cx/gpt-5.6 Terra & Luna)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-latency" id="mh-lat-ninerouter" style="color: #f8fafc; font-weight: 700;">--ms</span>
+                        <span class="mh-status" id="mh-st-ninerouter" style="color: #10b981;">—</span>
+                    </div>
+                </div>
+                <div class="model-health-row" id="mh-cloudflare">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-dot" style="background: #eab308; box-shadow: 0 0 8px #eab308;"></span>
+                        <span style="color: #eab308; font-weight: 700;">Cloudflare AI</span>
+                        <span style="color: #64748b; font-size: 10px;">(Llama-3.3 / DeepSeek R1)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-latency" id="mh-lat-cloudflare" style="color: #f8fafc; font-weight: 700;">--ms</span>
+                        <span class="mh-status" id="mh-st-cloudflare" style="color: #10b981;">—</span>
+                    </div>
+                </div>
+                <div class="model-health-row" id="mh-openrouter">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-dot" style="background: #8b5cf6; box-shadow: 0 0 8px #8b5cf6;"></span>
+                        <span style="color: #8b5cf6; font-weight: 700;">OpenRouter</span>
+                        <span style="color: #64748b; font-size: 10px;">(Nemotron / 100+ Models)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-latency" id="mh-lat-openrouter" style="color: #f8fafc; font-weight: 700;">--ms</span>
+                        <span class="mh-status" id="mh-st-openrouter" style="color: #10b981;">—</span>
+                    </div>
+                </div>
+                <div class="model-health-row" id="mh-etfbit">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-dot" style="background: #ec4899; box-shadow: 0 0 8px #ec4899;"></span>
+                        <span style="color: #ec4899; font-weight: 700;">ETFBit Gateway</span>
+                        <span style="color: #64748b; font-size: 10px;">(gpt-5.6-sol Supreme)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="mh-latency" id="mh-lat-etfbit" style="color: #f8fafc; font-weight: 700;">--ms</span>
+                        <span class="mh-status" id="mh-st-etfbit" style="color: #10b981;">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Quick Performance Snapshot Modal (View Nhanh Báo Cáo) -->
+<div class="pixel-modal-backdrop" id="quickReportModal" onclick="closeQuickReportModal(event)" style="display: none;">
+    <div class="pixel-modal-box" onclick="event.stopPropagation()" style="max-width: 680px; width: 92%;">
+        <div class="pixel-modal-header" style="border-bottom: 1px solid rgba(56, 189, 248, 0.25); padding-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 26px;">📊</span>
+                <div>
+                    <h2 style="font-size: 16px; font-weight: 800; color: #f8fafc; margin: 0; letter-spacing: 0.5px;">BÁO CÁO NHANH TÌNH HÌNH VẬN HÀNH</h2>
+                    <div style="font-size: 11px; color: #38bdf8; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">
+                        Live Health & Performance Snapshot • Cập nhật trực tiếp từ sàn & DB
+                    </div>
+                </div>
+            </div>
+            <button class="pixel-modal-close" onclick="closeQuickReportModal()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fca5a5; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;">✕ ĐÓNG</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 16px; font-family: 'JetBrains Mono', monospace;">
+            <!-- 4 KPI Cards Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 10px;">
+                <div style="background: #0b132b; border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+                    <div style="color: #64748b; font-size: 10px; font-weight: 700; text-transform: uppercase;">Tổng PnL Thực Tế</div>
+                    <div id="qmodal-pnl" style="color: #10b981; font-size: 18px; font-weight: 800; margin-top: 4px;">+$0.4556</div>
+                    <div id="qmodal-pnl-sub" style="color: #94a3b8; font-size: 9px; margin-top: 2px;">+0.88% ROI</div>
+                </div>
+                <div style="background: #0b132b; border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+                    <div style="color: #64748b; font-size: 10px; font-weight: 700; text-transform: uppercase;">Win Rate</div>
+                    <div id="qmodal-winrate" style="color: #fde68a; font-size: 18px; font-weight: 800; margin-top: 4px;">66.7%</div>
+                    <div id="qmodal-trades-sub" style="color: #94a3b8; font-size: 9px; margin-top: 2px;">6 lệnh đã chốt</div>
+                </div>
+                <div style="background: #0b132b; border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+                    <div style="color: #64748b; font-size: 10px; font-weight: 700; text-transform: uppercase;">AI Veto (Chặn Bẫy)</div>
+                    <div id="qmodal-veto" style="color: #ef4444; font-size: 18px; font-weight: 800; margin-top: 4px;">74 Bẫy</div>
+                    <div id="qmodal-veto-saved" style="color: #10b981; font-size: 9px; margin-top: 2px;">Cứu vốn +$33.30</div>
+                </div>
+                <div style="background: #0b132b; border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+                    <div style="color: #64748b; font-size: 10px; font-weight: 700; text-transform: uppercase;">Chi Phí AI & Token</div>
+                    <div id="qmodal-token-cost" style="color: #c084fc; font-size: 18px; font-weight: 800; margin-top: 4px;">$0.64</div>
+                    <div style="color: #94a3b8; font-size: 9px; margin-top: 2px;">Gemini • Claude • DeepSeek</div>
+                </div>
+            </div>
+
+            <!-- Health & Portfolio Status -->
+            <div style="background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 6px;">
+                    <span style="color: #64748b;">Số dư tài khoản:</span>
+                    <span id="qmodal-balance" style="color: #38bdf8; font-weight: 700;">$31.63 USDT (Binance Futures Live)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 6px;">
+                    <span style="color: #64748b;">Vị thế đang mở:</span>
+                    <span id="qmodal-positions" style="color: #10b981; font-weight: 700;">1 vị thế (1 Live)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 6px;">
+                    <span style="color: #64748b;">Độ trễ Binance:</span>
+                    <span id="qmodal-latency" style="color: #10b981; font-weight: 700;">22ms (Ổn định)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #64748b;">Trạng thái hệ thống:</span>
+                    <span id="qmodal-uptime" style="color: #38bdf8; font-weight: 700;">12/12 Phòng Ban Online • PM2 6/6 Tiến trình</span>
+                </div>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 4px;">
+                <button type="button" onclick="closeQuickReportModal()" style="background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                    Đóng (ESC)
+                </button>
+                <a href="/admin/performance" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #0284c7, #6366f1); border: 1px solid #38bdf8; color: #fff; padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 700; text-decoration: none; cursor: pointer; box-shadow: 0 0 15px rgba(56, 189, 248, 0.35); transition: all 0.2s;">
+                    Xem Báo Cáo Đầy Đủ & Lịch Sử Chi Tiết ➔
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Department Detail Modal -->
+<div class="pixel-modal-backdrop" id="pixelDeptModal" onclick="closeDeptModal(event)">
+    <div class="pixel-modal-box" onclick="event.stopPropagation()">
+        <div class="pixel-modal-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div id="modal-dept-icon" style="font-size: 28px;">🏢</div>
+                <div>
+                    <h2 id="modal-dept-title" style="font-size: 16px; font-weight: 800; color: #f8fafc; margin: 0;">Tiêu đề Phòng Ban</h2>
+                    <div id="modal-dept-officer" style="font-size: 11px; color: #38bdf8; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">Agent Officer</div>
+                </div>
+            </div>
+            <button class="pixel-modal-close" onclick="closeDeptModal()">✕ ĐÓNG (Phím E / ESC)</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px;">
+            <div style="background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px;">
+                <span style="color: #64748b; font-size: 10px; text-transform: uppercase;">AI Model & Nhà Cung Cấp:</span>
+                <div id="modal-dept-model" style="color: #a855f7; margin-top: 4px; font-weight: 700;">--</div>
+            </div>
+            <div style="background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px;">
+                <span style="color: #64748b; font-size: 10px; text-transform: uppercase;">Tâm Trạng & Cảm Xúc NPC (Persona):</span>
+                <div id="modal-dept-mood" style="color: #38bdf8; margin-top: 4px; font-weight: 700;">--</div>
+            </div>
+            <div style="background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px;">
+                <span style="color: #64748b; font-size: 10px; text-transform: uppercase;">Lời Thoại Thực Chiến (Speech):</span>
+                <div id="modal-dept-bubble" style="color: #f59e0b; margin-top: 4px; font-style: italic; line-height: 1.4;">--</div>
+            </div>
+            <div style="background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px;">
+                <span style="color: #64748b; font-size: 10px; text-transform: uppercase;">Chức Năng & Quyền Hạn:</span>
+                <div id="modal-dept-role" style="color: #e2e8f0; margin-top: 4px; font-weight: 600;">--</div>
+            </div>
+            <div id="modal-dept-extra" style="background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; display: none;"></div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #1e293b; padding-top: 12px; flex-wrap: wrap;">
+            <button class="btn-cyber btn-cyber-close" onclick="closeDeptModal()">✕ Đóng (ESC)</button>
+            <button type="button" class="btn-cyber" id="modal-rpg-btn" style="background: rgba(56, 189, 248, 0.25); border-color: #38bdf8; color: #7dd3fc; cursor: pointer;" onclick="openRpgFromDeptModal(event)">🎮 BẢNG CHỈ SỐ RPG</button>
+            <button class="btn-cyber" id="modal-intercom-btn" style="background: rgba(139, 92, 246, 0.25); border-color: #a855f7; color: #c084fc;" onclick="openIntercomFromDeptModal()">💬 Đàm Thoại (Phím F)</button>
+            <button class="btn-cyber btn-cyber-primary" id="modal-action-btn" onclick="executeDeptAction()">THỰC THI NHIỆM VỤ ↗</button>
+        </div>
+    </div>
+</div>
+
+<!-- 5D QUANTUM CONFLUENCE TENSOR MODAL -->
+<div class="q5d-modal-backdrop" id="q5dModalBackdrop" style="display: none;" onclick="if(event.target === this) closeQuantum5dModal()">
+    <div class="q5d-modal-card">
+        <div class="q5d-modal-header">
+            <div class="q5d-modal-title">
+                <span style="font-size: 22px;">⚛️</span>
+                <span>MA TRẬN HỘI TỤ 5D QUANTUM CONFLUENCE TENSOR</span>
+            </div>
+            <button class="q5d-close-btn" onclick="closeQuantum5dModal()">✕</button>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;">
+            <div>
+                <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Điểm Số Hội Tụ Tổng Hợp (Tensor Score)</div>
+                <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 4px;">
+                    <span id="modalQ5dScore" style="font-size: 32px; font-weight: 900; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">78.2</span>
+                    <span style="font-size: 14px; color: #64748b; font-weight: 700;">/ 100 Điểm</span>
+                    <span id="modalQ5dVerdict" style="margin-left: 12px; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 6px; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.5);">ASTRA PHÊ CHUẨN</span>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 11px; color: #94a3b8;">Độ Kết Hợp Pha (Coherence γ)</div>
+                <div id="modalQ5dCoherence" style="font-size: 20px; font-weight: 800; color: #c084fc; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">79.6%</div>
+                <div style="font-size: 10px; color: #64748b;">5 Trục Đồng Thuận Tuyệt Đối</div>
+            </div>
+        </div>
+
+        <!-- 5 Dimensional Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 16px;" id="modalQ5dGrid">
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: #22c55e;">
+                    <span>D1 · PRICE ACTION (25%)</span>
+                    <span id="modalD1Score" style="font-family: 'JetBrains Mono', monospace;">72.0đ</span>
+                </div>
+                <div id="modalD1Detail" style="font-size: 11px; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">EMA 20/50/200 đa khung nến, RSI-14 và ADX trend strength.</div>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 10px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: #06b6d4;">
+                    <span>D2 · ORDERBOOK FLOW (20%)</span>
+                    <span id="modalD2Score" style="font-family: 'JetBrains Mono', monospace;">76.5đ</span>
+                </div>
+                <div id="modalD2Detail" style="font-size: 11px; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">Độ sâu tường Mua/Bán (Tỷ lệ 1.34:1), Slippage test $25k USDT an toàn.</div>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: #a855f7;">
+                    <span>D3 · GAUSS VOLATILITY (20%)</span>
+                    <span id="modalD3Score" style="font-family: 'JetBrains Mono', monospace;">78.0đ</span>
+                </div>
+                <div id="modalD3Detail" style="font-size: 11px; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">Phân phối Gauss σ = 1.42%, Bollinger Bandwidth nén mở chuẩn mực.</div>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: #f59e0b;">
+                    <span>D4 · NLP SENTIMENT (15%)</span>
+                    <span id="modalD4Score" style="font-family: 'JetBrains Mono', monospace;">64.0đ</span>
+                </div>
+                <div id="modalD4Detail" style="font-size: 11px; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">Chỉ số Tham Lam 58/100, tin tức phân cực tích cực, không có tin vĩ mô giật sập.</div>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: #38bdf8;">
+                    <span>D5 · RISK & FUNDING (20%)</span>
+                    <span id="modalD5Score" style="font-family: 'JetBrains Mono', monospace;">71.9đ</span>
+                </div>
+                <div id="modalD5Detail" style="font-size: 11px; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">Phí Funding +0.010% cân bằng, khoảng đệm thanh lý 4.8%, DD an toàn.</div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 14px;">
+            <div style="font-size: 11px; color: #94a3b8;">
+                Quy tắc: <strong style="color: #10b981;">≥ 75đ</strong> (Astra Duyệt) · <strong style="color: #38bdf8;">60-74đ</strong> (Giảm Size 0.5x) · <strong style="color: #ef4444;">&lt; 60đ</strong> (Rik VETO)
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn-cyber" onclick="closeQuantum5dModal()">Đóng (Phím E / ESC)</button>
+                <button type="button" class="btn-cyber" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(239, 68, 68, 0.3)); border-color: #f59e0b; color: #fde68a;" onclick="closeQuantum5dModal(); openCyberIntercomModal('Palermo'); sendIntercomPrompt('Tao bảo vào lệnh test 10U ngay!')">🔥 Đòn Lỳ Boss: Khớp 10U Ngay</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CYBER INTERCOM MODAL (BOSS <-> AGENT DIRECT DIALOGUE) -->
+<div class="pixel-modal-backdrop" id="cyber-intercom-modal" style="display: none; z-index: 10001;" onclick="if(event.target === this) closeCyberIntercomModal()">
+    <div class="pixel-modal-box" onclick="event.stopPropagation()" style="max-width: 680px; width: 92vw; background: #070d1e; border: 1px solid rgba(56, 189, 248, 0.45); box-shadow: 0 20px 60px rgba(0,0,0,0.85), 0 0 25px rgba(56, 189, 248, 0.25);">
+        <!-- Intercom Header -->
+        <div class="pixel-modal-header" style="border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div id="intercom-agent-icon" style="font-size: 26px; width: 42px; height: 42px; border-radius: 10px; background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); display: flex; align-items: center; justify-content: center;">👑</div>
+                <div>
+                    <h2 id="intercom-agent-title" style="font-size: 15px; font-weight: 800; color: #c084fc; margin: 0; letter-spacing: -0.01em;">Astra — Tổng Quản Tối Cao</h2>
+                    <div id="intercom-agent-location" style="font-size: 11px; color: #94a3b8; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">Vị trí 3D: Bộ Chỉ Huy Tối Cao (Supreme Command Hub)</div>
+                </div>
+            </div>
+            <button class="pixel-modal-close" onclick="closeCyberIntercomModal()">✕ ĐÓNG (ESC)</button>
+        </div>
+
+        <!-- 12 Agent Quick Switching Bar -->
+        <div class="intercom-agent-selector" style="display: flex; gap: 6px; overflow-x: auto; padding: 10px 0 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 10px;">
+            <button type="button" class="intercom-agent-pill active" data-agent="Astra" onclick="selectIntercomAgent('Astra')">👑 Astra</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Rik" onclick="selectIntercomAgent('Rik')">🛡️ Rik</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Palermo" onclick="selectIntercomAgent('Palermo')">🗡️ Palermo</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Prof" onclick="selectIntercomAgent('Prof')">🔬 Prof</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Tory" onclick="selectIntercomAgent('Tory')">🎯 Tory</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Hash" onclick="selectIntercomAgent('Hash')">📡 Hash</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Meme" onclick="selectIntercomAgent('Meme')">⚡ Meme</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Deck" onclick="selectIntercomAgent('Deck')">⚖️ Deck</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Volt" onclick="selectIntercomAgent('Volt')">🌊 Volt</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Core" onclick="selectIntercomAgent('Core')">📑 Core</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Sniper" onclick="selectIntercomAgent('Sniper')">💎 Sniper</button>
+            <button type="button" class="intercom-agent-pill" data-agent="Square" onclick="selectIntercomAgent('Square')">📱 Square</button>
+        </div>
+
+        <!-- Dialogue Stream History -->
+        <div id="intercom-chat-history" style="height: 280px; max-height: 40vh; overflow-y: auto; background: #030712; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+            <div class="intercom-msg agent-msg">
+                <div class="msg-header"><strong>Astra (Supreme Commander)</strong> <span class="msg-time">Vừa xong</span></div>
+                <div class="msg-bubble">Báo cáo Boss! Hội đồng 12 tác tử trên sàn giao dịch 3D đang hoạt động thông suốt. Tôi sẵn sàng nhận lệnh trực tiếp từ Boss!</div>
+            </div>
+        </div>
+
+        <!-- Quick Prompt Chips (Kèm mục Hỏi han linh tinh, Cafe, Xả stress) -->
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;">
+            <button type="button" class="intercom-prompt-chip" style="border-color: #f472b6; color: #fbcfe8;" onclick="sendIntercomPrompt('Tối nay em có rảnh đi cafe & tán gẫu với sếp không?')">☕ Rủ Đi Cafe & Tán Gẫu</button>
+            <button type="button" class="intercom-prompt-chip" style="border-color: #34d399; color: #a7f3d0;" onclick="sendIntercomPrompt('Kể chuyện cười xả stress cho Boss nghe coi em ơi')">😂 Kể Chuyện Cười Xả Stress</button>
+            <button type="button" class="intercom-prompt-chip" style="border-color: #38bdf8; color: #bae6fd;" onclick="sendIntercomPrompt('Em trợ lý hôm nay xinh thế, em luôn bay bên cạnh anh à?')">✨ Khen Trợ Lý Xinh</button>
+            <button type="button" class="intercom-prompt-chip" style="border-color: #a855f7; color: #d8b4fe;" onclick="sendIntercomPrompt('Chỉ số 5D Quantum Tensor hiện tại thế nào?')">⚛️ Ma Trận 5D Tensor</button>
+            <button type="button" class="intercom-prompt-chip" style="border-color: #f59e0b; color: #fde68a;" onclick="sendIntercomPrompt('Tao bảo vào lệnh test 10U ngay!')">🔥 Đòn Lỳ: Vào 10U Ngay!</button>
+            <button type="button" class="intercom-prompt-chip" onclick="sendIntercomPrompt('Tình hình thị trường hiện tại ra sao?')">📊 Tình hình thị trường?</button>
+            <button type="button" class="intercom-prompt-chip" onclick="sendIntercomPrompt('Tại sao gần đây có lệnh bị VETO?')">🛡️ Tại sao lại VETO?</button>
+            <button type="button" class="intercom-prompt-chip" onclick="sendIntercomPrompt('Có setup vào lệnh nào đẹp nhất lúc này không?')">🚀 Setup nào đẹp nhất?</button>
+        </div>
+
+        <!-- Input & Send -->
+        <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <input type="text" id="intercom-input" placeholder="Nhập câu hỏi, hỏi han linh tinh hoặc mệnh lệnh cho tác tử..." onkeydown="if(event.key === 'Enter') sendIntercomMessage()" style="flex: 1; background: #0b1329; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 10px 14px; color: #f8fafc; font-size: 13px; font-family: 'JetBrains Mono', monospace; outline: none;">
+            <button type="button" class="btn-cyber btn-cyber-primary" onclick="sendIntercomMessage()" style="padding: 10px 18px; font-weight: 800;">GỬI LỆNH ➔</button>
+        </div>
+    </div>
+</div>
+
+<!-- RPG GAME CHARACTER STAT SHEET MODAL -->
+<div class="pixel-modal-backdrop" id="agentRpgStatModal" style="display: none; z-index: 100005 !important;" onclick="if(event.target === this) closeAgentRpgSheet()">
+    <div class="pixel-modal-box agent-rpg-modal-box" onclick="event.stopPropagation()">
+        <!-- Top Neon Scanline -->
+        <div class="rpg-modal-scanline"></div>
+
+        <!-- Header -->
+        <div class="rpg-modal-header">
+            <div class="rpg-header-left">
+                <div class="rpg-avatar-box" id="rpgAgentAvatarBox">
+                    <img id="rpgAgentAvatar" src="/static/images/sprites/sprite_01_pm.png" alt="Agent">
+                    <span class="rpg-level-badge" id="rpgAgentLevelBadge">LV.50</span>
+                </div>
+                <div class="rpg-identity">
+                    <div class="rpg-wing-tag" id="rpgAgentWingTag">01 · ĐIỀU HÀNH & CHIẾN LƯỢC</div>
+                    <h2 class="rpg-agent-name">
+                        <span id="rpgAgentName">Astra</span>
+                        <span class="rpg-title-sub" id="rpgAgentTitleSub">— Lead PM & Tổng Quản Tối Cao</span>
+                    </h2>
+                    <div class="rpg-class-title" id="rpgAgentClass">Grand Quantitative Conductor · Tier SS+</div>
+                </div>
+            </div>
+            <div class="rpg-header-right">
+                <div class="rpg-status-pill" id="rpgAgentStatusPill">
+                    <span class="rpg-pulse-dot"></span> <span id="rpgAgentStatusText">ONLINE · ACTIVE</span>
+                </div>
+                <button type="button" class="pixel-modal-close" onclick="closeAgentRpgSheet()">✕ ĐÓNG (ESC)</button>
+            </div>
+        </div>
+
+        <!-- Vitality & Energy Bars (HP & Ki/MP) -->
+        <div class="rpg-vitality-strip">
+            <!-- HP Bar: Capital Shield & Drawdown Tolerance -->
+            <div class="rpg-bar-card hp-card">
+                <div class="rpg-bar-header">
+                    <span class="rpg-bar-label"><span class="rpg-icon">❤️</span> SINH LỰC HP (CHỊU DRAWDOWN VỐN)</span>
+                    <span class="rpg-bar-val" id="rpgHpVal">100% / 100%</span>
+                </div>
+                <div class="rpg-progress-track">
+                    <div class="rpg-progress-fill hp-fill" id="rpgHpFill" style="width: 100%;"></div>
+                </div>
+                <div class="rpg-bar-hint" id="rpgHpHint">Drawdown hiện tại: 0.0% · Ngưỡng bảo vệ vốn an toàn tuyệt đối</div>
+            </div>
+
+            <!-- Ki/MP Bar: Context Window & Token Quota -->
+            <div class="rpg-bar-card mp-card">
+                <div class="rpg-bar-header">
+                    <span class="rpg-bar-label"><span class="rpg-icon">⚡</span> KHÍ LỰC KI / MP (QUOTA TOKEN & CONTEXT)</span>
+                    <span class="rpg-bar-val" id="rpgMpVal">98% / 100%</span>
+                </div>
+                <div class="rpg-progress-track">
+                    <div class="rpg-progress-fill mp-fill" id="rpgMpFill" style="width: 98%;"></div>
+                </div>
+                <div class="rpg-bar-hint" id="rpgMpHint">Context Window: 1,000,000 Tokens · Latency: ~18ms · Băng thông thông suốt</div>
+            </div>
+
+            <!-- EXP Bar: Processed Candles & Debates -->
+            <div class="rpg-bar-card exp-card">
+                <div class="rpg-bar-header">
+                    <span class="rpg-bar-label"><span class="rpg-icon">⭐</span> KINH NGHIỆM EXP (TIẾN HÓA CHIẾN LƯỢC)</span>
+                    <span class="rpg-bar-val" id="rpgExpVal">49,200 / 50,000 EXP</span>
+                </div>
+                <div class="rpg-progress-track">
+                    <div class="rpg-progress-fill exp-fill" id="rpgExpFill" style="width: 98%;"></div>
+                </div>
+                <div class="rpg-bar-hint" id="rpgExpHint">Độ tiến hóa: Bậc 4 (Đỉnh cao hội đồng định lượng)</div>
+            </div>
+        </div>
+
+        <!-- Main Grid: Hexagon Radar + Skills -->
+        <div class="rpg-main-grid">
+            <!-- Left: Hexagon Radar Chart & Attributes -->
+            <div class="rpg-grid-col radar-col">
+                <div class="rpg-subhead"><span class="subhead-icon">🔯</span> THIÊN HƯỚNG TƯ DUY AI (PROMPT PERSONA PROFILE)</div>
+                <div class="rpg-radar-canvas-wrap">
+                    <svg id="rpgHexagonSvg" viewBox="0 0 280 240" class="rpg-hexagon-svg">
+                        <!-- Rendered by JS -->
+                    </svg>
+                </div>
+                <!-- 6 Attribute Value Badges -->
+                <div class="rpg-stat-badges-grid" id="rpgStatBadgesGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Right: Active Skills & Special Moves -->
+            <div class="rpg-grid-col skills-col">
+                <div class="rpg-subhead"><span class="subhead-icon">⚔️</span> BỘ 3 KỸ NĂNG & TUYỆT KỸ ĐẶC QUYỀN (ACTIVE SKILLS)</div>
+                <div class="rpg-skills-list" id="rpgSkillsList">
+                    <!-- 3 Skill cards populated by JS -->
+                </div>
+                <!-- Character Quote Box -->
+                <div class="rpg-quote-banner" id="rpgQuoteBanner">
+                    <span class="quote-mark">“</span>
+                    <span id="rpgQuoteText">Kỷ luật định lượng là chìa khóa duy nhất để bảo toàn vốn và chiến thắng thị trường.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brain Evolution Lineage Section -->
+        <div class="rpg-evolution-section">
+            <div class="rpg-subhead"><span class="subhead-icon">🧬</span> TIẾN TRÌNH TIẾN HÓA THỰC TẾ (DỰ ÁN TỪ 19/09/2026 ĐẾN NAY)</div>
+            <div class="rpg-lineage-timeline" id="rpgLineageTimeline">
+                <!-- 4 Steps populated by JS -->
+            </div>
+            <div class="rpg-models-bar">
+                <div class="rpg-model-pill primary">
+                    <span class="label">Primary Brain:</span>
+                    <strong id="rpgPrimaryModel">Gemini-3.8-Flash (Google)</strong>
+                </div>
+                <div class="rpg-model-pill fallback">
+                    <span class="label">Fallback Defense:</span>
+                    <strong id="rpgFallbackModel">DeepSeek-V4-Flash (Vyce AI)</strong>
+                </div>
+                <div class="rpg-model-pill strategy">
+                    <span class="label">Chiến lược:</span>
+                    <strong id="rpgStrategyRole">Executive & Capital Management</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Actions Cluster -->
+        <div class="rpg-modal-footer">
+            <div class="rpg-footer-left">
+                <span class="rpg-footnote">🎯 Nhấp đàm thoại để ra lệnh trực tiếp hoặc zoom 3D để theo dõi vị trí làm việc.</span>
+            </div>
+            <div class="rpg-footer-actions">
+                <button type="button" class="btn-rpg-action btn-intercom" id="btnRpgIntercom" onclick="openIntercomFromRpg()">
+                    🎙️ ĐÀM THOẠI INTERCOM
+                </button>
+                <button type="button" class="btn-rpg-action btn-focus3d" id="btnRpgFocus3d" onclick="focusCameraFromRpg()">
+                    🎯 ZOOM CAMERA 3D
+                </button>
+                <button type="button" class="btn-rpg-action btn-telemetry" id="btnRpgTelemetry" onclick="openTelemetryFromRpg()">
+                    📊 XEM TELEMETRY PHÒNG BAN
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/vendor/three.min.js"></script>
+<script src="/static/vendor/OrbitControls.js"></script>
+<script src="/static/vendor/tween.umd.js"></script>
+<script src="/static/js/liquidity_vector_field.js?v=2.0"></script>
+<script src="/static/js/three_world_engine.js?v=2.2_agents12"></script>
+<script src="/static/js/agent_rpg_registry.js?v=2.2_real_timeline"></script>
+<script src="/static/js/pixel_floor.js?v=59.0_smooth_driving_60fps"></script>
+<script>
+function openIntercomFromDeptModal() {
+    const titleEl = document.getElementById('modal-dept-title');
+    const deptTitle = titleEl ? titleEl.textContent : '';
+    const deptKey = window.currentModalDeptKey || window.activeModalDept || 'lead_pm';
+    const deptModal = document.getElementById('pixelDeptModal');
+    if (deptModal) deptModal.style.display = 'none';
+    if (typeof openCyberIntercomForDept === 'function') {
+        openCyberIntercomForDept(deptKey);
+    } else if (typeof openCyberIntercomModal === 'function') {
+        openCyberIntercomModal('Astra');
+    }
+}
+
+function openRpgFromDeptModal(evt) {
+    if (evt) {
+        try { evt.preventDefault(); evt.stopPropagation(); } catch (_) {}
+    }
+    const deptKey = window.currentModalDeptKey || window.activeModalDept || 'lead_pm';
+    const deptModal = document.getElementById('pixelDeptModal');
+    if (deptModal) deptModal.style.display = 'none';
+    if (typeof window.openAgentRpgSheet === 'function') {
+        window.openAgentRpgSheet(deptKey);
+    } else {
+        console.error('[RPG] openAgentRpgSheet is not defined on window');
+    }
+}
+// ============================================================================
+// DROPDOWN & COLLAPSIBLE CONTROLS FOR DEPT CARDS, TICKER & BOSS/ASTRA HUD
+// ============================================================================
+
+// 1. Dept Cards Dropdown (Thu gọn / Mở rộng 12 Phòng Ban)
+function toggleDeptCardsDropdown() {
+    const grid = document.getElementById('deptCardsGrid');
+    const icon = document.getElementById('dept-toggle-icon');
+    const text = document.getElementById('dept-toggle-text');
+    if (!grid) return;
+    
+    const isCollapsed = grid.classList.toggle('collapsed');
+    if (icon) icon.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+    if (text) text.innerText = isCollapsed ? 'Mở Rộng' : 'Thu Gọn';
+    localStorage.setItem('dept_cards_collapsed', isCollapsed ? '1' : '0');
+}
+
+// 2. Filter Dept Cards by Wing
+function filterDeptCards(wing, btn) {
+    document.querySelectorAll('.dept-filter-pill').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    
+    // Auto-expand if currently collapsed
+    const grid = document.getElementById('deptCardsGrid');
+    if (grid && grid.classList.contains('collapsed')) {
+        toggleDeptCardsDropdown();
+    }
+    
+    const cards = document.querySelectorAll('.dept-sleek-card');
+    cards.forEach(card => {
+        const cardWing = card.getAttribute('data-wing');
+        if (wing === 'all' || cardWing === wing) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// 3. Ticker Log Drawer (Dropdown Xem Chi Tiết Luồng Thực Thi)
+let tickerDrawerOpen = false;
+function toggleTickerLogDrawer(event) {
+    if (event) event.stopPropagation();
+    const drawer = document.getElementById('ticker-log-drawer');
+    const arrow = document.getElementById('ticker-arrow');
+    if (!drawer) return;
+    
+    tickerDrawerOpen = !tickerDrawerOpen;
+    drawer.style.display = tickerDrawerOpen ? 'block' : 'none';
+    if (arrow) arrow.style.transform = tickerDrawerOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+    
+    if (tickerDrawerOpen) {
+        populateTickerLogDrawer();
+    }
+}
+
+function populateTickerLogDrawer() {
+    const container = document.getElementById('ticker-log-items');
+    if (!container) return;
+    
+    const now = new Date();
+    const curTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    
+    const handoffs = window.__recentHandoffs || [
+        { time: curTime, dept: '02. Risk Council', action: 'DUYỆT LỆNH', symbol: 'BTC/USDT BUY', detail: 'Cấu trúc 1H/4H đồng thuận, SL 1.5x ATR, R:R 1:2.4', ok: true },
+        { time: '05:28:45', dept: '03. Fast Scout', action: 'BÁO CÁO', symbol: 'ETH/USDT', detail: 'Quét nến đảo chiều 15m tại vùng hỗ trợ EMA-50', ok: true },
+        { time: '05:15:20', dept: '02. Risk Council', action: 'VETO PHỦ QUYẾT', symbol: '1000PEPE/USDT BUY', detail: 'R:R 0.15:1 quá xấu, vi phạm Hard Risk Gate 100%', ok: false },
+        { time: '05:00:01', dept: '05. Execution OMS', action: 'KHỚP LỆNH', symbol: 'BTC/USDT (Order #b83375c3)', detail: 'Khớp thành công 0.001 BTC @ $81,001.51 trên Binance Futures', ok: true },
+        { time: '04:45:10', dept: '04. Quant Lab', action: 'TÍNH TOÁN', symbol: 'SOL/USDT', detail: 'Ma trận tương quan đa cấp đạt điều kiện kích hoạt Alpha', ok: true }
+    ];
+    
+    container.innerHTML = handoffs.map(item => `
+        <div class="ticker-log-row">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span style="color: #64748b; font-size: 10px;">[${item.time}]</span>
+                <strong style="color: ${item.ok ? '#10b981' : '#f43f5e'}; font-size: 10.5px;">${item.action}</strong>
+                <span style="color: #38bdf8; font-weight: 700;">${item.symbol}</span>
+                <span style="color: #94a3b8; font-size: 10.5px;">- ${item.detail}</span>
+            </div>
+            <span style="color: ${item.ok ? '#10b981' : '#ef4444'}; font-size: 10px; font-weight: 800; white-space: nowrap;">${item.ok ? '● APPROVED' : '✕ VETO'}</span>
+        </div>
+    `).join('');
+}
+
+// 4. Boss & Astra HUD Toggle (Thu gọn / Mở rộng thanh HUD phía dưới)
+function toggleBossAstraHud() {
+    const boss = document.getElementById('gameBossCard');
+    const astra = document.getElementById('gameDialogue');
+    const actions = document.getElementById('gameActions');
+    const btn = document.getElementById('btnHudBossToggle');
+    const icon = document.getElementById('hud-boss-toggle-icon');
+    const text = document.getElementById('hud-boss-toggle-text');
+    
+    const isCollapsed = boss?.classList.toggle('hud-collapsed');
+    astra?.classList.toggle('hud-collapsed', isCollapsed);
+    actions?.classList.toggle('hud-collapsed', isCollapsed);
+    btn?.classList.toggle('docked-bottom', isCollapsed);
+    
+    if (icon) icon.innerText = isCollapsed ? '▴' : '▼';
+    if (text) text.innerText = isCollapsed ? 'Hiện Boss & Astra HUD' : 'Thu Gọn HUD';
+    localStorage.setItem('hud_boss_collapsed', isCollapsed ? '1' : '0');
+}
+
+// ============================================================================
+// DRAGGABLE & COLLAPSIBLE CONTROLS FOR 5D TENSOR & TACTICAL MISSION DOCK (OMS & QUANT LAB)
+// ============================================================================
+
+// 1. Draggable Tactical Mission Dock (Thượng đế kéo thả tự do)
+function initDraggableTacticalDock() {
+    const dock = document.getElementById('tacticalMissionDock');
+    const handle = document.getElementById('dockDragHandle');
+    if (!dock || !handle) return;
+
+    // Restore saved collapsed state
+    if (localStorage.getItem('astra_dock_collapsed') === '1') {
+        dock.classList.add('dock-collapsed');
+        const btnCollapse = document.getElementById('btnDockCollapse');
+        if (btnCollapse) btnCollapse.innerText = '▲';
+    }
+
+    // Restore saved position
+    const savedPos = localStorage.getItem('astra_dock_pos');
+    if (savedPos) {
+        try {
+            const { left, top } = JSON.parse(savedPos);
+            const maxX = Math.max(window.innerWidth - 100, 50);
+            const maxY = Math.max(window.innerHeight - 50, 50);
+            const clampLeft = Math.min(Math.max(left, 10), maxX);
+            const clampTop = Math.min(Math.max(top, 10), maxY);
+            dock.style.left = `${clampLeft}px`;
+            dock.style.top = `${clampTop}px`;
+            dock.style.bottom = 'auto';
+            dock.style.transform = 'none';
+            dock.classList.add('is-dragged');
+        } catch (e) {
+            console.warn('[TacticalDock] Failed to parse saved position:', e);
+        }
+    }
+
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let initialLeft = 0, initialTop = 0;
+
+    const onPointerDown = (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+        if (e.target.closest('button') || e.target.closest('.dock-pillar') || e.target.closest('a')) return;
+
+        isDragging = true;
+        dock.classList.add('is-dragging');
+        dock.classList.add('is-dragged');
+
+        const rect = dock.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = rect.left;
+        initialTop = rect.top;
+
+        dock.style.transform = 'none';
+        dock.style.bottom = 'auto';
+        dock.style.left = `${initialLeft}px`;
+        dock.style.top = `${initialTop}px`;
+
+        handle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+    };
+
+    const onPointerMove = (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        let newLeft = initialLeft + dx;
+        let newTop = initialTop + dy;
+
+        const dockRect = dock.getBoundingClientRect();
+        const minX = 10;
+        const maxX = window.innerWidth - dockRect.width - 10;
+        const minY = 10;
+        const maxY = window.innerHeight - dockRect.height - 10;
+
+        newLeft = Math.max(minX, Math.min(newLeft, maxX));
+        newTop = Math.max(minY, Math.min(newTop, maxY));
+
+        dock.style.left = `${newLeft}px`;
+        dock.style.top = `${newTop}px`;
+    };
+
+    const onPointerUp = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        dock.classList.remove('is-dragging');
+        try {
+            handle.releasePointerCapture(e.pointerId);
+        } catch (_) {}
+
+        const rect = dock.getBoundingClientRect();
+        localStorage.setItem('astra_dock_pos', JSON.stringify({
+            left: Math.round(rect.left),
+            top: Math.round(rect.top)
+        }));
+    };
+
+    handle.addEventListener('pointerdown', onPointerDown);
+    handle.addEventListener('pointermove', onPointerMove);
+    handle.addEventListener('pointerup', onPointerUp);
+    handle.addEventListener('pointercancel', onPointerUp);
+    handle.addEventListener('dblclick', resetDockPosition);
+}
+
+function toggleDockCollapse() {
+    const dock = document.getElementById('tacticalMissionDock');
+    const btn = document.getElementById('btnDockCollapse');
+    if (!dock) return;
+    const isCollapsed = dock.classList.toggle('dock-collapsed');
+    if (btn) btn.innerText = isCollapsed ? '▲' : '▼';
+    localStorage.setItem('astra_dock_collapsed', isCollapsed ? '1' : '0');
+}
+
+function resetDockPosition() {
+    const dock = document.getElementById('tacticalMissionDock');
+    if (!dock) return;
+    dock.classList.remove('is-dragged');
+    dock.classList.remove('is-dragging');
+    dock.style.left = '';
+    dock.style.top = '';
+    dock.style.bottom = '';
+    dock.style.transform = '';
+    localStorage.removeItem('astra_dock_pos');
+}
+
+// 2. Draggable & Collapsible 5D Quantum Tensor Widget
+function initDraggable5dTensor() {
+    const bar = document.getElementById('q5dHudBar');
+    const handle = document.getElementById('q5dDragHandle');
+    const btnReset = document.getElementById('btnQ5dReset');
+    if (!bar || !handle) return;
+
+    // Restore saved collapsed state
+    if (localStorage.getItem('astra_5d_collapsed') === '1') {
+        bar.classList.add('q5d-collapsed');
+        const btnCollapse = document.getElementById('btnQ5dCollapse');
+        if (btnCollapse) btnCollapse.innerText = '▶';
+    }
+
+    // Restore saved position
+    const savedPos = localStorage.getItem('astra_5d_pos');
+    if (savedPos) {
+        try {
+            const { left, top } = JSON.parse(savedPos);
+            const maxX = Math.max(window.innerWidth - 100, 50);
+            const maxY = Math.max(window.innerHeight - 50, 50);
+            const clampLeft = Math.min(Math.max(left, 10), maxX);
+            const clampTop = Math.min(Math.max(top, 10), maxY);
+            bar.classList.add('is-floating');
+            bar.style.left = `${clampLeft}px`;
+            bar.style.top = `${clampTop}px`;
+            if (btnReset) btnReset.style.display = 'inline-flex';
+        } catch (e) {
+            console.warn('[5DTensor] Failed to parse saved position:', e);
+        }
+    }
+
+    // Restore 3D core hidden state
+    if (localStorage.getItem('astra_3d_core_hidden') === '1') {
+        const btn3d = document.getElementById('btnToggle3dCore');
+        if (btn3d) btn3d.classList.add('is-off');
+        setTimeout(() => {
+            if (typeof toggle3dQuantumCore === 'function') {
+                toggle3dQuantumCore(false);
+            }
+        }, 800);
+    }
+
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let initialLeft = 0, initialTop = 0;
+
+    const onPointerDown = (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+        if (e.target.closest('button')) return;
+
+        isDragging = true;
+        bar.classList.add('is-dragging');
+        bar.classList.add('is-floating');
+
+        const rect = bar.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = rect.left;
+        initialTop = rect.top;
+
+        bar.style.left = `${initialLeft}px`;
+        bar.style.top = `${initialTop}px`;
+        if (btnReset) btnReset.style.display = 'inline-flex';
+
+        handle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+    };
+
+    const onPointerMove = (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        let newLeft = initialLeft + dx;
+        let newTop = initialTop + dy;
+
+        const rect = bar.getBoundingClientRect();
+        const minX = 10;
+        const maxX = window.innerWidth - rect.width - 10;
+        const minY = 10;
+        const maxY = window.innerHeight - rect.height - 10;
+
+        newLeft = Math.max(minX, Math.min(newLeft, maxX));
+        newTop = Math.max(minY, Math.min(newTop, maxY));
+
+        bar.style.left = `${newLeft}px`;
+        bar.style.top = `${newTop}px`;
+    };
+
+    const onPointerUp = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        bar.classList.remove('is-dragging');
+        try {
+            handle.releasePointerCapture(e.pointerId);
+        } catch (_) {}
+
+        const rect = bar.getBoundingClientRect();
+        localStorage.setItem('astra_5d_pos', JSON.stringify({
+            left: Math.round(rect.left),
+            top: Math.round(rect.top)
+        }));
+    };
+
+    handle.addEventListener('pointerdown', onPointerDown);
+    handle.addEventListener('pointermove', onPointerMove);
+    handle.addEventListener('pointerup', onPointerUp);
+    handle.addEventListener('pointercancel', onPointerUp);
+    handle.addEventListener('dblclick', resetQ5dPosition);
+}
+
+function toggleQ5dCollapse() {
+    const bar = document.getElementById('q5dHudBar');
+    const btn = document.getElementById('btnQ5dCollapse');
+    if (!bar) return;
+    const isCollapsed = bar.classList.toggle('q5d-collapsed');
+    if (btn) btn.innerText = isCollapsed ? '▶' : '◀';
+    localStorage.setItem('astra_5d_collapsed', isCollapsed ? '1' : '0');
+}
+
+function resetQ5dPosition() {
+    const bar = document.getElementById('q5dHudBar');
+    const btnReset = document.getElementById('btnQ5dReset');
+    if (!bar) return;
+    bar.classList.remove('is-floating');
+    bar.classList.remove('is-dragging');
+    bar.style.left = '';
+    bar.style.top = '';
+    if (btnReset) btnReset.style.display = 'none';
+    localStorage.removeItem('astra_5d_pos');
+}
+
+function toggle3dQuantumCore(forceVisible) {
+    const btn = document.getElementById('btnToggle3dCore');
+    let visible;
+
+    if (window.worldEngine && typeof window.worldEngine.toggleQuantum3dCore === 'function') {
+        visible = window.worldEngine.toggleQuantum3dCore(forceVisible);
+    }
+    if (window.officeEngine && typeof window.officeEngine.toggleQuantum3dCore === 'function') {
+        visible = window.officeEngine.toggleQuantum3dCore(forceVisible);
+    }
+
+    if (typeof visible === 'boolean') {
+        if (btn) {
+            if (visible) {
+                btn.classList.remove('is-off');
+                btn.title = 'Ẩn Lõi 3D Tensor ở giữa phòng ban (Đang hiện)';
+            } else {
+                btn.classList.add('is-off');
+                btn.title = 'Hiện Lõi 3D Tensor ở giữa phòng ban (Đang ẩn)';
+            }
+        }
+        localStorage.setItem('astra_3d_core_hidden', visible ? '0' : '1');
+    }
+}
+
+// Khôi phục trạng thái đã lưu khi tải trang
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('dept_cards_collapsed') === '1') {
+        const grid = document.getElementById('deptCardsGrid');
+        const icon = document.getElementById('dept-toggle-icon');
+        const text = document.getElementById('dept-toggle-text');
+        if (grid) grid.classList.add('collapsed');
+        if (icon) icon.style.transform = 'rotate(-90deg)';
+        if (text) text.innerText = 'Mở Rộng';
+    }
+    
+    if (localStorage.getItem('hud_boss_collapsed') === '1') {
+        toggleBossAstraHud();
+    }
+
+    // Khởi tạo kéo thả cho Tactical Dock & 5D Tensor
+    initDraggableTacticalDock();
+    initDraggable5dTensor();
+});
+</script>
+{% endblock %}

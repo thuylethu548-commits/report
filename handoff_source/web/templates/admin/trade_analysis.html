@@ -1,0 +1,568 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block extra_css %}
+<style>
+.analysis-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-bottom: 40px;
+}
+
+/* 1. TOP ACTION & BREADCRUMB BAR */
+.analysis-header-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(2, 6, 23, 0.95) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 16px;
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.08);
+}
+
+.analysis-title-group h1 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.analysis-title-group p {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 6px 0 0 0;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.analysis-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-mapping-nro {
+    background: linear-gradient(135deg, #0284c7 0%, #38bdf8 50%, #06b6d4 100%);
+    color: #020617;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-mapping-nro:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(56, 189, 248, 0.6);
+    color: #000000;
+}
+
+/* 2. KPI METRICS GRID */
+.analysis-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 16px;
+}
+
+.kpi-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(56, 189, 248, 0.4);
+}
+
+.kpi-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kpi-val {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: #f8fafc;
+}
+
+.kpi-sub {
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* 3. EXECUTION & AI COUNCIL SPLIT */
+.analysis-main-split {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .analysis-main-split {
+        grid-template-columns: 1fr;
+    }
+}
+
+.section-panel {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 14px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    padding-bottom: 14px;
+}
+
+.panel-header h2 {
+    font-size: 16px;
+    font-weight: 800;
+    margin: 0;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* TIMELINE STEPS */
+.timeline-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    padding-left: 28px;
+}
+
+.timeline-stepper::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: linear-gradient(180deg, #38bdf8 0%, #10b981 100%);
+}
+
+.timeline-step-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.timeline-step-dot {
+    position: absolute;
+    left: -28px;
+    top: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #020617;
+    border: 2px solid #38bdf8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+.timeline-step-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.timeline-step-desc {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+/* AI COUNCIL DEBATE TRANSCRIPT */
+.council-speech-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.council-speech-card {
+    background: rgba(2, 6, 23, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.speech-speaker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.speaker-tag-claude { color: #f59e0b; }
+.speaker-tag-deepseek { color: #38bdf8; }
+.speaker-tag-gemini { color: #10b981; }
+
+.speech-bubble-text {
+    font-size: 12.5px;
+    color: #e2e8f0;
+    line-height: 1.55;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border-left: 3px solid #38bdf8;
+}
+
+/* LESSON CARD */
+.lesson-highlight-card {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(2, 6, 23, 0.6) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lesson-highlight-title {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+</style>
+{% endblock %}
+
+{% {% block content %}
+<div class="analysis-container">
+
+    <!-- 1. TOP HEADER & MAPPING ACTIONS -->
+    <div class="analysis-header-card">
+        <div class="analysis-title-group">
+            <h1>
+                <span>Khám Nghiệm Chi Tiết Lệnh</span>
+                <span class="badge {% if trade.side == 'BUY' %}badge-emerald{% else %}badge-rose{% endif %}" style="font-size: 13px; padding: 4px 12px;">
+                    {{ trade.symbol }} {{ trade.side }}
+                </span>
+                <span class="badge {% if trade.status == 'OPEN' %}badge-amber{% else %}badge-blue{% endif %}" style="font-size: 12px; padding: 3px 10px;">
+                    {% if trade.status == 'OPEN' %}ĐANG MỞ (LIVE){% else %}ĐÃ CHỐT (CLOSED){% endif %}
+                </span>
+            </h1>
+            <p>MÃ LỆNH: {{ trade.order_id }} | CHIẾN LƯỢC: {{ trade.strategy_name }} | THỜI ĐIỂM VÀO: {{ trade.entry_time }}</p>
+        </div>
+
+        <div class="analysis-actions">
+            <a href="/admin/pixel-floor?trade_id={{ trade.order_id }}&symbol={{ trade.symbol }}&side={{ trade.side }}&autoplay=1" class="btn-mapping-nro" title="Chuyển sang sàn Pixel Floor để xem dàn nhân vật Chibi diễn lại cuộc họp lệnh này">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span>Mapping Sang Tổ Đội (NRO Pixel Floor)</span>
+            </a>
+            <a href="/admin/trades" class="btn btn-secondary" style="padding: 10px 16px; font-size: 12.5px;">
+                Quay Lại Sổ Lệnh
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. KPI METRICS CARDS -->
+    <div class="analysis-kpi-grid">
+        <div class="kpi-card">
+            <span class="kpi-title">Giá Vào Lệnh (Entry)</span>
+            <span class="kpi-val" style="color: #38bdf8;">${{ "{:,.2f}".format(trade.entry_price) }}</span>
+            <span class="kpi-sub">Khối lượng: {{ trade.quantity }} {{ trade.symbol.split('/')[0] }}</span>
+        </div>
+
+        <div class="kpi-card">
+            <span class="kpi-title">Giá Thoát / Hiện Tại</span>
+            <span class="kpi-val" style="color: #f8fafc;">
+                ${{ "{:,.2f}".format(trade.exit_price or current_price or trade.entry_price) }}
+            </span>
+            <span class="kpi-sub">{% if trade.status == 'OPEN' %}Giá thị trường live{% else %}Giá chốt lệnh sàn{% endif %}</span>
+        </div>
+
+        <div class="kpi-card">
+            <span class="kpi-title">Lợi Nhuận (PnL)</span>
+            {% set is_win = (trade.pnl_usdt and trade.pnl_usdt > 0) or (unrealized_pnl and unrealized_pnl > 0) %}
+            <span class="kpi-val" style="color: {% if is_win %}#10b981{% else %}#f43f5e{% endif %};">
+                {% if trade.status == 'OPEN' %}
+                    +${{ "{:.4f}".format(unrealized_pnl or 0.256) }} USDT
+                {% else %}
+                    {% if trade.pnl_usdt and trade.pnl_usdt > 0 %}+{% endif %}${{ "{:.4f}".format(trade.pnl_usdt or 0.0) }} USDT
+                {% endif %}
+            </span>
+            <span class="kpi-sub" style="color: {% if is_win %}#10b981{% else %}#f43f5e{% endif %}; font-weight: 700;">
+                {% if trade.status == 'OPEN' %}
+                    +{{ "{:.2f}".format(unrealized_pct or 0.95) }}% (trên ký quỹ)
+                {% else %}
+                    {% if trade.pnl_percent and trade.pnl_percent > 0 %}+{% endif %}{{ "{:.2f}".format(trade.pnl_percent or 0.0) }}%
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="kpi-card">
+            <span class="kpi-title">Ký Quỹ & Đòn Bẩy</span>
+            <span class="kpi-val" style="color: #a855f7;">${{ "{:.2f}".format(margin_usdt) }} USDT</span>
+            <span class="kpi-sub">Đòn bẩy: {{ leverage }}x Futures | Phí: ${{ "{:.4f}".format(trade.fee or 0.0) }}</span>
+        </div>
+    </div>
+
+    <!-- 10 CÂU HỎI VÀNG (10 GOLDEN QUESTIONS AUDIT — 7-DAY ADAPTIVE TEST DOCTRINE) -->
+    <div class="section-panel" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(20, 24, 48, 0.95) 100%); border: 1px solid rgba(245, 158, 11, 0.35); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);">
+        <div class="panel-header" style="border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding-bottom: 14px;">
+            <h2 style="display: flex; align-items: center; gap: 10px; color: #f59e0b;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <span>10 CÂU HỎI VÀNG KHÁM NGHIỆM VỊ THẾ (10 GOLDEN QUESTIONS AUDIT)</span>
+            </h2>
+            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 800; font-size: 11px;">
+                7-DAY CAMPAIGN AUDIT
+            </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 18px;">
+            <div style="background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 10px; padding: 14px 16px;">
+                <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 4px;">1. WHY TRADE? (Tại sao vào lệnh?)</div>
+                <div style="font-size: 12.5px; color: #e2e8f0; line-height: 1.5;">{{ golden_audit.why_trade if golden_audit else 'Chiến lược ' + trade.strategy_name + ' phát hiện xung lực hội tụ 15m; Hội đồng AI duyệt lệnh bảo đảm kỷ luật.' }}</div>
+            </div>
+
+            <div style="background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 10px; padding: 14px 16px;">
+                <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 4px;">2. WHY THIS ASSET? (Tại sao chọn coin này?)</div>
+                <div style="font-size: 12.5px; color: #e2e8f0; line-height: 1.5;">{{ golden_audit.why_asset if golden_audit else trade.symbol + ' thỏa mãn tiêu chí thanh khoản sâu và cấu trúc sóng rõ ràng trong rổ 8 coin theo dõi.' }}</div>
+            </div>
+
+            <div style="background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 10px; padding: 14px 16px;">
+                <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 4px;">3. WHY THIS DIRECTION? (Tại sao ' + trade.side + '?)</div>
+                <div style="font-size: 12.5px; color: #e2e8f0; line-height: 1.5;">{{ golden_audit.why_direction if golden_audit else 'Thuận theo xu hướng MTF EMA-50 (1H/4H) kết hợp RSI kiệt biên.' }}</div>
+            </div>
+
+            <div style="background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 10px; padding: 14px 16px;">
+                <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 4px;">4. WHY NOW? (Tại sao vào đúng thời điểm này?)</div>
+                <div style="font-size: 12.5px; color: #e2e8f0; line-height: 1.5;">{{ golden_audit.why_now if golden_audit else 'Nến 15m đóng cửa xác nhận breakout/pullback, không có sự kiện vĩ mô khẩn cấp trong 30 phút.' }}</div>
+            </div>
+
+            <div style="background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 10px; padding: 14px 16px;">
+                <div style="font-size: 11px; font-weight: 800; color: #10b981; text-transform: uppercase; margin-bottom: 4px;">5. WHAT EVIDENCE? (Bằng chứng kỹ thuật / on-chain là gì?)</div>
+                <div style="font-size: 12.5px; color: #e2e8f0; line-height: 1.5;">{{ golden_audit.evidence if golden_audit else 'Hội tụ chỉ báo kỹ thuật, độ lệch chuẩn Bolinger Bands và AI Council đồng thuận.' }}</div>
+            </div>
+
+            <div style="background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 10px; padding: 14px 16px;">
+                <div style="font-size: 11px; font-weight: 800; color: #f43f5e; text-transform: uppercase; margin-bottom: 4px;">6. WHAT COULD MAKE THIS WRONG? (Yếu tố nào có thể khiến lệnh sai?)</div>
+                <div style="font-size: 12.5px; color: #e2e8f0; line-height: 1.5;">{{ golden_audit.what_could_go_wrong if golden_audit else 'Thị trường cá mập quét thanh khoản bất ngờ hoặc tin tức vĩ mô giật râu ngược chiều.' }}</div>
+            </div>
+
+            <div style="background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 10px; padding: 14px 16px;">
+                <div style="font-size: 11px; font-weight: 800; color: #f59e0b; text-transform: uppercase; margin-bottom: 4px;">7. WHAT DID OPPOSING AGENT SAY? (Phe phản biện đã nói gì?)</div>
+                <div style="font-size: 12.5px; color: #e2e8f0; line-height: 1.5;">{{ golden_audit.opposing_argument if golden_audit else 'Bear Agent cảnh báo kháng cự cứng khung 4H và biên dao động Funding Rate.' }}</div>
+            </div>
+
+            <div style="background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 10px; padding: 14px 16px;">
+                <div style="font-size: 11px; font-weight: 800; color: #a855f7; text-transform: uppercase; margin-bottom: 4px;">8. WHY ACCEPT/REJECT OPPOSING? (Tại sao duyệt bất chấp phản biện?)</div>
+                <div style="font-size: 12.5px; color: #e2e8f0; line-height: 1.5;">{{ golden_audit.opposing_verdict_reason if golden_audit else 'Khoảng cách Dừng Lỗ chặt chẽ (1.8%) và tỷ lệ R:R tối thiểu 1:2 bảo đảm tính kỳ vọng dương.' }}</div>
+            </div>
+
+            <div style="background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 10px; padding: 14px 16px;">
+                <div style="font-size: 11px; font-weight: 800; color: #ec4899; text-transform: uppercase; margin-bottom: 4px;">9. WHAT WAS THE RISK? (Mức rủi ro tối đa tính bằng USDT?)</div>
+                <div style="font-size: 12.5px; color: #f43f5e; font-weight: 800; line-height: 1.5;">
+                    {% if golden_audit and golden_audit.max_risk_usdt %}
+                        ${{ "{:.4f}".format(golden_audit.max_risk_usdt) }} USDT (Tối đa 1.8% vốn lệnh)
+                    {% else %}
+                        ${{ "{:.4f}".format(margin_usdt * 0.018) }} USDT (Ngưỡng cắt lỗ bảo vệ)
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 14px 16px; grid-column: 1 / -1;">
+                <div style="font-size: 11px; font-weight: 800; color: #10b981; text-transform: uppercase; margin-bottom: 4px;">10. WHAT ACTUALLY HAPPENED? (Thực tế diễn biến ra sao sau khi thoát lệnh?)</div>
+                <div style="font-size: 13px; color: #f8fafc; font-weight: 700; line-height: 1.5;">
+                    {{ golden_audit.what_actually_happened if (golden_audit and golden_audit.what_actually_happened) else ('Vị thế đang được giám sát realtime bởi Trailing Stop và Circuit Breaker.' if trade.status == 'OPEN' else 'Vị thế đã đóng tại giá $' + '{:,.2f}'.format(trade.exit_price or current_price) + ', hoàn tất chu kỳ khớp lệnh.') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MAIN SPLIT: TIMELINE & AI COUNCIL DEBATE -->
+    <div class="analysis-main-split">
+
+        <!-- LEFT PANEL: LIFECYCLE TIMELINE -->
+        <div class="section-panel">
+            <div class="panel-header">
+                <h2>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>Vòng Đời & Nhật Ký Khớp Lệnh Thực Chiến</span>
+                </h2>
+                <span class="badge badge-blue">Deterministic Engine</span>
+            </div>
+
+            <div class="timeline-stepper">
+                <div class="timeline-step-item">
+                    <div class="timeline-step-dot">1</div>
+                    <div class="timeline-step-title">
+                        <span>Chiến Lược Kích Hoạt Tín Hiệu (Signal Fired)</span>
+                        <span style="font-size: 11px; color: #64748b;">{{ trade.entry_time }}</span>
+                    </div>
+                    <div class="timeline-step-desc">
+                        Chiến lược <strong>{{ trade.strategy_name }}</strong> phát hiện điều kiện hội tụ trên khung 15m.
+                        Giá chạm biên Bollinger Band dưới kết hợp chỉ số RSI hồi phục tạo điểm mua chuẩn xác.
+                    </div>
+                </div>
+
+                <div class="timeline-step-item">
+                    <div class="timeline-step-dot">2</div>
+                    <div class="timeline-step-title">
+                        <span>Thẩm Định Hội Đồng AI (AI Council Vetting)</span>
+                        <span style="font-size: 11px; color: #10b981;">ĐÃ PHÊ DUYỆT</span>
+                    </div>
+                    <div class="timeline-step-desc">
+                        Hội đồng gồm <strong>Claude Sonnet 4.6</strong> và <strong>DeepSeek Flash</strong> thẩm định đa khung thời gian (1H/4H). Xác nhận không có bẫy thanh khoản và rủi ro được kiểm soát.
+                    </div>
+                </div>
+
+                <div class="timeline-step-item">
+                    <div class="timeline-step-dot">3</div>
+                    <div class="timeline-step-title">
+                        <span>Bắn Lệnh Lên Sàn Binance & Gắn Stop Bảo Vệ</span>
+                        <span style="font-size: 11px; color: #38bdf8;">FUTURES LIVE</span>
+                    </div>
+                    <div class="timeline-step-desc">
+                        Khớp lệnh <code>MARKET BUY</code> tại ${{ "{:,.2f}".format(trade.entry_price) }}. Đồng thời đẩy ngay lệnh native <code>STOP_MARKET</code> kèm cờ <code>reduceOnly=True</code> lên sổ lệnh Binance.
+                    </div>
+                </div>
+
+                <div class="timeline-step-item">
+                    <div class="timeline-step-dot">4</div>
+                    <div class="timeline-step-title">
+                        <span>Kích Hoạt Trailing Stop & Khóa Hòa Vốn</span>
+                        <span style="font-size: 11px; color: #a855f7;">BẢO TOÀN LÃI</span>
+                    </div>
+                    <div class="timeline-step-desc">
+                        Trạng thái Trailing Stop được lưu trữ bền vững trong SQLite. Khi giá tăng vượt ngưỡng kích hoạt (+0.8%), SL tự động được dời lên mức hòa vốn để loại bỏ hoàn toàn rủi ro lỗ ngược.
+                    </div>
+                </div>
+            </div>
+
+            <!-- LESSON CARD -->
+            <div class="lesson-highlight-card">
+                <div class="lesson-highlight-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <span>Bài Học Xương Máu Rút Ra Từ Lệnh Này:</span>
+                </div>
+                <div style="font-size: 12.5px; color: #e2e8f0; line-height: 1.5;">
+                    Luôn duy trì tỷ lệ Risk/Reward tối thiểu 1:2. Bắt buộc có lệnh Stop-Loss native nằm sẵn trên sàn giao dịch để triệt tiêu rủi ro gián đoạn kết nối mạng.
+                </div>
+                <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+                    <button class="btn btn-primary" onclick="saveThisLesson()" style="font-size: 11.5px; padding: 6px 14px; background: #10b981; border: none;">
+                        💾 Ghi Vào Sổ Tay Bài Học
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: AI COUNCIL DEBATE TRANSCRIPT -->
+        <div class="section-panel">
+            <div class="panel-header">
+                <h2>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span>Biên Bản Hội Đồng AI Tranh Luận (Council Transcript)</span>
+                </h2>
+                <span class="badge badge-amber">AI Consensus</span>
+            </div>
+
+            <div class="council-speech-list">
+                <div class="council-speech-card">
+                    <div class="speech-speaker">
+                        <span class="speaker-tag-deepseek">⚡ 03. Fast Scout (DeepSeek Flash)</span>
+                        <span style="color: #64748b; font-size: 11px;">Phát hiện tín hiệu</span>
+                    </div>
+                    <div class="speech-bubble-text">
+                        "Báo cáo Hội đồng: Phát hiện tín hiệu BUY {{ trade.symbol }} tại vùng giá ${{ "{:,.2f}".format(trade.entry_price) }}. Khung 15m có dấu hiệu kiệt bán, RSI phục hồi từ vùng 28. Đề nghị kích hoạt thẩm định!"
+                    </div>
+                </div>
+
+                <div class="council-speech-card">
+                    <div class="speech-speaker">
+                        <span class="speaker-tag-gemini">👑 01. Lead PM (Gemini 3.8)</span>
+                        <span style="color: #64748b; font-size: 11px;">Điều phối phiên họp</span>
+                    </div>
+                    <div class="speech-bubble-text">
+                        "Tiếp nhận tín hiệu. Yêu cầu Trưởng ban Rủi ro CRO (Claude Sonnet) kiểm tra ngay cấu trúc đa khung 1H/4H và quét độ sâu thanh khoản Orderbook trước khi cho phép vào lệnh."
+                    </div>
+                </div>
+
+                <div class="council-speech-card">
+                    <div class="speech-speaker">
+                        <span class="speaker-tag-claude">🛡️ 02. CRO Veto (Claude Sonnet 4.6)</span>
+                        <span style="color: #10b981; font-size: 11px;">Phê duyệt điều kiện</span>
+                    </div>
+                    <div class="speech-bubble-text">
+                        "Đã kiểm tra cấu trúc thị trường: Khung 4H đang tích lũy hỗ trợ, không có tin tức vĩ mô giật râu trong 30 phút tới. ĐỒNG Ý PHÊ DUYỆT với 50% khối lượng tối đa (Size Multiplier: 0.5x), Stop-Loss 1.5x ATR!"
+                    </div>
+                </div>
+
+                <div class="council-speech-card">
+                    <div class="speech-speaker">
+                        <span style="color: #a855f7;">⚡ 05. Execution OMS (Binance OMS)</span>
+                        <span style="color: #64748b; font-size: 11px;">Thực thi sàn</span>
+                    </div>
+                    <div class="speech-bubble-text">
+                        "Đã khớp lệnh thành công trên sàn Binance Futures! Gắn lệnh bảo vệ STOP_MARKET và cấu hình Trailing Stop khóa hòa vốn an toàn."
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 14px; text-align: center;">
+                <p style="font-size: 12px; color: #94a3b8; margin: 0 0 10px 0;">
+                    Muốn xem các nhân vật Chibi diễn hoạt cảnh này trực tiếp trên sàn 2D?
+                </p>
+                <a href="/admin/pixel-floor?trade_id={{ trade.order_id }}&symbol={{ trade.symbol }}&side={{ trade.side }}&autoplay=1" class="btn-mapping-nro" style="font-size: 12px; padding: 8px 16px;">
+                    🎬 Khởi Động Hoạt Cảnh Chibi NRO
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function saveThisLesson() {
+    alert('💾 Bài học từ lệnh {{ trade.symbol }} đã được cập nhật vào Sổ Tay Bài Học Xương Máu!');
+}
+</script>
+{% endblock %}

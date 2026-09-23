@@ -1,0 +1,93 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 960px; margin: 40px auto; padding: 0 20px;">
+
+    <!-- HEADER WITH RED SHIELD -->
+    <div style="text-align: center; margin-bottom: 32px;">
+        <div style="width: 64px; height: 64px; border-radius: 16px; background: rgba(239, 68, 68, 0.12); display: flex; align-items: center; justify-content: center; font-size: 32px; color: #ef4444; margin: 0 auto 16px; border: 1px solid rgba(239, 68, 68, 0.3); box-shadow: 0 8px 24px rgba(239, 68, 68, 0.15);">
+            🛡️
+        </div>
+        <span class="tag-pill" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); margin-bottom: 8px;">
+            ● BẢO VỆ VỐN — ƯU TIÊN HÀNG ĐẦU
+        </span>
+        <h1 style="font-size: 32px; font-weight: 900; color: var(--text-main); margin: 0 0 10px;">
+            Cảnh Báo Rủi Ro & Nguyên Tắc Bảo Toàn Vốn
+        </h1>
+        <p style="font-size: 14.5px; color: var(--text-muted); max-width: 680px; margin: 0 auto; line-height: 1.6;">
+            Thị trường Crypto mang lại cơ hội lớn nhưng luôn tiềm ẩn rủi ro nghiêm trọng. Hãy hiểu rõ các nguyên tắc dưới đây trước khi tham gia sử dụng hệ thống Astra Quant.
+        </p>
+    </div>
+
+    <!-- PROMINENT WARNING BANNER -->
+    <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(245, 158, 11, 0.12)); border: 2px solid #ef4444; border-radius: 14px; padding: 22px 28px; margin-bottom: 36px; display: flex; align-items: flex-start; gap: 18px; box-shadow: 0 8px 25px rgba(239, 68, 68, 0.1);">
+        <span style="font-size: 32px; flex-shrink: 0;">⚠️</span>
+        <div>
+            <h3 style="color: #ef4444; font-size: 17px; font-weight: 900; margin: 0 0 6px; letter-spacing: 0.5px;">
+                "TIỀN USDT LÀ TIỀN THẬT, KHÔNG CẨN THẬN BAY LÀ MẤT TRẮNG TRONG VÀI GIÂY!"
+            </h3>
+            <p style="color: var(--text-main); font-size: 13.5px; line-height: 1.6; margin: 0;">
+                Đây là bài học xương máu từ các cú sụp đổ thanh khoản và trượt giá lịch sử trong thị trường tiền mã hóa. Không có bất kỳ hệ thống AI nào có thể đảm bảo 100% lợi nhuận trong mọi tình huống. Kỷ luật bảo vệ vốn là sự sống còn!
+            </p>
+        </div>
+    </div>
+
+    <!-- 3 LIVING RULES GRID -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px;">
+        
+        <!-- Rule 1 -->
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 900; color: #38bdf8; display: block; margin-bottom: 8px;">01</span>
+                <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0 0 10px;">Bản Chất Biến Động Thị Trường</h3>
+                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0;">
+                    Thị trường tiền mã hóa có thể biến động giật cục 20% – 40% chỉ trong vài phút do tin tức vĩ mô, cạn thanh khoản hoặc cá mập quét thanh lý. Cần hiểu rõ rủi ro trước khi dùng đòn bẩy.
+                </p>
+            </div>
+            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; font-weight: 700; color: #38bdf8;">
+                NHẬN THỨC RỦI RO ĐỂ TỒN TẠI LÂU DÀI
+            </div>
+        </div>
+
+        <!-- Rule 2 -->
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 900; color: #10b981; display: block; margin-bottom: 8px;">02</span>
+                <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0 0 10px;">Bộ Quy Tắc Sống Còn Của Astra</h3>
+                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0;">
+                    Tuyệt đối tuân thủ Hard Risk Gate: Dời Stop-Loss về Break-Even khi đạt mục tiêu, giới hạn mức rủi ro tối đa 1.5% / lệnh, và kích hoạt ngắt mạch Circuit Breaker khi tổng Drawdown chạm 2%.
+                </p>
+            </div>
+            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; font-weight: 700; color: #10b981;">
+                KỶ LUẬT VẬN HÀNH TUÂN THỦ HỆ THỐNG
+            </div>
+        </div>
+
+        <!-- Rule 3 -->
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 900; color: #f59e0b; display: block; margin-bottom: 8px;">03</span>
+                <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0 0 10px;">Trách Nhiệm Vận Hành & Thực Hành</h3>
+                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0;">
+                    Nhà đầu tư mới nên chạy ở chế độ <strong>Paper Trading (giao dịch thử nghiệm) ít nhất 14 ngày</strong> trước khi kích hoạt giao dịch vốn thật để làm quen với các kịch bản thị trường.
+                </p>
+            </div>
+            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; font-weight: 700; color: #f59e0b;">
+                BẢO TOÀN VỐN LÀ NỀN TẢNG THÀNH CÔNG
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CALL TO ACTION -->
+    <div style="text-align: center; padding: 24px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;">
+        <h3 style="font-size: 17px; font-weight: 800; color: var(--text-main); margin: 0 0 8px;">Bạn Đã Nắm Rõ Các Nguyên Tắc An Toàn?</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0 0 18px;">Hãy bắt đầu trải nghiệm với chế độ Demo hoặc cấu hình vốn phân bổ an toàn.</p>
+        <div style="display: flex; justify-content: center; gap: 12px;">
+            <a href="/portal/dashboard" class="btn btn-primary" style="padding: 10px 22px; font-size: 13px; font-weight: 700;">Vào Dashboard Quản Lý →</a>
+            <a href="/terms" class="btn btn-secondary" style="padding: 10px 18px; font-size: 13px;">Xem Điều Khoản Dịch Vụ</a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

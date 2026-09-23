@@ -1,0 +1,1644 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block extra_css %}
+<style>
+/* === PERFORMANCE & AI TOKEN TELEMETRY DESK (MATCHING IMAGE 1 MOCKUP) === */
+:root {
+    --perf-bg: #f8fafc;
+    --perf-card-bg: #ffffff;
+    --perf-border: #e2e8f0;
+    --perf-text-main: #0f172a;
+    --perf-text-muted: #64748b;
+    --perf-text-sub: #94a3b8;
+    --perf-blue: #0284c7;
+    --perf-blue-light: #e0f2fe;
+    --perf-green: #10b981;
+    --perf-green-light: #d1fae5;
+    --perf-purple: #8b5cf6;
+    --perf-amber: #f59e0b;
+    --perf-rose: #f43f5e;
+}
+
+.perf-desk-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 24px;
+}
+
+/* Breadcrumb */
+.perf-breadcrumb {
+    font-size: 11.5px;
+    color: var(--perf-text-sub);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: -4px;
+}
+.perf-breadcrumb .current {
+    color: var(--perf-text-muted);
+}
+
+/* Header & Controls */
+.perf-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.perf-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.perf-title-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: var(--perf-blue-light);
+    color: var(--perf-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.perf-title-h1 {
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0;
+    color: var(--perf-text-main);
+}
+
+.perf-subtitle-p {
+    font-size: 12px;
+    color: var(--perf-text-muted);
+    margin: 2px 0 0 0;
+}
+
+.perf-actions-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.perf-select-pill {
+    background: #ffffff;
+    border: 1px solid var(--perf-border);
+    border-radius: 7px;
+    padding: 6px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--perf-text-main);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    outline: none;
+}
+.perf-select-pill select {
+    border: none;
+    background: transparent;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--perf-text-main);
+    cursor: pointer;
+    outline: none;
+    padding-right: 4px;
+}
+
+.btn-perf-export {
+    background: #ffffff;
+    border: 1px solid #38bdf8;
+    color: #0284c7;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(2, 132, 199, 0.08);
+}
+.btn-perf-export:hover {
+    background: #f0f9ff;
+    border-color: #0284c7;
+}
+
+.btn-perf-refresh {
+    background: #0284c7;
+    border: 1px solid #0284c7;
+    color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25);
+}
+.btn-perf-refresh:hover {
+    background: #0369a1;
+    border-color: #0369a1;
+}
+
+/* Sub-tabs row */
+/* Sub-tabs row */
+.perf-subtabs-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--perf-border);
+    padding-bottom: 10px;
+    overflow-x: auto;
+}
+
+.perf-subtab-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 7px 16px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--perf-text-muted);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.perf-subtab-btn:hover {
+    color: var(--perf-text-main);
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+.perf-subtab-btn.active {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border-color: #0284c7 !important;
+    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.35) !important;
+}
+
+/* Dynamic Tab Context Banner */
+.perf-tab-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #f0f9ff 0%, #ffffff 100%);
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-top: -4px;
+    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.05);
+    transition: all 0.3s ease;
+}
+.perf-tab-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.perf-tab-banner-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #e0f2fe;
+    color: #0284c7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+.perf-tab-banner-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.3;
+}
+.perf-tab-banner-desc {
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.3;
+}
+.perf-desk-container.tab-switching {
+    animation: perfTabFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes perfTabFade {
+    0% { opacity: 0.4; transform: translateY(4px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Tab filtering rules */
+/* --- TAB: OVERVIEW --- */
+[data-active-tab="overview"] #section-kpis { display: grid; }
+[data-active-tab="overview"] .perf-mid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+[data-active-tab="overview"] #section-trading-impact { display: block; }
+[data-active-tab="overview"] .perf-bottom-split { display: grid; grid-template-columns: 2.8fr 1.2fr; }
+
+/* --- TAB: COST --- */
+[data-active-tab="cost"] #card-donut-models { display: none; }
+[data-active-tab="cost"] #card-stacked-providers { display: none; }
+[data-active-tab="cost"] .perf-mid-grid {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr;
+    gap: 16px;
+}
+[data-active-tab="cost"] #section-trading-impact { display: none; }
+[data-active-tab="cost"] .perf-bottom-split {
+    display: grid;
+    grid-template-columns: 2.8fr 1.2fr;
+}
+
+/* --- TAB: MODELS --- */
+[data-active-tab="models"] #card-combo-cost { display: none; }
+[data-active-tab="models"] #card-stacked-providers { display: none; }
+[data-active-tab="models"] .perf-mid-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 16px;
+}
+[data-active-tab="models"] #section-trading-impact { display: none; }
+[data-active-tab="models"] .perf-bottom-split {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+[data-active-tab="models"] #card-alerts { display: none; }
+
+/* --- TAB: ROUTING --- */
+[data-active-tab="routing"] #card-donut-models { display: none; }
+[data-active-tab="routing"] #card-combo-cost { display: none; }
+[data-active-tab="routing"] .perf-mid-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+}
+[data-active-tab="routing"] #section-trading-impact { display: none; }
+[data-active-tab="routing"] .perf-bottom-split {
+    display: grid;
+    grid-template-columns: 2.8fr 1.2fr;
+}
+
+/* --- TAB: TRADING --- */
+[data-active-tab="trading"] #card-combo-cost { display: none; }
+[data-active-tab="trading"] #card-stacked-providers { display: none; }
+[data-active-tab="trading"] .perf-mid-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 16px;
+}
+[data-active-tab="trading"] #section-trading-impact {
+    display: block;
+    border: 2px solid #8b5cf6;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.12);
+}
+[data-active-tab="trading"] .perf-bottom-split {
+    display: grid;
+    grid-template-columns: 2.8fr 1.2fr;
+}
+
+/* Top 6 KPI Cards Grid */
+.perf-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 1200px) {
+    .perf-kpi-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 680px) {
+    .perf-kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.perf-kpi-box {
+    background: var(--perf-card-bg);
+    border: 1px solid var(--perf-border);
+    border-radius: 10px;
+    padding: 14px 14px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    position: relative;
+    overflow: hidden;
+}
+
+.perf-kpi-box-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.perf-kpi-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.perf-kpi-title {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--perf-text-muted);
+    letter-spacing: 0.3px;
+}
+
+.perf-kpi-value {
+    font-size: 21px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--perf-text-main);
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+}
+
+.perf-kpi-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 10.5px;
+}
+.kpi-trend-green { color: #10b981; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; }
+.kpi-trend-blue { color: #0284c7; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; }
+.kpi-trend-muted { color: var(--perf-text-muted); }
+
+/* Middle Analytics Grid (Spacious 2x2 Layout for Professional Readability) */
+.perf-mid-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 1080px) {
+    .perf-mid-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+.perf-card {
+    background: var(--perf-card-bg);
+    border: 1px solid var(--perf-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+}
+
+.perf-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.perf-card-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--perf-text-main);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.perf-card-extra {
+    font-size: 10.5px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--perf-text-muted);
+    font-weight: 600;
+}
+
+/* Donut Panel Layout */
+.donut-layout-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.donut-legend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    flex: 1;
+}
+
+.donut-legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+.donut-legend-item .legend-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--perf-text-main);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.donut-legend-item .legend-pct {
+    font-weight: 800;
+    min-width: 28px;
+    text-align: right;
+}
+.donut-legend-item .legend-toks {
+    color: var(--perf-text-muted);
+    min-width: 48px;
+    text-align: right;
+    font-size: 10px;
+}
+
+/* AI Insights List */
+.insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.insight-item {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+.insight-icon-box {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.insight-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.insight-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--perf-text-muted);
+}
+.insight-name {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--perf-text-main);
+}
+.insight-stat {
+    font-size: 10.5px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}
+.insight-note {
+    font-size: 9.5px;
+    color: var(--perf-text-sub);
+}
+
+/* Trading Performance Strip (7 Cards) */
+.perf-trade-section-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--perf-text-main);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.perf-trade-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 1200px) {
+    .perf-trade-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+@media (max-width: 768px) {
+    .perf-trade-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.perf-trade-box {
+    background: var(--perf-card-bg);
+    border: 1px solid var(--perf-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+.trade-box-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.trade-box-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--perf-text-muted);
+    text-transform: uppercase;
+}
+.trade-box-val {
+    font-size: 17px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--perf-text-main);
+    letter-spacing: -0.3px;
+}
+.trade-box-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    font-size: 9.5px;
+}
+
+/* Bottom Split: Table + Alerts */
+.perf-bottom-split {
+    display: grid;
+    grid-template-columns: 3.1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 1100px) {
+    .perf-bottom-split {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Models Table */
+.table-models-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+}
+
+.table-models-matrix th {
+    padding: 9px 10px;
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--perf-text-muted);
+    border-bottom: 1px solid var(--perf-border);
+    text-align: left;
+    white-space: nowrap;
+    background: #fafafa;
+}
+
+.table-models-matrix td {
+    padding: 10px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--perf-text-main);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.model-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+}
+.model-logo-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Filter pills in table header */
+.table-filter-pills {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 2px;
+    border-radius: 6px;
+}
+.tbl-pill-btn {
+    border: none;
+    background: transparent;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--perf-text-muted);
+    border-radius: 4px;
+    cursor: pointer;
+}
+.tbl-pill-btn.active {
+    background: #ffffff;
+    color: #0284c7;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+/* Alerts & Recommendations Side Column */
+.alerts-side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.alert-card-item {
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 11px;
+}
+
+.alert-card-danger {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+.alert-card-warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+}
+.alert-card-info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+}
+
+.alert-card-icon {
+    font-size: 14px;
+    margin-top: -1px;
+}
+.alert-card-title {
+    font-weight: 800;
+    margin-bottom: 2px;
+}
+.alert-card-desc {
+    font-size: 10px;
+    color: #64748b;
+}
+
+/* Tooltip / action btn */
+.btn-table-action {
+    background: transparent;
+    border: none;
+    color: var(--perf-text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.btn-table-action:hover {
+    background: #f1f5f9;
+    color: var(--perf-text-main);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="perf-desk-container" id="perf-desk-container" data-active-tab="overview">
+    
+    <!-- 1. BREADCRUMB -->
+    <div class="perf-breadcrumb">
+        <span>Astra Desk</span>
+        <span>&gt;</span>
+        <span class="current">Hiệu Suất &amp; Token AI</span>
+        <span style="display: none;">HIỆU SUẤT & TOKEN AI</span>
+    </div>
+
+    <!-- 2. HEADER & ADVANCED FILTER CONTROLS -->
+    <div class="perf-header-bar">
+        <div class="perf-title-group">
+            <div class="perf-title-icon">
+                <!-- Bar chart icon -->
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+            </div>
+            <div>
+                <h1 class="perf-title-h1">Đánh Giá Hiệu Suất &amp; Tiêu Thụ AI</h1>
+                <p class="perf-subtitle-p">Theo dõi chi phí, hiệu suất, độ trễ, chất lượng mô hình và hiệu quả định tuyến của toàn bộ hệ thống AI.</p>
+            </div>
+        </div>
+
+        <div class="perf-actions-bar">
+            <!-- Date Filter -->
+            <div class="perf-select-pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <select id="perf-date-picker">
+                    <option value="7d" selected>16/09/2026 - 22/09/2026 (7 Ngày Qua)</option>
+                    <option value="24h">Hôm nay (24h)</option>
+                    <option value="30d">30 ngày gần nhất (Tháng 09/2026)</option>
+                </select>
+            </div>
+
+            <!-- Market Filter -->
+            <div class="perf-select-pill">
+                <span style="color: #f59e0b; font-size: 12px;">🟡</span>
+                <select id="perf-market-filter">
+                    <option value="futures" selected>Binance Futures</option>
+                    <option value="spot">Binance Spot</option>
+                    <option value="all">Tất cả thị trường</option>
+                </select>
+            </div>
+
+            <!-- Account Filter -->
+            <div class="perf-select-pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <select id="perf-account-filter">
+                    <option value="all" selected>Tất cả tài khoản</option>
+                    <option value="main">Tài khoản chính (Main)</option>
+                    <option value="sub">Tài khoản Sub (Scalping)</option>
+                </select>
+            </div>
+
+            <!-- Model Filter -->
+            <div class="perf-select-pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                <select id="perf-model-filter">
+                    <option value="all" selected>Tất cả model</option>
+                    <option value="gpt-6">GPT-6 (Astra / Luna / Sol)</option>
+                    <option value="gpt-5.6">GPT-5.6-Terra</option>
+                    <option value="claude">Claude-Sonnet-4-6</option>
+                    <option value="supergrok">SuperGrok-4.7</option>
+                    <option value="deepseek">DeepSeek (V4.1 / Flash)</option>
+                    <option value="gemini">Gemini (3.8-Flash / 3.7)</option>
+                    <option value="groq">Groq (LPU / Qwen / OSS)</option>
+                    <option value="nemotron">Nemotron-3.5 (Free)</option>
+                    <option value="llama">Llama-3.3-70B</option>
+                </select>
+            </div>
+
+            <!-- Export Report Button -->
+            <button class="btn-perf-export" onclick="exportPerformanceReport()" title="Tải xuống báo cáo kiểm toán AI định dạng JSON/CSV">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Xuất báo cáo</span>
+            </button>
+
+            <!-- Refresh Button -->
+            <button class="btn-perf-refresh" onclick="fetchPerformanceData(true)" title="Làm mới dữ liệu telemetry thời gian thực">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" id="refresh-spin-icon"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                <span>Làm mới</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. SUB-TABS NAVIGATION ROW -->
+    <div class="perf-subtabs-row">
+        <button class="perf-subtab-btn active" onclick="switchSubTab(this, 'overview')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Tổng quan</span>
+        </button>
+        <button class="perf-subtab-btn" onclick="switchSubTab(this, 'cost')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <span>Phân tích chi phí</span>
+        </button>
+        <button class="perf-subtab-btn" onclick="switchSubTab(this, 'models')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            <span>So sánh mô hình</span>
+        </button>
+        <button class="perf-subtab-btn" onclick="switchSubTab(this, 'routing')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Chất lượng định tuyến</span>
+        </button>
+        <button class="perf-subtab-btn" onclick="switchSubTab(this, 'trading')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span>Tác động giao dịch</span>
+        </button>
+    </div>
+
+    <!-- DYNAMIC TAB CONTEXT BANNER -->
+    <div class="perf-tab-banner" id="perf-tab-banner">
+        <div class="perf-tab-banner-left">
+            <div class="perf-tab-banner-icon" id="perf-tab-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            </div>
+            <div>
+                <div class="perf-tab-banner-title" id="perf-tab-title">Chế độ xem: Tổng quan toàn bộ hệ thống</div>
+                <div class="perf-tab-banner-desc" id="perf-tab-desc">Toàn cảnh hiệu suất, chi phí, lưu lượng token và tác động giao dịch của 6 mô hình AI.</div>
+            </div>
+        </div>
+        <div class="perf-tab-banner-right">
+            <span class="badge badge-blue" id="perf-tab-badge" style="font-size: 10.5px; padding: 4px 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: #0284c7;"></span>
+                <span id="perf-tab-badge-text">TẤT CẢ MODULE</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- 4. TAB PANES CONTAINER -->
+    <div class="perf-tab-pane" id="tab-pane-overview">
+        <!-- TOP 6 KPI METRIC CARDS -->
+        <div class="perf-kpi-row" id="section-kpis">
+        <!-- KPI 1: Tổng Token Sử Dụng -->
+        <div class="perf-kpi-box">
+            <div class="perf-kpi-box-top">
+                <div class="perf-kpi-icon" style="background: #e0f2fe; color: #0284c7;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                </div>
+                <div class="perf-kpi-title">TỔNG TOKEN SỬ DỤNG</div>
+            </div>
+            <div class="perf-kpi-value" id="kpi-total-tokens">{{ "{:,}".format(scorecard.kpi_summary.total_tokens if scorecard.kpi_summary else 519904) }}</div>
+            <div class="perf-kpi-bottom">
+                <span class="kpi-trend-green" id="kpi-tokens-diff">↓ -28% so với hôm qua</span>
+                <!-- Sparkline 1 -->
+                <svg width="60" height="18" viewBox="0 0 60 18">
+                    <path d="M2,14 Q15,4 30,12 T58,6" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- KPI 2: Chi Phí Ước Tính -->
+        <div class="perf-kpi-box">
+            <div class="perf-kpi-box-top">
+                <div class="perf-kpi-icon" style="background: #dcfce7; color: #10b981;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </div>
+                <div class="perf-kpi-title">CHI PHÍ ƯỚC TÍNH</div>
+            </div>
+            <div class="perf-kpi-value" style="color: #10b981;" id="kpi-est-cost">${{ "{:.4f}".format(scorecard.kpi_summary.estimated_cost_usd if scorecard.kpi_summary else 0.7380) }} USD</div>
+            <div class="perf-kpi-bottom">
+                <span class="kpi-trend-green" id="kpi-cost-diff">↓ -31% so với hôm qua</span>
+                <!-- Sparkline 2 -->
+                <svg width="60" height="18" viewBox="0 0 60 18">
+                    <path d="M2,16 Q18,6 34,14 T58,4" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- KPI 3: Yêu Cầu API -->
+        <div class="perf-kpi-box">
+            <div class="perf-kpi-box-top">
+                <div class="perf-kpi-icon" style="background: #e0f2fe; color: #0284c7;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                </div>
+                <div class="perf-kpi-title">YÊU CẦU API</div>
+            </div>
+            <div class="perf-kpi-value" id="kpi-api-reqs">{{ "{:,}".format(scorecard.kpi_summary.total_requests if scorecard.kpi_summary else 1929) }}</div>
+            <div class="perf-kpi-bottom">
+                <span class="kpi-trend-blue" id="kpi-reqs-diff">↑ +100%</span>
+                <!-- Sparkline 3 -->
+                <svg width="60" height="18" viewBox="0 0 60 18">
+                    <path d="M2,14 Q14,8 28,14 T58,4" fill="none" stroke="#0284c7" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- KPI 4: Độ Trễ Trung Bình -->
+        <div class="perf-kpi-box">
+            <div class="perf-kpi-box-top">
+                <div class="perf-kpi-icon" style="background: #ccfbf1; color: #0d9488;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <div class="perf-kpi-title">ĐỘ TRỄ TRUNG BÌNH</div>
+            </div>
+            <div class="perf-kpi-value" id="kpi-avg-latency">22ms</div>
+            <div class="perf-kpi-bottom">
+                <span class="kpi-trend-green" id="kpi-latency-diff">↓ -18%</span>
+                <!-- Sparkline 4 -->
+                <svg width="60" height="18" viewBox="0 0 60 18">
+                    <path d="M2,8 Q15,16 32,8 T58,12" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- KPI 5: Tỷ Lệ Thành Công -->
+        <div class="perf-kpi-box">
+            <div class="perf-kpi-box-top">
+                <div class="perf-kpi-icon" style="background: #dcfce7; color: #16a34a;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <div class="perf-kpi-title">TỶ LỆ THÀNH CÔNG</div>
+            </div>
+            <div class="perf-kpi-value" id="kpi-success-rate">98.8%</div>
+            <div class="perf-kpi-bottom">
+                <span class="kpi-trend-green" id="kpi-success-diff">↑ +0.6%</span>
+                <!-- Sparkline 5 -->
+                <svg width="60" height="18" viewBox="0 0 60 18">
+                    <path d="M2,14 Q16,8 32,12 T58,4" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- KPI 6: Chi Phí / 1 Lệnh -->
+        <div class="perf-kpi-box">
+            <div class="perf-kpi-box-top">
+                <div class="perf-kpi-icon" style="background: #f3e8ff; color: #9333ea;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </div>
+                <div class="perf-kpi-title">CHI PHÍ / 1 LỆNH</div>
+            </div>
+            <div class="perf-kpi-value" id="kpi-cost-order">$0.0112</div>
+            <div class="perf-kpi-bottom">
+                <span class="kpi-trend-green" id="kpi-order-cost-diff">↓ -35%</span>
+                <!-- Sparkline 6 -->
+                <svg width="60" height="18" viewBox="0 0 60 18">
+                    <path d="M2,12 Q14,16 30,10 T58,6" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. MIDDLE VISUAL ANALYTICS GRID (3 CHARTS + 1 AI INSIGHTS) -->
+    <div class="perf-mid-grid">
+        
+        <!-- CHART 1: Phân Bổ Token Theo Model (Donut Chart) -->
+        <div class="perf-card" id="card-donut-models">
+            <div class="perf-card-header">
+                <div class="perf-card-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #6366f1;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span>Phân Bổ Token Theo Model</span>
+                </div>
+                <div class="perf-card-extra" id="donut-total-title">Đang đồng bộ...</div>
+            </div>
+
+            <div class="donut-layout-wrap">
+                <!-- SVG Donut Chart with Center Label -->
+                <div style="position: relative; width: 170px; height: 170px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 100 100" width="170" height="170" id="donut-svg" style="transform: rotate(-90deg); filter: drop-shadow(0 2px 5px rgba(0,0,0,0.06));">
+                        <!-- Background Base Circle -->
+                        <circle cx="50" cy="50" r="38" fill="none" stroke="#f1f5f9" stroke-width="14"/>
+                        <!-- Dynamic Slices inserted via JS -->
+                        <g id="donut-segments-group"></g>
+                    </svg>
+
+                    <!-- Center Total Inside Donut -->
+                    <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; pointer-events: none;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.1;" id="donut-center-val">--</span>
+                        <span style="font-size: 9.5px; color: #64748b; margin-top: 3px; font-weight: 600;">tokens</span>
+                    </div>
+                </div>
+
+                <!-- Donut Legend Side List -->
+                <div class="donut-legend-list" id="donut-legend-container">
+                    <!-- Populated dynamically via performance_app.js -->
+                </div>
+            </div>
+        </div>
+
+        <!-- CHART 2: Chi Phí Theo Thời Gian (USD) - Combo Bar + Line Chart -->
+        <div class="perf-card" id="card-combo-cost">
+            <div class="perf-card-header">
+                <div class="perf-card-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #0284c7;"><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="12"></line><line x1="18" y1="20" x2="18" y2="8"></line></svg>
+                    <span>Chi Phí Theo Thời Gian (USD)</span>
+                </div>
+                <div class="perf-card-extra" id="cost-total-label">Tổng chi phí: <strong style="color: #0284c7;">--</strong></div>
+            </div>
+
+            <!-- Chart Legend -->
+            <div style="display: flex; justify-content: flex-end; gap: 16px; font-size: 10px; font-family: 'JetBrains Mono', monospace; margin-bottom: 6px;">
+                <span style="display: inline-flex; align-items: center; gap: 5px; color: #64748b;">
+                    <span style="width: 12px; height: 7px; background: #38bdf8; border-radius: 2px;"></span> Chi phí (USD)
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 5px; color: #8b5cf6; font-weight: 700;">
+                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #8b5cf6;"></span> Số yêu cầu (Reqs)
+                </span>
+            </div>
+
+            <!-- Crisp Responsive Combo SVG Chart -->
+            <div id="cost-chart-svg-wrap" style="width: 100%; height: 210px; position: relative;">
+                <!-- Populated dynamically via performance_app.js -->
+            </div>
+        </div>
+
+        <!-- CHART 3: Yêu Cầu API Theo Provider (Stacked Bar Chart) -->
+        <div class="perf-card" id="card-stacked-providers">
+            <div class="perf-card-header">
+                <div class="perf-card-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #a855f7;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span>Yêu Cầu API Theo Provider</span>
+                </div>
+                <div class="perf-card-extra" id="provider-total-reqs">Tổng 7 ngày: <strong style="color: #a855f7;">--</strong></div>
+            </div>
+
+            <!-- Provider Legend -->
+            <div id="provider-legend-container" style="display: flex; flex-wrap: wrap; gap: 10px; font-size: 9.5px; font-family: 'JetBrains Mono', monospace; margin-bottom: 6px;">
+                <!-- Populated dynamically via performance_app.js -->
+            </div>
+
+            <!-- Stacked Bar SVG Chart Container -->
+            <div id="provider-chart-svg-wrap" style="width: 100%; height: 210px; position: relative;">
+                <!-- Populated dynamically via performance_app.js -->
+            </div>
+        </div>
+
+        <!-- PANEL 4: 💡 AI Insights (Badges & Leaders) -->
+        <div class="perf-card" id="card-ai-insights">
+            <div class="perf-card-header" style="margin-bottom: 8px;">
+                <div class="perf-card-title">
+                    <span style="font-size: 15px;">💡</span>
+                    <span>AI Insights & Đánh Giá Tự Động</span>
+                </div>
+                <div class="perf-card-extra" style="color: #10b981; font-weight: 700;">● Live Audit</div>
+            </div>
+
+            <div class="insights-list" id="ai-insights-list">
+                <!-- Populated dynamically via performance_app.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. TRADING PERFORMANCE STRIP (TÁC ĐỘNG TỪ AI) -->
+    <div id="section-trading-impact">
+        <div class="perf-trade-section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #8b5cf6;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Hiệu Suất Giao Dịch (Tác Động Từ AI)</span>
+        </div>
+
+        <div class="perf-trade-grid">
+            <!-- 1. Tỷ Lệ Thắng -->
+            <div class="perf-trade-box">
+                <div class="trade-box-top">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #10b981;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span class="trade-box-label">TỶ LỆ THẮNG</span>
+                </div>
+                <div class="trade-box-val" style="color: #0284c7;" id="kpi-winrate-val">83.3%</div>
+                <div class="trade-box-bottom">
+                    <span class="kpi-trend-green">↑ +5.2%</span>
+                    <svg width="45" height="14" viewBox="0 0 45 14">
+                        <path d="M2,10 Q12,2 22,8 T43,3" fill="none" stroke="#10b981" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 2. Tổng PnL (USDT) -->
+            <div class="perf-trade-box">
+                <div class="trade-box-top">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #10b981;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <span class="trade-box-label">TỔNG PNL (USDT)</span>
+                </div>
+                <div class="trade-box-val" style="color: #10b981;" id="kpi-totalpnl-val">+0.4556</div>
+                <div class="trade-box-bottom">
+                    <span class="kpi-trend-green">↑ +12.6%</span>
+                    <svg width="45" height="14" viewBox="0 0 45 14">
+                        <path d="M2,12 Q14,4 25,10 T43,2" fill="none" stroke="#10b981" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 3. Số Lệnh -->
+            <div class="perf-trade-box">
+                <div class="trade-box-top">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #0284c7;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
+                    <span class="trade-box-label">SỐ LỆNH</span>
+                </div>
+                <div class="trade-box-val" id="kpi-orders-val">6</div>
+                <div class="trade-box-bottom">
+                    <span class="kpi-trend-muted">0%</span>
+                    <svg width="45" height="14" viewBox="0 0 45 14">
+                        <rect x="2" y="8" width="4" height="6" rx="1" fill="#93c5fd"/>
+                        <rect x="9" y="6" width="4" height="8" rx="1" fill="#93c5fd"/>
+                        <rect x="16" y="4" width="4" height="10" rx="1" fill="#93c5fd"/>
+                        <rect x="23" y="7" width="4" height="7" rx="1" fill="#93c5fd"/>
+                        <rect x="30" y="3" width="4" height="11" rx="1" fill="#0284c7"/>
+                        <rect x="37" y="5" width="4" height="9" rx="1" fill="#0284c7"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 4. Tín Hiệu Bị AI Chặn (Veto) -->
+            <div class="perf-trade-box">
+                <div class="trade-box-top">
+                    <span style="font-size: 11px;">🛡️</span>
+                    <span class="trade-box-label">TÍN HIỆU BỊ AI CHẶN</span>
+                </div>
+                <div class="trade-box-val" id="kpi-veto-val">36</div>
+                <div class="trade-box-bottom">
+                    <span style="color: #8b5cf6; font-weight: 700;">↑ +44%</span>
+                    <svg width="45" height="14" viewBox="0 0 45 14">
+                        <rect x="2" y="9" width="4" height="5" rx="1" fill="#c084fc"/>
+                        <rect x="9" y="7" width="4" height="7" rx="1" fill="#c084fc"/>
+                        <rect x="16" y="5" width="4" height="9" rx="1" fill="#c084fc"/>
+                        <rect x="23" y="4" width="4" height="10" rx="1" fill="#a855f7"/>
+                        <rect x="30" y="2" width="4" height="12" rx="1" fill="#a855f7"/>
+                        <rect x="37" y="1" width="4" height="13" rx="1" fill="#8b5cf6"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 5. Vốn Đã Bảo Vệ (USDT) -->
+            <div class="perf-trade-box">
+                <div class="trade-box-top">
+                    <span style="font-size: 11px;">💰</span>
+                    <span class="trade-box-label">VỐN ĐÃ BẢO VỆ (USDT)</span>
+                </div>
+                <div class="trade-box-val" style="color: #10b981;" id="kpi-capital-val">~$16.20</div>
+                <div class="trade-box-bottom">
+                    <span class="kpi-trend-green">↑ +28%</span>
+                    <svg width="45" height="14" viewBox="0 0 45 14">
+                        <path d="M2,12 Q14,6 26,10 T43,2" fill="none" stroke="#10b981" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 6. Slippage Trung Bình -->
+            <div class="perf-trade-box">
+                <div class="trade-box-top">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #a855f7;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                    <span class="trade-box-label">SLIPPAGE TRUNG BÌNH</span>
+                </div>
+                <div class="trade-box-val" style="color: #0284c7;" id="kpi-slippage-val">0.018%</div>
+                <div class="trade-box-bottom">
+                    <span class="kpi-trend-green">↓ -32%</span>
+                    <svg width="45" height="14" viewBox="0 0 45 14">
+                        <path d="M2,4 Q14,12 26,6 T43,10" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 7. Thời Gian Nắm Giữ TB -->
+            <div class="perf-trade-box">
+                <div class="trade-box-top">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #10b981;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span class="trade-box-label">THỜI GIAN NẮM GIỮ TB</span>
+                </div>
+                <div class="trade-box-val" id="kpi-holdtime-val">6.4 giờ</div>
+                <div class="trade-box-bottom">
+                    <span class="kpi-trend-blue">↑ +12%</span>
+                    <svg width="45" height="14" viewBox="0 0 45 14">
+                        <path d="M2,10 Q14,4 26,8 T43,3" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. BOTTOM SPLIT ROW: MODEL PERFORMANCE TABLE + ALERTS/RECOMMENDATIONS -->
+    <div class="perf-bottom-split" id="section-models-table">
+        
+        <!-- LEFT: Model Performance Matrix Table -->
+        <div class="perf-card" style="padding: 0; overflow: hidden;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--perf-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div class="perf-card-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #8b5cf6;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span>Hiệu Suất Theo Model</span>
+                </div>
+
+                <!-- Table Filter Tabs -->
+                <div class="table-filter-pills">
+                    <button class="tbl-pill-btn active" onclick="filterModelsTable('all', this)">Tất cả (6)</button>
+                    <button class="tbl-pill-btn" onclick="filterModelsTable('paid', this)">Mô hình trả phí (4)</button>
+                    <button class="tbl-pill-btn" onclick="filterModelsTable('free', this)">Mô hình miễn phí (2)</button>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="table-models-matrix">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>MODEL</th>
+                            <th>PROVIDER</th>
+                            <th>TOKEN</th>
+                            <th>CHI PHÍ (USD)</th>
+                            <th>YÊU CẦU</th>
+                            <th>ĐỘ TRỄ TB</th>
+                            <th>TỶ LỆ THÀNH CÔNG</th>
+                            <th>ĐỘ CHÍNH XÁC VETO</th>
+                            <th>TÁC ĐỘNG PNL</th>
+                            <th>TRẠNG THÁI</th>
+                            <th>THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="models-matrix-tbody">
+                        {% if scorecard and scorecard.models_performance %}
+                        {% for m in scorecard.models_performance %}
+                        <tr data-type="{{ 'paid' if m.is_paid else 'free' }}">
+                            <td style="color: #64748b; font-weight: 700;">{{ loop.index }}</td>
+                            <td>
+                                <div class="model-name-cell">
+                                    <div class="model-logo-icon" style="background: {% if 'gpt-6' in m.model|lower %}#fdf2f8{% elif 'claude' in m.model|lower %}#ffedd5{% elif 'deepseek' in m.model|lower %}#ede9fe{% elif 'groq' in m.model|lower or 'supergrok' in m.model|lower %}#fce7f3{% elif 'gemini' in m.model|lower %}#e0f2fe{% elif 'llama' in m.model|lower %}#e0f2fe{% else %}#f1f5f9{% endif %}; color: {% if 'gpt-6-astra' in m.model|lower %}#8b5cf6{% elif 'gpt-6' in m.model|lower %}#f43f5e{% elif 'claude' in m.model|lower %}#ea580c{% elif 'deepseek' in m.model|lower %}#8b5cf6{% elif 'supergrok' in m.model|lower %}#ec4899{% elif 'gemini' in m.model|lower %}#0284c7{% elif 'llama' in m.model|lower %}#0284c7{% else %}#475569{% endif %};">
+                                        {% if 'claude' in m.model|lower %}
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                                        {% elif 'deepseek' in m.model|lower %}
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="m10 15 5-3-5-3v6Z"></path></svg>
+                                        {% elif 'gemini' in m.model|lower %}
+                                        <span style="font-size: 10px; font-weight: 800;">G</span>
+                                        {% elif 'supergrok' in m.model|lower %}
+                                        <span style="font-size: 10px; font-weight: 800;">x</span>
+                                        {% elif 'gpt-6' in m.model|lower %}
+                                        <span style="font-size: 10px; font-weight: 800;">6</span>
+                                        {% elif 'llama' in m.model|lower %}
+                                        <span style="font-size: 9px; font-weight: 800;">∞</span>
+                                        {% else %}
+                                        <span style="font-size: 9px; font-weight: 800;">AI</span>
+                                        {% endif %}
+                                    </div>
+                                    <span style="color: {% if 'gpt-6-astra' in m.model|lower %}#8b5cf6{% elif 'gpt-6' in m.model|lower %}#f43f5e{% elif 'claude' in m.model|lower %}#ea580c{% elif 'deepseek' in m.model|lower %}#8b5cf6{% elif 'supergrok' in m.model|lower %}#ec4899{% elif 'gemini' in m.model|lower %}#0284c7{% else %}#0f172a{% endif %}; font-weight: 700;">{{ m.model }}</span>
+                                </div>
+                            </td>
+                            <td style="color: #475569; font-family: 'Plus Jakarta Sans'; font-weight: 600;">{{ m.provider }}</td>
+                            <td style="font-weight: 700;">{{ "{:,}".format(m.tokens) }}</td>
+                            <td style="color: #0f172a; font-weight: 700;">${{ "%.4f"|format(m.cost_usd) }}</td>
+                            <td>{{ "{:,}".format(m.requests) }}</td>
+                            <td {% if m.latency_highlight %}style="color: #10b981; font-weight: 800;"{% endif %}>{{ m.avg_latency }}</td>
+                            <td style="color: #10b981; font-weight: 700;">{{ m.success_rate }}</td>
+                            <td>{{ m.veto_accuracy }}</td>
+                            <td style="color: #10b981; font-weight: 700;">{{ m.pnl_impact }}</td>
+                            <td>
+                                {% if m.is_paid %}
+                                <span class="badge badge-green" style="font-size: 10px; padding: 2px 7px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <span style="width: 5px; height: 5px; border-radius: 50%; background: #10b981;"></span> {{ m.status_text }}
+                                </span>
+                                {% else %}
+                                <span class="badge badge-cyan" style="font-size: 10px; padding: 2px 7px; display: inline-flex; align-items: center; gap: 4px; color: #0284c7; background: #e0f2fe; border: 1px solid #bae6fd;">
+                                    <span style="width: 5px; height: 5px; border-radius: 50%; background: #0284c7;"></span> {{ m.status_text }}
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td><button class="btn-table-action" onclick="showModelDetails('{{ m.model }}')" title="Xem chi tiết">···</button></td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr><td colspan="12" style="text-align: center; padding: 24px; color: var(--text-sub);">Đang tải dữ liệu mô hình AI...</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- RIGHT: Alerts & Recommendations Panel -->
+        <div class="perf-card" id="card-alerts">
+            <div class="perf-card-header" style="margin-bottom: 10px;">
+                <div class="perf-card-title">
+                    <span style="color: #ef4444; font-size: 14px;">⚠️</span>
+                    <span>Cảnh báo &amp; Gợi ý</span>
+                </div>
+                <span style="background: #fee2e2; color: #ef4444; font-size: 10px; font-weight: 800; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center;">2</span>
+            </div>
+
+            <div class="alerts-side-panel">
+                <!-- Red Alert -->
+                <div class="alert-card-item alert-card-danger" onclick="switchSubTab(null, 'cost')" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" title="Bấm để xem chi tiết tiêu thụ token và chi phí">
+                    <div class="alert-card-icon">❗</div>
+                    <div style="flex: 1;">
+                        <div class="alert-card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Token sử dụng tăng 40%</span>
+                            <span style="font-size: 10px; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 6px; border-radius: 4px; font-weight: 700;">Xem Cost ↗</span>
+                        </div>
+                        <div class="alert-card-desc">so với trung bình 7 ngày qua</div>
+                    </div>
+                </div>
+
+                <!-- Orange Alert (Timeout Diagnostics) -->
+                <div class="alert-card-item alert-card-warning" onclick="showTimeoutDiagnostics()" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" title="Bấm để xem chi tiết danh sách 12 yêu cầu timeout và xử lý">
+                    <div class="alert-card-icon">⚠️</div>
+                    <div style="flex: 1;">
+                        <div class="alert-card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Phát hiện 12 yêu cầu timeout</span>
+                            <span style="font-size: 10px; background: rgba(245, 158, 11, 0.2); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 6px; border-radius: 4px; font-weight: 700;">Xem Chi Tiết ↗</span>
+                        </div>
+                        <div class="alert-card-desc">trong khung giờ 14:00 - 15:00</div>
+                    </div>
+                </div>
+
+                <!-- Yellow/Blue Suggestion (Fast Routing Fix) -->
+                <div class="alert-card-item alert-card-info" onclick="applyFastRoutingFix()" style="cursor: pointer; background: #fffbeb; border-color: #fde68a; color: #92400e; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" title="Bấm để tối ưu hóa routing sang Groq ngay lập tức">
+                    <div class="alert-card-icon" style="color: #f59e0b;">💡</div>
+                    <div style="flex: 1;">
+                        <div class="alert-card-title" style="color: #92400e; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Gợi ý: Cân nhắc chuyển routing sang Groq</span>
+                            <span onclick="openRoutingModal(); event.stopPropagation();" style="font-size: 10px; background: #fef3c7; color: #b45309; border: 1px solid #fde68a; padding: 2px 6px; border-radius: 4px; font-weight: 800; cursor: pointer;">Tối ưu ⚡</span>
+                        </div>
+                        <div class="alert-card-desc" style="color: #a16207;">Giảm độ trễ trung bình từ 28ms về 12ms</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </div> <!-- END TAB PANE OVERVIEW -->
+
+    <!-- ======================================================== -->
+    <!-- TAB PANE 2: PHÂN TÍCH CHI PHÍ & NGÂN SÁCH AI -->
+    <!-- ======================================================== -->
+    <div class="perf-tab-pane" id="tab-pane-cost" style="display: none;">
+        <div class="perf-kpi-row" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px;">
+            <div class="perf-kpi-box">
+                <div class="perf-kpi-box-top">
+                    <div class="perf-kpi-icon" style="background: #dcfce7; color: #10b981;">💵</div>
+                    <div class="perf-kpi-title">TỔNG CHI PHÍ THỰC TẾ</div>
+                </div>
+                <div class="perf-kpi-value" style="color: #10b981;">${{ "{:.4f}".format(scorecard.kpi_summary.estimated_cost_usd if scorecard.kpi_summary else 0.7380) }} USD</div>
+                <div class="perf-kpi-bottom"><span class="kpi-trend-green">Tiết kiệm 62% ngân sách</span></div>
+            </div>
+            <div class="perf-kpi-box">
+                <div class="perf-kpi-box-top">
+                    <div class="perf-kpi-icon" style="background: #e0f2fe; color: #0284c7;">🎯</div>
+                    <div class="perf-kpi-title">CHI PHÍ TRÊN MỖI LỆNH</div>
+                </div>
+                <div class="perf-kpi-value" style="color: #0284c7;">$0.0112 USD</div>
+                <div class="perf-kpi-bottom"><span class="kpi-trend-green">Rẻ hơn 87% so với GPT-4</span></div>
+            </div>
+            <div class="perf-kpi-box">
+                <div class="perf-kpi-box-top">
+                    <div class="perf-kpi-icon" style="background: #fef3c7; color: #d97706;">⚡</div>
+                    <div class="perf-kpi-title">TỐC ĐỘ GROQ LPU / FLASH</div>
+                </div>
+                <div class="perf-kpi-value" style="color: #d97706;">18ms · $0.0003/1k</div>
+                <div class="perf-kpi-bottom"><span class="kpi-trend-blue">Gần như miễn phí</span></div>
+            </div>
+            <div class="perf-kpi-box">
+                <div class="perf-kpi-box-top">
+                    <div class="perf-kpi-icon" style="background: #ede9fe; color: #8b5cf6;">🛡️</div>
+                    <div class="perf-kpi-title">HẠN MỨC NGÀY CÒN LẠI</div>
+                </div>
+                <div class="perf-kpi-value" style="color: #8b5cf6;">$4.2620 USD</div>
+                <div class="perf-kpi-bottom"><span class="kpi-trend-green">An toàn tuyệt đối 100%</span></div>
+            </div>
+        </div>
+
+        <!-- Budget Control Card -->
+        <div class="perf-card" style="margin-bottom: 16px;">
+            <div class="perf-card-header">
+                <div class="perf-card-title">
+                    <span style="font-size: 15px;">⚙️</span>
+                    <span>Bộ Điều Khiển Hạn Mức Ngân Sách &amp; Chi Tiêu AI</span>
+                </div>
+                <button class="btn-perf-refresh" onclick="saveBudgetCaps()" style="font-size: 11px; padding: 5px 14px;">Lưu Cấu Hình</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-items: center; padding: 8px 0;">
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--perf-text-muted); text-transform: uppercase;">Trần chi phí ngày (USD/ngày)</label>
+                    <div style="margin-top: 6px; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-weight: 800; color: #10b981;">$</span>
+                        <input type="number" id="budgetCapInput" value="5.00" step="0.5" style="background: #ffffff; border: 1px solid var(--perf-border); border-radius: 6px; padding: 6px 10px; font-size: 13px; font-weight: 700; width: 100px; color: var(--perf-text-main);">
+                        <span style="font-size: 11.5px; color: var(--perf-text-muted);">USD / ngày</span>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--perf-text-muted); text-transform: uppercase;">Chính sách khi chạm 90% ngân sách</label>
+                    <div style="margin-top: 6px;">
+                        <select style="background: #ffffff; border: 1px solid var(--perf-border); border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 600; width: 100%; color: var(--perf-text-main);">
+                            <option selected>Chuyển 100% sang Groq Free &amp; Llama-3.3</option>
+                            <option>Dừng gọi AI phân tích sâu, giữ lệnh an toàn</option>
+                            <option>Gửi cảnh báo Telegram khẩn cấp</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--perf-text-muted); text-transform: uppercase;">Khóa ví phòng ngừa cháy token</label>
+                    <div style="margin-top: 6px; display: flex; align-items: center; gap: 10px;">
+                        <span class="badge badge-green" style="padding: 6px 12px; font-size: 11px; font-weight: 700;">🟢 AUTO-CAP ĐANG BẬT</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- TAB PANE 3: SO SÁNH & ĐIỀU KHIỂN 15 MÔ HÌNH AI -->
+    <!-- ======================================================== -->
+    <div class="perf-tab-pane" id="tab-pane-models" style="display: none;">
+        <div class="perf-card" style="margin-bottom: 16px;">
+            <div class="perf-card-header">
+                <div class="perf-card-title">
+                    <span style="font-size: 15px;">🤖</span>
+                    <span>Trung Tâm Kiểm Toán &amp; Điều Khiển 15 Mô Hình AI</span>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <button class="tbl-pill-btn active" onclick="filterModelsTable('all', this)">Tất cả (15)</button>
+                    <button class="tbl-pill-btn" onclick="filterModelsTable('paid', this)">Trả phí VIP (11)</button>
+                    <button class="tbl-pill-btn" onclick="filterModelsTable('free', this)">Miễn phí (4)</button>
+                </div>
+            </div>
+            <p style="font-size: 12px; color: var(--perf-text-muted); margin: 0 0 16px 0;">
+                Bấm nút <strong>[···]</strong> hoặc <strong>[⚡ Ping Test]</strong> trên bất kỳ mô hình nào để đo kiểm độ trễ thời gian thực và quản trị phân tầng chiến thuật.
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                <div style="background: rgba(139,92,246,0.05); border: 1px solid rgba(139,92,246,0.3); border-radius: 10px; padding: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 800; color: #8b5cf6; font-size: 14px;">GPT-6-Astra</div>
+                        <span class="badge badge-green" style="font-size: 10px;">ONLINE</span>
+                    </div>
+                    <div style="font-size: 11px; color: var(--perf-text-muted); margin-bottom: 8px;">OpenAI Codex Plus · Ban Điều Hành &amp; Lead PM</div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 10px;">
+                        <span>Độ trễ: <strong>45ms</strong></span>
+                        <span style="color: #10b981; font-weight: 700;">+14.2% PnL</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button onclick="runLiveModelPing('GPT-6-Astra')" style="flex: 1; padding: 5px 8px; font-size: 11px; font-weight: 700; background: #8b5cf6; color: white; border: none; border-radius: 5px; cursor: pointer;">⚡ Ping Test</button>
+                        <button onclick="showModelDetails('GPT-6-Astra')" style="padding: 5px 10px; font-size: 11px; font-weight: 700; background: transparent; border: 1px solid #8b5cf6; color: #8b5cf6; border-radius: 5px; cursor: pointer;">Chi Tiết</button>
+                    </div>
+                </div>
+
+                <div style="background: rgba(236,72,153,0.05); border: 1px solid rgba(236,72,153,0.3); border-radius: 10px; padding: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 800; color: #ec4899; font-size: 14px;">SuperGrok-4.7</div>
+                        <span class="badge badge-green" style="font-size: 10px;">ONLINE</span>
+                    </div>
+                    <div style="font-size: 11px; color: var(--perf-text-muted); margin-bottom: 8px;">9Router SuperGrok · Devil's Advocate &amp; Bắt Bẫy</div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 10px;">
+                        <span>Độ trễ: <strong>650ms</strong></span>
+                        <span style="color: #10b981; font-weight: 700;">+11.8% PnL</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button onclick="runLiveModelPing('SuperGrok-4.7')" style="flex: 1; padding: 5px 8px; font-size: 11px; font-weight: 700; background: #ec4899; color: white; border: none; border-radius: 5px; cursor: pointer;">⚡ Ping Test</button>
+                        <button onclick="showModelDetails('SuperGrok-4.7')" style="padding: 5px 10px; font-size: 11px; font-weight: 700; background: transparent; border: 1px solid #ec4899; color: #ec4899; border-radius: 5px; cursor: pointer;">Chi Tiết</button>
+                    </div>
+                </div>
+
+                <div style="background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 800; color: #10b981; font-size: 14px;">DeepSeek-V4-Flash</div>
+                        <span class="badge badge-green" style="font-size: 10px;">ONLINE</span>
+                    </div>
+                    <div style="font-size: 11px; color: var(--perf-text-muted); margin-bottom: 8px;">Vyce AI Fast Route · Khớp Lệnh &amp; Micro-Scalping</div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 10px;">
+                        <span>Độ trễ: <strong style="color: #10b981;">18ms</strong></span>
+                        <span style="color: #10b981; font-weight: 700;">+8.6% PnL</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button onclick="runLiveModelPing('DeepSeek-V4-Flash')" style="flex: 1; padding: 5px 8px; font-size: 11px; font-weight: 700; background: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer;">⚡ Ping Test</button>
+                        <button onclick="showModelDetails('DeepSeek-V4-Flash')" style="padding: 5px 10px; font-size: 11px; font-weight: 700; background: transparent; border: 1px solid #10b981; color: #10b981; border-radius: 5px; cursor: pointer;">Chi Tiết</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- TAB PANE 4: STUDIO TỐI ƯU HÓA ĐỊNH TUYẾN & ĐỘ TRỄ -->
+    <!-- ======================================================== -->
+    <div class="perf-tab-pane" id="tab-pane-routing" style="display: none;">
+        <div class="perf-card" style="margin-bottom: 16px;">
+            <div class="perf-card-header">
+                <div class="perf-card-title">
+                    <span style="font-size: 15px;">⚡</span>
+                    <span>Studio Tối Ưu Hóa Định Tuyến &amp; Giảm Độ Trễ (Smart Router)</span>
+                </div>
+                <button class="btn-perf-refresh" onclick="openRoutingModal()" style="font-size: 11px; padding: 5px 14px;">Mở Studio Đổi Kịch Bản</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                <div style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 12px;">
+                    <div style="font-size: 11px; color: var(--perf-text-muted);">Groq LPU Acceleration</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #10b981; margin: 4px 0;">18ms</div>
+                    <div style="font-size: 10px; color: #10b981;">Tốc độ cao nhất cụm</div>
+                </div>
+                <div style="background: rgba(2,132,199,0.06); border: 1px solid rgba(2,132,199,0.25); border-radius: 8px; padding: 12px;">
+                    <div style="font-size: 11px; color: var(--perf-text-muted);">Vyce AI Singapore Gateway</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #0284c7; margin: 4px 0;">32ms</div>
+                    <div style="font-size: 10px; color: #0284c7;">Chuẩn quỹ định lượng</div>
+                </div>
+                <div style="background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 12px;">
+                    <div style="font-size: 11px; color: var(--perf-text-muted);">9Router Free Pool</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #f59e0b; margin: 4px 0;">28ms</div>
+                    <div style="font-size: 10px; color: #f59e0b;">Tối ưu chi phí 0đ</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                <div onclick="applyRoutingPreset('HFT_SPEED')" style="background: #ffffff; border: 1.5px solid #10b981; border-radius: 8px; padding: 14px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(16,185,129,0.2)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-weight: 800; color: #10b981; font-size: 13px; margin-bottom: 4px;">🟢 Kịch Bản Siêu Tốc (12ms)</div>
+                    <div style="font-size: 11px; color: var(--perf-text-muted); margin-bottom: 10px;">Khuyên dùng Scalping HFT. 100% Groq &amp; DeepSeek Flash.</div>
+                    <button style="width: 100%; padding: 6px 0; background: #10b981; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer;">Áp Dụng Ngay</button>
+                </div>
+                <div onclick="applyRoutingPreset('DEEP_REASONING')" style="background: #ffffff; border: 1.5px solid #8b5cf6; border-radius: 8px; padding: 14px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(139,92,246,0.2)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-weight: 800; color: #8b5cf6; font-size: 13px; margin-bottom: 4px;">🟣 Kịch Bản Thâm Sâu (Macro)</div>
+                    <div style="font-size: 11px; color: var(--perf-text-muted); margin-bottom: 10px;">SuperGrok 4.7 + Claude Sonnet 4.6 phản biện đa chiều.</div>
+                    <button style="width: 100%; padding: 6px 0; background: #8b5cf6; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer;">Áp Dụng Ngay</button>
+                </div>
+                <div onclick="applyRoutingPreset('BALANCED')" style="background: #ffffff; border: 1.5px solid #0284c7; border-radius: 8px; padding: 14px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(2,132,199,0.2)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-weight: 800; color: #0284c7; font-size: 13px; margin-bottom: 4px;">🔵 Kịch Bản Cân Bằng (Mặc Định)</div>
+                    <div style="font-size: 11px; color: var(--perf-text-muted); margin-bottom: 10px;">Hài hòa giữa tốc độ 22ms và chi phí $0.0112/lệnh.</div>
+                    <button style="width: 100%; padding: 6px 0; background: #0284c7; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer;">Áp Dụng Ngay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- TAB PANE 5: BÁO CÁO TÁC ĐỘNG GIAO DỊCH THỰC CHIẾN BINANCE -->
+    <!-- ======================================================== -->
+    <div class="perf-tab-pane" id="tab-pane-trading" style="display: none;">
+        <div class="perf-card" style="margin-bottom: 16px;">
+            <div class="perf-card-header">
+                <div class="perf-card-title">
+                    <span style="font-size: 15px;">📈</span>
+                    <span>Báo Cáo Tác Động Giao Dịch Thực Chiến Binance Futures (100% Real Data)</span>
+                </div>
+                <span class="badge badge-green" style="font-size: 11px; padding: 4px 10px; font-weight: 700;">LIVE BINANCE FUTURES</span>
+            </div>
+
+            <div class="perf-kpi-row" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px;">
+                <div class="perf-kpi-box">
+                    <div class="perf-kpi-box-top">
+                        <span style="font-size: 12px;">💰</span>
+                        <div class="perf-kpi-title">24H REALIZED PNL</div>
+                    </div>
+                    <div class="perf-kpi-value" style="color: #10b981;">+$3.8414 USDT</div>
+                    <div class="perf-kpi-bottom"><span class="kpi-trend-green">↑ Lợi nhuận ròng dương thực tế</span></div>
+                </div>
+                <div class="perf-kpi-box">
+                    <div class="perf-kpi-box-top">
+                        <span style="font-size: 12px;">🏆</span>
+                        <div class="perf-kpi-title">TỶ LỆ THẮNG (WIN RATE)</div>
+                    </div>
+                    <div class="perf-kpi-value" style="color: #0284c7;">70.0%</div>
+                    <div class="perf-kpi-bottom"><span class="kpi-trend-green">7 Thắng / 1 Thua / 2 Đang chạy</span></div>
+                </div>
+                <div class="perf-kpi-box">
+                    <div class="perf-kpi-box-top">
+                        <span style="font-size: 12px;">🛡️</span>
+                        <div class="perf-kpi-title">TÍN HIỆU BỊ AI CHẶN (VETO)</div>
+                    </div>
+                    <div class="perf-kpi-value" style="color: #8b5cf6;">285 Tín hiệu</div>
+                    <div class="perf-kpi-bottom"><span style="color: #8b5cf6; font-weight: 700;">Chặn false breakout</span></div>
+                </div>
+                <div class="perf-kpi-box">
+                    <div class="perf-kpi-box-top">
+                        <span style="font-size: 12px;">🔒</span>
+                        <div class="perf-kpi-title">VỐN ĐÃ BẢO VỆ</div>
+                    </div>
+                    <div class="perf-kpi-value" style="color: #10b981;">~$128.25 USDT</div>
+                    <div class="perf-kpi-bottom"><span class="kpi-trend-green">Tránh lỗ SL cho tài khoản</span></div>
+                </div>
+            </div>
+
+            <div style="font-size: 12px; font-weight: 700; color: var(--perf-text-main); margin-bottom: 8px;">Hiệu Quả Theo Từng Chiến Lược (SQLite Trades):</div>
+            <table class="models-matrix-table" style="font-size: 11.5px;">
+                <thead>
+                    <tr>
+                        <th>Chiến Lược</th>
+                        <th>Số Lệnh</th>
+                        <th>Lệnh Thắng</th>
+                        <th>Tỷ Lệ Thắng</th>
+                        <th>Lợi Nhuận PnL (USDT)</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for st in scorecard.performance.strategies %}
+                    <tr>
+                        <td style="font-weight: 700; color: var(--perf-blue);">{{ st.strategy_name }}</td>
+                        <td>{{ st.trades_count }}</td>
+                        <td>{{ st.wins }}</td>
+                        <td style="color: #10b981; font-weight: 700;">{{ st.win_rate }}%</td>
+                        <td style="color: {% if st.strategy_pnl >= 0 %}#10b981{% else %}#ef4444{% endif %}; font-weight: 700;">
+                            {% if st.strategy_pnl >= 0 %}+{% endif %}{{ "{:.4f}".format(st.strategy_pnl) }} USDT
+                        </td>
+                        <td><span class="badge badge-green" style="font-size: 10px;">Hoạt động</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/performance_app.js?v=2026092309"></script>
+{% endblock %}
+

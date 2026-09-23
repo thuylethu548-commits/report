@@ -1,0 +1,114 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 1040px; margin: 50px auto; padding: 0 20px;">
+    
+    <div class="split-auth-container">
+        
+        <!-- LEFT COLUMN: BRANDING & BENEFITS -->
+        <div class="auth-left-banner">
+            <div>
+                <div class="auth-branding">
+                    <div class="auth-brand-logo">✦</div>
+                    <span style="font-weight: 800; font-size: 15px; letter-spacing: 0.5px;">ASTRA QUANT LABS</span>
+                </div>
+
+                <h2 class="auth-left-title">
+                    Bắt Đầu Giao Dịch<br>
+                    <span style="color: #10b981;">Tự Động & An Toàn.</span>
+                </h2>
+
+                <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin: 0 0 20px;">
+                    Mở tài khoản miễn phí chỉ trong 1 phút để kết nối API Binance và nhận phân bổ lệnh tự động từ đội tàu 10 AI Agents.
+                </p>
+
+                <ul class="auth-feature-list">
+                    <li class="auth-feature-item">
+                        <span style="color: #10b981; font-weight: 800;">✓</span>
+                        <span>Không giữ tiền, tài sản nằm 100% tại Binance</span>
+                    </li>
+                    <li class="auth-feature-item">
+                        <span style="color: #10b981; font-weight: 800;">✓</span>
+                        <span>Bảo vệ vốn đa lớp với Hard Risk Gate 2%</span>
+                    </li>
+                    <li class="auth-feature-item">
+                        <span style="color: #10b981; font-weight: 800;">✓</span>
+                        <span>Theo dõi hiệu suất và PnL thời gian thực</span>
+                    </li>
+                    <li class="auth-feature-item">
+                        <span style="color: #10b981; font-weight: 800;">✓</span>
+                        <span>Tặng gói trải nghiệm Demo $50 ngay khi tạo</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Bottom Security Badges -->
+            <div style="display: flex; gap: 14px; font-size: 11px; color: #64748b; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+                <span>🔒 Bảo mật SSL</span>
+                <span>🛡️ Mã hóa AES-256</span>
+                <span>⚡ Zero Access API Key</span>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: REGISTER FORM -->
+        <div class="auth-right-form">
+            
+            <div class="auth-tabs-row">
+                <a href="/portal/login" class="auth-tab">Đăng nhập</a>
+                <a href="/portal/register" class="auth-tab active">Tạo tài khoản</a>
+            </div>
+
+            {% if error %}
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; color: #ef4444; font-size: 12.5px;">
+                ⚠️ {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/portal/register" style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Họ và Tên</label>
+                    <input type="text" name="full_name" required placeholder="Nguyễn Văn A" style="width: 100%; padding: 10px 14px; background: var(--bg-alt, #fff); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-size: 13px; outline: none; box-sizing: border-box;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Tên đăng nhập</label>
+                        <input type="text" name="username" required placeholder="nguyenvana" style="width: 100%; padding: 10px 14px; background: var(--bg-alt, #fff); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-size: 13px; outline: none; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Email</label>
+                        <input type="email" name="email" required placeholder="user@gmail.com" style="width: 100%; padding: 10px 14px; background: var(--bg-alt, #fff); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-size: 13px; outline: none; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Mật khẩu</label>
+                        <input type="password" name="password" required placeholder="••••••••" style="width: 100%; padding: 10px 14px; background: var(--bg-alt, #fff); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-size: 13px; outline: none; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Mã giới thiệu (Nếu có)</label>
+                        <input type="text" name="referral_code" value="GRO_28502_O41DR" placeholder="GRO_28502_O41DR" style="width: 100%; padding: 10px 14px; background: var(--bg-alt, #fff); border: 1px solid var(--border); border-radius: 8px; color: #f59e0b; font-weight: 700; font-size: 13px; outline: none; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                    <input type="checkbox" id="terms-agree" required checked>
+                    <label for="terms-agree">Tôi đồng ý với <a href="/terms" target="_blank" style="color: #0284c7;">Điều khoản sử dụng</a> và <a href="/risk-warning" target="_blank" style="color: #ef4444;">Cảnh báo rủi ro</a></label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-weight: 800; font-size: 14px; margin-top: 6px; cursor: pointer; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; color: #fff;">
+                    Tạo Tài Khoản Miễn Phí →
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 18px; font-size: 12.5px; color: var(--text-muted);">
+                Đã có tài khoản? <a href="/portal/login" style="color: #0284c7; text-decoration: none; font-weight: 700;">Đăng nhập ngay</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

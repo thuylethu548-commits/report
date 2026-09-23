@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title or "ASTRA QUANT LABS — AI Driven Quantitative Trading" }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
+    <link rel="stylesheet" href="/static/css/client.css">
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
+
+    <!-- TOP NAVIGATION BAR (MATCHING MOCKUP) -->
+    <header class="client-header">
+        <div class="container client-header-inner">
+            <a href="/" class="brand-wrapper client-brand" aria-label="Astra Quant Labs — Trang chủ">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div style="font-size: 15px; font-weight: 800; letter-spacing: 0.5px; color: var(--text-main); line-height: 1.1;">ASTRA QUANT</div>
+                        <div style="font-size: 8.5px; font-weight: 700; color: #0284c7; letter-spacing: 1px;">AUTONOMOUS TRADING LAB</div>
+                    </div>
+                </div>
+            </a>
+
+            <nav class="client-nav-links">
+                <a href="/" class="{% if current_page == 'home' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="/portal/dashboard" class="{% if current_page == 'portal' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h7"/></svg>
+                    <span>Cổng khách hàng</span>
+                </a>
+                <a href="/track-record" class="{% if current_page == 'track_record' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16"/><path d="m7 15 3-4 3 2 5-6"/></svg>
+                    <span>Hiệu suất</span>
+                </a>
+                <a href="/risk-warning" class="{% if current_page == 'risk_warning' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v5c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6z"/><path d="M12 8v4M12 16h.01"/></svg>
+                    <span>Rủi ro</span>
+                </a>
+                <a href="/terms" class="{% if current_page == 'terms' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6M15 3v4h4"/></svg>
+                    <span>Điều khoản</span>
+                </a>
+                <a href="/privacy" class="{% if current_page == 'privacy' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                    <span>Bảo mật</span>
+                </a>
+            </nav>
+
+            <div class="client-header-actions">
+                <button class="btn btn-secondary btn-theme-toggle" onclick="toggleTheme()" type="button" aria-label="Đổi giao diện">
+                    <span class="theme-toggle-icon" aria-hidden="true"></span><span class="theme-toggle-label">Cyberpunk</span>
+                </button>
+                {% if request.cookies.get("client_session_user") %}
+                <a href="/portal/dashboard" class="btn btn-primary" style="padding: 8px 18px; font-size: 12.5px; border-radius: 8px; font-weight: 700;">
+                    <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h7"/></svg>
+                    <span>Vào Dashboard →</span>
+                </a>
+                {% else %}
+                <a href="/portal/login" class="btn btn-primary" style="padding: 8px 18px; font-size: 12.5px; border-radius: 8px; font-weight: 700;">
+                    <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a4 4 0 0 1 4 4v2h2a2 2 0 0 1 2 2v7H4v-7a2 2 0 0 1 2-2h2V7a4 4 0 0 1 4-4Z"/><path d="M9 16h6M12 12v4"/></svg>
+                    <span>Đăng nhập</span>
+                </a>
+                {% endif %}
+                <button class="mobile-nav-toggle" onclick="toggleMobileNav()" type="button" aria-label="Mở menu điều hướng" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN PAGE CONTENT -->
+    <main style="flex: 1;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- CLIENT FOOTER (MATCHING IMAGE 3 EXACTLY) -->
+    <footer class="client-footer">
+        <div class="container" style="position: relative;">
+            <div class="footer-5col-grid">
+                <!-- Col 1: Brand & Live Tagline -->
+                <div class="footer-col-brand">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                        <div style="width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 800; letter-spacing: 0.5px; color: var(--text-main); line-height: 1.1;">ASTRA QUANT</div>
+                            <div style="font-size: 8.5px; font-weight: 700; color: #0284c7; letter-spacing: 1px;">AUTONOMOUS TRADING LAB</div>
+                        </div>
+                    </div>
+                    <p class="footer-tagline">
+                        Hệ sinh thái giao dịch định lượng đa tác tử (10 Astra Agents Fleet) tích hợp Hard Risk Gate & Circuit Breaker cấp độ Kernel nhằm bảo toàn vốn tuyệt đối.
+                    </p>
+                    <div class="footer-badge-live">
+                        <span class="pulse-dot"></span>
+                        <span>BINANCE WEBSOCKET FEED LIVE (BTC/USDT 15M)</span>
+                    </div>
+                    <div class="font-handwriting footer-handwriting-left">
+                        Quantitative Intelligence<br>for a Safer Tomorrow
+                    </div>
+                </div>
+
+                <!-- Col 2: Hệ thống -->
+                <div class="footer-links-group">
+                    <div class="footer-links-title">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        <span>HỆ THỐNG</span>
+                    </div>
+                    <a href="/">Tổng quan thuật toán</a>
+                    <a href="/track-record" class="active-blue-link">Báo cáo hiệu suất</a>
+                    <a href="/portal/dashboard">Cổng khách hàng Copy-Trade</a>
+                    <a href="/#faq">Câu hỏi thường gặp</a>
+                </div>
+
+                <!-- Col 3: Chính sách & Pháp lý -->
+                <div class="footer-links-group">
+                    <div class="footer-links-title">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        <span>CHÍNH SÁCH & PHÁP LÝ</span>
+                    </div>
+                    <a href="/risk-warning">Cảnh báo rủi ro vốn</a>
+                    <a href="/terms">Điều khoản sử dụng</a>
+                    <a href="/privacy">Chính sách bảo mật</a>
+                    <a href="/terms#disclaimer">Tuyên bố miễn trừ trách nhiệm</a>
+                </div>
+
+                <!-- Col 4: Cổng khách hàng -->
+                <div class="footer-links-group">
+                    <div class="footer-links-title">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span>CỔNG KHÁCH HÀNG</span>
+                    </div>
+                    <a href="/portal/login">Đăng nhập</a>
+                    <a href="/portal/register">Đăng ký tài khoản</a>
+                    <a href="/#guide">Hướng dẫn sử dụng</a>
+                    <a href="/#support">Liên hệ hỗ trợ</a>
+                </div>
+
+                <!-- Col 5: Quote & Social Icons -->
+                <div class="footer-col-social">
+                    <div class="footer-quote-wrap">
+                        <div class="font-handwriting footer-handwriting-right">
+                            Smarter Systems<br>Safer Investors
+                        </div>
+                        <svg class="handwriting-underline" viewBox="0 0 100 15" width="84" height="12">
+                            <path d="M 5,8 Q 50,15 95,6" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+
+                    <div class="footer-social-boxes">
+                        <a href="https://twitter.com" target="_blank" rel="noopener" class="social-btn" title="X (Twitter)">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        </a>
+                        <a href="https://youtube.com" target="_blank" rel="noopener" class="social-btn" title="YouTube">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        </a>
+                        <a href="https://discord.com" target="_blank" rel="noopener" class="social-btn" title="Discord">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                        </a>
+                        <a href="https://github.com" target="_blank" rel="noopener" class="social-btn" title="GitHub">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-footer Bar with Risk Warning (Matching Image 3) -->
+            <div class="footer-bottom-bar">
+                <div class="footer-copyright">
+                    © 2026 Astra Quant Labs. All rights reserved. Built for quantitative execution.
+                </div>
+                <div class="footer-divider-pipe">|</div>
+                <div class="footer-disclaimer-warning">
+                    <span class="warning-icon">⚠️</span>
+                    <span>Đầu tư tiềm ẩn rủi ro cao. Hiệu suất trong quá khứ không đảm bảo kết quả trong tương lai. Vui lòng đọc kỹ các điều khoản và cảnh báo rủi ro.</span>
+                </div>
+            </div>
+
+            <!-- Background low-poly mesh corner graphics (SVG) -->
+            <div class="footer-corner-mesh-left">
+                <svg viewBox="0 0 200 120" width="180" height="100" fill="none" opacity="0.35">
+                    <polygon points="10,110 50,40 110,80" stroke="#0284c7" stroke-width="0.8" fill="rgba(2,132,199,0.03)"/>
+                    <polygon points="50,40 110,80 150,20" stroke="#0284c7" stroke-width="0.8" fill="rgba(2,132,199,0.05)"/>
+                    <polygon points="110,80 150,20 190,90" stroke="#0284c7" stroke-width="0.8" fill="rgba(2,132,199,0.02)"/>
+                    <polygon points="10,110 110,80 80,120" stroke="#0284c7" stroke-width="0.8" fill="rgba(2,132,199,0.04)"/>
+                    <circle cx="50" cy="40" r="2.5" fill="#38bdf8"/>
+                    <circle cx="110" cy="80" r="2" fill="#0284c7"/>
+                    <circle cx="150" cy="20" r="2" fill="#0284c7"/>
+                </svg>
+            </div>
+            <div class="footer-corner-mesh-right">
+                <svg viewBox="0 0 200 120" width="180" height="100" fill="none" opacity="0.35">
+                    <polygon points="190,110 150,40 90,80" stroke="#0284c7" stroke-width="0.8" fill="rgba(2,132,199,0.03)"/>
+                    <polygon points="150,40 90,80 50,20" stroke="#0284c7" stroke-width="0.8" fill="rgba(2,132,199,0.05)"/>
+                    <polygon points="90,80 50,20 10,90" stroke="#0284c7" stroke-width="0.8" fill="rgba(2,132,199,0.02)"/>
+                    <circle cx="150" cy="40" r="2.5" fill="#38bdf8"/>
+                    <circle cx="90" cy="80" r="2" fill="#0284c7"/>
+                    <circle cx="50" cy="20" r="2" fill="#0284c7"/>
+                </svg>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/theme.js"></script>
+    <script src="/static/js/client_app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>\n

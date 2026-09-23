@@ -1,0 +1,137 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="legal-page-layout">
+
+    <!-- LEFT SIDEBAR: STICKY TABLE OF CONTENTS -->
+    <aside class="legal-toc-sidebar">
+        <div class="legal-toc-title">Mục Lục Điều Khoản</div>
+        <ul class="legal-toc-list">
+            <li class="legal-toc-item active"><a href="#sec-1">1. Định nghĩa & Phạm vi</a></li>
+            <li class="legal-toc-item"><a href="#sec-2">2. Quyền & Trách nhiệm</a></li>
+            <li class="legal-toc-item"><a href="#sec-3">3. Rủi ro đầu tư</a></li>
+            <li class="legal-toc-item"><a href="#sec-4">4. An toàn Khóa API</a></li>
+            <li class="legal-toc-item"><a href="#sec-5">5. Phí dịch vụ & Chia sẻ lãi</a></li>
+            <li class="legal-toc-item"><a href="#sec-6">6. Chấm dứt dịch vụ</a></li>
+            <li class="legal-toc-item"><a href="#sec-7">7. Giới hạn trách nhiệm</a></li>
+            <li class="legal-toc-item"><a href="#sec-8">8. Thay đổi điều khoản</a></li>
+        </ul>
+
+        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <button class="btn btn-secondary" style="width: 100%; font-size: 11.5px; padding: 8px;" onclick="window.print()">
+                📥 Tải Bản PDF
+            </button>
+        </div>
+    </aside>
+
+    <!-- RIGHT CONTENT CARD -->
+    <main class="legal-content-card">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <span class="tag-pill" style="margin-bottom: 8px;">● MINH BẠCH — TUÂN THỦ — AN TOÀN</span>
+                <h1 style="font-size: 26px; font-weight: 900; color: var(--text-main); margin: 0 0 6px;">
+                    Điều Khoản Sử Dụng (Terms of Service)
+                </h1>
+                <div style="font-size: 12.5px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">
+                    Phiên bản 3.0.0 — Cập nhật ngày 20 Tháng 9, 2026
+                </div>
+            </div>
+            <button class="btn btn-secondary" style="font-size: 12px; padding: 8px 14px;" onclick="window.print()">
+                📥 Tải PDF
+            </button>
+        </div>
+
+        <div style="background: rgba(2, 132, 199, 0.08); border-left: 4px solid #0284c7; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 28px; font-size: 13px; color: var(--text-main); line-height: 1.5;">
+            Khi sử dụng hệ thống <strong>Astra Quant Labs</strong>, bạn đồng ý tuân thủ các điều khoản dưới đây. Vui lòng đọc kỹ trước khi đăng ký tài khoản và kết nối API.
+        </div>
+
+        <!-- Section 1 -->
+        <section id="sec-1" style="margin-bottom: 32px;">
+            <h2 style="font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                1. Định nghĩa & Phạm vi Áp dụng
+            </h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6;">
+                <strong>1.1. Định nghĩa:</strong><br>
+                • <em>"Astra Quant"</em> là hệ thống giao dịch định lượng do Astra Quant Labs phát triển.<br>
+                • <em>"Người dùng"</em> là cá nhân hoặc tổ chức đăng ký tài khoản và sử dụng dịch vụ.<br>
+                • <em>"Copy-Trade"</em> là hình thức sao chép lệnh từ hệ thống tới tài khoản sàn của Người dùng.<br>
+                • <em>"API"</em> là giao diện kết nối giữa tài khoản sàn Binance và hệ thống Astra.<br>
+                • <em>"Tài sản"</em> bao gồm USDT và các loại tài sản số được hỗ trợ giao dịch.
+            </p>
+        </section>
+
+        <!-- Section 2 -->
+        <section id="sec-2" style="margin-bottom: 32px;">
+            <h2 style="font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                2. Quyền & Trách nhiệm của Người Dùng
+            </h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6;">
+                Người dùng giữ toàn quyền sở hữu đối với tài sản trong tài khoản cá nhân tại sàn giao dịch. Hệ thống Astra vận hành theo cơ chế <strong>Non-Custodial (không ủy thác, không giữ tài sản)</strong>. Người dùng chịu trách nhiệm tự quản lý khóa bí mật và thiết lập hạn mức đòn bẩy phù hợp với khẩu vị rủi ro.
+            </p>
+        </section>
+
+        <!-- Section 3 -->
+        <section id="sec-3" style="margin-bottom: 32px;">
+            <h2 style="font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                3. Rủi ro Đầu tư & Bản chất Thị trường
+            </h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6;">
+                Giao dịch phái sinh tiền mã hóa có mức độ rủi ro cao. Các kết quả kiểm thử trong quá khứ (Backtest) không đảm bảo lợi nhuận trong tương lai. Người dùng không nên đầu tư số tiền mà bản thân không thể chấp nhận mất.
+            </p>
+        </section>
+
+        <!-- Section 4 -->
+        <section id="sec-4" style="margin-bottom: 32px;">
+            <h2 style="font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                4. An Toàn Khóa API (Security First)
+            </h2>
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 14px; font-size: 13px; color: #10b981; margin-bottom: 12px;">
+                🛡️ <strong>Nguyên tắc bảo mật tuyệt đối:</strong> Hệ thống Astra chỉ yêu cầu quyền Đọc (Read-only) và Giao dịch Hợp đồng tương lai (Futures Trading). Chúng tôi <strong>TUYỆT ĐỐI KHÔNG yêu cầu và KHÔNG chấp nhận</strong> các API có bật quyền Rút tiền (Withdrawal).
+            </div>
+        </section>
+
+        <!-- Section 5 -->
+        <section id="sec-5" style="margin-bottom: 32px;">
+            <h2 style="font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                5. Phí Dịch Vụ & Chia Sẻ Lợi Nhuận (High-Water Mark)
+            </h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6;">
+                Hệ thống áp dụng mô hình chia sẻ lợi nhuận theo cơ chế High-Water Mark: Chỉ tính phí trên phần lợi nhuận ròng thực tế phát sinh sau khi đã bù trừ hết các khoản sụt giảm trước đó.
+            </p>
+        </section>
+
+        <!-- Section 6 -->
+        <section id="sec-6" style="margin-bottom: 32px;">
+            <h2 style="font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                6. Chấm Dứt Dịch Vụ & Hủy Liên Kết API
+            </h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6;">
+                Người dùng có quyền hủy liên kết API hoặc xóa tài khoản bất kỳ lúc nào trực tiếp trên bảng điều khiển. Ngay khi nhận được yêu cầu, hệ thống sẽ ngừng phân bổ lệnh mới ngay lập tức.
+            </p>
+        </section>
+
+        <!-- Section 7 -->
+        <section id="sec-7" style="margin-bottom: 32px;">
+            <h2 style="font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                7. Giới Hạn Trách Nhiệm Pháp Lý
+            </h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6;">
+                Astra Quant Labs không chịu trách nhiệm đối với các thiệt hại phát sinh từ sự cố mạng của sàn giao dịch, nghẽn đường truyền Internet hoặc lỗi từ phía nhà cung cấp dịch vụ bên thứ ba.
+            </p>
+        </section>
+
+        <!-- Section 8 -->
+        <section id="sec-8">
+            <h2 style="font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                8. Thay Đổi & Cập Nhật Điều Khoản
+            </h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6;">
+                Astra Quant Labs bảo lưu quyền cập nhật điều khoản này khi cần thiết. Mọi thay đổi lớn sẽ được thông báo tới Người dùng qua email hoặc thông báo trực tiếp trên hệ thống trước ít nhất 7 ngày.
+            </p>
+        </section>
+
+    </main>
+
+</div>
+{% endblock %}

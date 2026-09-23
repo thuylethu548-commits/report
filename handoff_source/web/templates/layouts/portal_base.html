@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title or "Cổng Khách Hàng — Astra Quant Labs" }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/portal_dashboard.css?v=2.5">
+    {% block extra_head %}{% endblock %}
+    <style>
+        /* Modern In-App Toast & Confirmation Modal Styles */
+        .portal-toast-container {
+            position: fixed;
+            top: 76px;
+            right: 24px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .portal-toast {
+            min-width: 280px;
+            max-width: 420px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            pointer-events: auto;
+            animation: slideInToast 0.25s ease-out;
+            transition: all 0.2s ease;
+        }
+        @keyframes slideInToast {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .portal-toast.success {
+            background: #064e3b;
+            color: #ecfdf5;
+            border: 1px solid #10b981;
+        }
+        .portal-toast.error {
+            background: #7f1d1d;
+            color: #fef2f2;
+            border: 1px solid #ef4444;
+        }
+        .portal-toast.info {
+            background: #1e3a8a;
+            color: #eff6ff;
+            border: 1px solid #3b82f6;
+        }
+
+        /* Non-Custodial Wallet Modal */
+        .portal-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .portal-modal-backdrop.active {
+            display: flex;
+        }
+        .portal-modal-card {
+            background: var(--portal-card-bg);
+            border: 1px solid var(--portal-border);
+            border-radius: 16px;
+            max-width: 580px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35);
+            overflow: hidden;
+            animation: popModal 0.2s ease-out;
+        }
+        @keyframes popModal {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .portal-modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--portal-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .portal-modal-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--portal-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .portal-modal-close {
+            background: transparent;
+            border: none;
+            color: var(--portal-text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .portal-modal-close:hover {
+            background: var(--portal-border-subtle);
+            color: var(--portal-text);
+        }
+        .portal-modal-body {
+            padding: 24px;
+            color: var(--portal-text);
+        }
+
+        /* User Profile Dropdown */
+        .portal-user-profile {
+            position: relative;
+            cursor: pointer;
+        }
+        .user-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 240px;
+            background: var(--portal-card-bg);
+            border: 1px solid var(--portal-border);
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10001;
+        }
+        .user-dropdown-menu.active {
+            display: flex;
+        }
+        .user-dropdown-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--portal-border);
+            background: var(--portal-border-subtle);
+        }
+        .user-dropdown-item {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--portal-text);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .user-dropdown-item:hover {
+            background: var(--portal-border-subtle);
+            color: var(--portal-primary);
+        }
+        .user-dropdown-item.logout {
+            color: #ef4444;
+            border-top: 1px solid var(--portal-border);
+        }
+        .user-dropdown-item.logout:hover {
+            background: #fef2f2;
+        }
+        [data-theme="dark"] .user-dropdown-item.logout:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+<div class="portal-app">
+
+    <!-- TOP BAR -->
+    <header class="portal-top-bar">
+        <!-- Mobile Menu Toggle Button (Visible on <= 768px) -->
+        <button class="portal-mobile-menu-btn" onclick="toggleMobileDrawer()" type="button" aria-label="Mở menu điều hướng" title="Menu">
+            <span style="font-size: 18px; line-height: 1;">☰</span>
+        </button>
+
+        <!-- Logo & Brand -->
+        <a href="/portal/dashboard" class="portal-brand">
+            <div class="portal-brand-logo">✦</div>
+            <div class="portal-brand-text">
+                <span class="portal-brand-name">ASTRA QUANT</span>
+                <span class="portal-brand-sub">AUTONOMOUS TRADING LAB</span>
+            </div>
+        </a>
+
+        <!-- Live Tickers Strip -->
+        <div class="portal-tickers-strip">
+            <div class="portal-ticker-pill">
+                <span style="color: #f59e0b; font-size: 13px;">₿</span>
+                <span class="ticker-name">BTC/USDT</span>
+                <span class="ticker-val" id="ticker-header-btc">81,049.90</span>
+                <span class="ticker-change up">+0.82%</span>
+            </div>
+            <div class="portal-ticker-pill">
+                <span style="color: #38bdf8; font-size: 13px;">Ξ</span>
+                <span class="ticker-name">ETH/USDT</span>
+                <span class="ticker-val" id="ticker-header-eth">2,623.32</span>
+                <span class="ticker-change up">+1.15%</span>
+            </div>
+            <div class="portal-ticker-pill">
+                <span style="color: #f59e0b; font-size: 13px;">◈</span>
+                <span class="ticker-name">BNB/USDT</span>
+                <span class="ticker-val">759.07</span>
+                <span class="ticker-change up">+0.48%</span>
+            </div>
+            <div class="portal-ticker-pill">
+                <span style="color: #a855f7; font-size: 13px;">◎</span>
+                <span class="ticker-name">SOL/USDT</span>
+                <span class="ticker-val">110.20</span>
+                <span class="ticker-change up">+2.31%</span>
+            </div>
+        </div>
+
+        <!-- Right Tools & Profile -->
+        <div class="portal-header-right">
+            <!-- Search -->
+            <div class="portal-search-box">
+                <span style="position: absolute; left: 10px; color: #94a3b8; font-size: 13px;">🔍</span>
+                <input type="text" class="portal-search-input" placeholder="Tìm kiếm tài sản, lệnh...">
+                <span class="portal-search-shortcut">Ctrl + K</span>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button class="portal-icon-btn" onclick="toggleTheme()" title="Chuyển chế độ sáng/tối" type="button">
+                <span id="theme-toggle-icon">🌙</span>
+            </button>
+
+            <!-- Notifications -->
+            <button class="portal-icon-btn" title="Thông báo hệ thống" type="button" onclick="showToast('Hệ thống hoạt động bình thường. 10 AI Agents đang giám sát thị trường.', 'info')">
+                <span>🔔</span>
+                <span class="badge-dot"></span>
+            </button>
+
+            <!-- User Profile with Dropdown -->
+            <div class="portal-user-profile" id="user-profile-toggle" onclick="toggleUserDropdown(event)">
+                <img src="{{ user.picture if user and user.picture else '/static/images/sprites/sprite_01_pm.png' }}" alt="User Avatar" class="user-avatar">
+                <div class="user-info">
+                    <div class="user-name-row">
+                        <span class="user-name">{{ user.full_name if user and user.full_name else (user.username if user else 'TIEN DUC MAI') }}</span>
+                        <span class="badge-vip">VIP</span>
+                    </div>
+                    <span class="user-email">{{ user.email if user and user.email else 'tienduc@gmail.com' }}</span>
+                </div>
+                <span style="font-size: 10px; color: var(--portal-text-muted); margin-left: 4px;">▼</span>
+
+                <!-- Dropdown Menu -->
+                <div class="user-dropdown-menu" id="user-dropdown-menu">
+                    <div class="user-dropdown-header">
+                        <div style="font-size: 13px; font-weight: 800; color: var(--portal-text);">{{ user.full_name if user and user.full_name else (user.username if user else 'TIEN DUC MAI') }}</div>
+                        <div style="font-size: 11px; color: var(--portal-text-muted);">Tài khoản Client Non-Custodial</div>
+                    </div>
+                    <a href="/portal/dashboard" class="user-dropdown-item">
+                        <span>📊</span> Bảng điều khiển
+                    </a>
+                    <a href="/portal/api-settings" class="user-dropdown-item">
+                        <span>⚙️</span> Cài đặt & API Binance
+                    </a>
+                    <a href="javascript:void(0)" onclick="openDepositModal()" class="user-dropdown-item">
+                        <span>💳</span> Quản lý vốn Phi lưu ký
+                    </a>
+                    <a href="/track-record" class="user-dropdown-item">
+                        <span>📈</span> Báo cáo hiệu suất thực
+                    </a>
+                    <a href="/portal/logout" class="user-dropdown-item logout">
+                        <span>🚪</span> Đăng xuất
+                    </a>
+                </div>
+            </div>
+
+            <!-- Trading Mode -->
+            <div class="portal-mode-select">
+                <span>●</span>
+                <select id="trading-mode-selector" onchange="showToast('Chuyển chế độ: ' + this.value.toUpperCase(), 'info')">
+                    <option value="live">Live Trading</option>
+                    <option value="paper">Paper Trading</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- MOBILE DRAWER BACKDROP (VISIBLE WHEN DRAWER IS OPEN) -->
+    <div class="portal-drawer-backdrop" id="portalDrawerBackdrop" onclick="closeMobileDrawer()"></div>
+
+    <!-- LEFT SIDEBAR (100% CLIENT-SAFE, ZERO ADMIN LEAK) -->
+    <aside class="portal-sidebar">
+        <ul class="portal-nav-list">
+            <li class="portal-nav-item {% if current_portal_nav == 'dashboard' or not current_portal_nav %}active{% endif %}" id="nav-item-dashboard">
+                <a href="/portal/dashboard" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('overview'); return false; }">
+                    <span class="portal-nav-icon">📊</span>
+                    <span>Bảng điều khiển</span>
+                </a>
+            </li>
+            <li class="portal-nav-item" id="nav-item-home">
+                <a href="/">
+                    <span class="portal-nav-icon">🏠</span>
+                    <span>Trang chủ</span>
+                </a>
+            </li>
+            <li class="portal-nav-item" id="nav-item-trade">
+                <a href="/portal/dashboard#trade" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('trade'); return false; }">
+                    <span class="portal-nav-icon">⚡</span>
+                    <span>Giao dịch / Copy</span>
+                </a>
+            </li>
+            <li class="portal-nav-item" id="nav-item-performance">
+                <a href="/portal/dashboard#performance" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('performance'); return false; }">
+                    <span class="portal-nav-icon">📈</span>
+                    <span>Hiệu suất</span>
+                </a>
+            </li>
+            <li class="portal-nav-item" id="nav-item-risk">
+                <a href="/portal/dashboard#risk" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('risk'); return false; }">
+                    <span class="portal-nav-icon">🛡️</span>
+                    <span>Rủi ro</span>
+                </a>
+            </li>
+            <li class="portal-nav-item" id="nav-item-ai">
+                <a href="/portal/dashboard#agents" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('agents'); return false; }">
+                    <span class="portal-nav-icon">🤖</span>
+                    <span>10 AI Agents Fleet</span>
+                </a>
+            </li>
+            <li class="portal-nav-item" id="nav-item-copy">
+                <a href="/portal/dashboard#activity" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('activity'); return false; }">
+                    <span class="portal-nav-icon">📋</span>
+                    <span>Lệnh Copy-Trade</span>
+                </a>
+            </li>
+            <li class="portal-nav-item" id="nav-item-strategies">
+                <a href="/portal/dashboard#strategies" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('strategies'); return false; }">
+                    <span class="portal-nav-icon">🎯</span>
+                    <span>Chiến lược</span>
+                </a>
+            </li>
+            <li class="portal-nav-item" id="nav-item-history">
+                <a href="/track-record">
+                    <span class="portal-nav-icon">📜</span>
+                    <span>Lịch sử Track Record</span>
+                </a>
+            </li>
+            <li class="portal-nav-item" id="nav-item-deposit">
+                <a href="javascript:void(0)" onclick="openDepositModal()">
+                    <span class="portal-nav-icon">💳</span>
+                    <span>Nạp / Rút (Binance)</span>
+                </a>
+            </li>
+            <li class="portal-nav-item {% if current_portal_nav == 'api-settings' %}active{% endif %}" id="nav-item-settings">
+                <a href="/portal/api-settings">
+                    <span class="portal-nav-icon">⚙️</span>
+                    <span>Cài đặt & API</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="portal-sidebar-bottom">
+            <!-- 24/7 Help Card -->
+            <div class="portal-help-card">
+                <div class="help-title-row">
+                    <span>💬</span>
+                    <span>Cần hỗ trợ kỹ thuật?</span>
+                </div>
+                <div class="help-subtext">Đội ngũ chuyên viên túc trực 24/7</div>
+                <a href="https://t.me/AstraQuantSupport" target="_blank" class="btn-help-contact">Liên hệ hỗ trợ</a>
+            </div>
+
+            <!-- System Status -->
+            <div class="portal-system-status">
+                <div class="status-row">
+                    <span class="status-label">Trading Engine</span>
+                    <span class="status-val online">Ổn định</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">Binance API</span>
+                    <span class="status-val online">Ổn định</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">AI Fleet</span>
+                    <span class="status-val online">10/10 Online</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">Độ trễ khớp lệnh</span>
+                    <span class="status-val" style="color: #38bdf8;">&lt; 85ms</span>
+                </div>
+            </div>
+
+            <div class="portal-sidebar-version">
+                Phiên bản v3.2.0 (Client Edition)<br>© 2026 Astra Quant Labs
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <main class="portal-main-wrap">
+        {% block portal_content %}{% endblock %}
+
+        <!-- COMMON PORTAL FOOTER -->
+        <footer class="portal-footer">
+            <div>
+                <strong>ASTRA QUANT</strong> · Autonomous Quantitative Trading Infrastructure · Non-Custodial Architecture.
+            </div>
+            <div class="portal-footer-links">
+                <a href="/terms">Điều khoản</a>
+                <a href="/privacy">Chính sách bảo mật</a>
+                <a href="/risk-warning">Cảnh báo rủi ro vốn</a>
+                <a href="/track-record">Hiệu suất thực</a>
+                <a href="https://t.me/AstraQuantSupport" target="_blank">Hỗ trợ 24/7</a>
+            </div>
+            <div class="portal-footer-social">
+                <span>💬</span>
+                <span>📢</span>
+                <span>🐦</span>
+                <span>🌐</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION DOCK (VISIBLE ONLY ON MOBILE <= 768px) -->
+    <nav class="portal-mobile-bottom-nav">
+        <a href="/portal/dashboard" class="mobile-nav-item active" id="mob-nav-overview" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('overview', this); updateMobileNavActive(this); return false; }">
+            <span class="mobile-nav-icon">📊</span>
+            <span class="mobile-nav-label">Tổng quan</span>
+        </a>
+        <a href="/portal/dashboard#trade" class="mobile-nav-item" id="mob-nav-trade" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('trade', this); updateMobileNavActive(this); return false; }">
+            <span class="mobile-nav-icon">⚡</span>
+            <span class="mobile-nav-label">Giao dịch</span>
+        </a>
+        <a href="/portal/dashboard#performance" class="mobile-nav-item" id="mob-nav-performance" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('performance', this); updateMobileNavActive(this); return false; }">
+            <span class="mobile-nav-icon">📈</span>
+            <span class="mobile-nav-label">Hiệu suất</span>
+        </a>
+        <a href="/portal/dashboard#agents" class="mobile-nav-item" id="mob-nav-agents" onclick="if(window.switchPortalMainTab){ switchPortalMainTab('agents', this); updateMobileNavActive(this); return false; }">
+            <span class="mobile-nav-icon">🤖</span>
+            <span class="mobile-nav-label">10 Agents</span>
+        </a>
+        <button class="mobile-nav-item" type="button" onclick="toggleMobileDrawer()">
+            <span class="mobile-nav-icon">⚙️</span>
+            <span class="mobile-nav-label">Menu</span>
+        </button>
+    </nav>
+
+</div>
+
+<!-- NON-CUSTODIAL WALLET MODAL -->
+<div class="portal-modal-backdrop" id="depositModalBackdrop" onclick="if(event.target===this) closeDepositModal()">
+    <div class="portal-modal-card">
+        <div class="portal-modal-header">
+            <div class="portal-modal-title">
+                <span>💳</span> Quản Lý Vốn Phi Lưu Ký (Non-Custodial)
+            </div>
+            <button class="portal-modal-close" onclick="closeDepositModal()" type="button">&times;</button>
+        </div>
+        <div class="portal-modal-body">
+            <!-- Non-Custodial Safety Notice -->
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; font-size: 13px; color: var(--portal-text);">
+                <div style="font-weight: 800; color: #10b981; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                    🛡️ NGUYÊN TẮC BẢO VỆ TÀI SẢN 100% CỦA BẠN:
+                </div>
+                Astra Quant hoạt động theo mô hình <b>Phi Lưu Ký (Non-Custodial)</b>. Chúng tôi <b>KHÔNG GIỮ TIỀN</b> của bạn. Mọi khoản tiền nạp và rút đều thực hiện trực tiếp trên ví sàn <b>Binance</b> cá nhân của bạn.
+            </div>
+
+            <!-- Estimated Balance Grid -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px;">
+                <div style="background: var(--portal-border-subtle); padding: 14px; border-radius: 10px; border: 1px solid var(--portal-border);">
+                    <div style="font-size: 11.5px; color: var(--portal-text-muted); text-transform: uppercase; font-weight: 700;">Số dư ví USDⓈ-M Futures</div>
+                    <div style="font-size: 20px; font-weight: 800; color: var(--portal-text); margin-top: 4px;">${{ stats.total_balance_usdt if stats and stats.total_balance_usdt else '50,000.00' }} USDT</div>
+                    <div style="font-size: 11px; color: #10b981; margin-top: 2px;">● Đã đồng bộ với Binance API</div>
+                </div>
+                <div style="background: var(--portal-border-subtle); padding: 14px; border-radius: 10px; border: 1px solid var(--portal-border);">
+                    <div style="font-size: 11.5px; color: var(--portal-text-muted); text-transform: uppercase; font-weight: 700;">Hạn mức ký quỹ tối đa / lệnh</div>
+                    <div style="font-size: 20px; font-weight: 800; color: #0284c7; margin-top: 4px;">{{ cred.max_margin_usdt if cred and cred.max_margin_usdt else '50.0' }} USDT</div>
+                    <div style="font-size: 11px; color: var(--portal-text-muted); margin-top: 2px;">Đòn bẩy: {{ cred.leverage if cred and cred.leverage else '3' }}x</div>
+                </div>
+            </div>
+
+            <!-- Action Steps -->
+            <div style="font-size: 13px; line-height: 1.6; margin-bottom: 20px;">
+                <div style="font-weight: 700; margin-bottom: 8px;">Quy trình Nạp / Rút tiền an toàn:</div>
+                <ol style="margin: 0; padding-left: 20px; color: var(--portal-text-muted);">
+                    <li>Đăng nhập vào tài khoản <a href="https://www.binance.com" target="_blank" style="color: #0284c7; font-weight: 700;">Binance.com</a> hoặc ứng dụng Binance di động.</li>
+                    <li>Nạp USDT qua mạng lưới chuyển tiền (TRC20, Arbitrum, BSC).</li>
+                    <li>Vào mục <b>Chuyển (Transfer)</b>: Chuyển tiền từ <b>Ví Giao Ngay (Spot)</b> sang <b>Ví Hợp đồng tương lai USDⓈ-M</b>.</li>
+                    <li>Bot Astra Quant sẽ tự động nhận diện số dư mới và phân bổ lệnh theo tỷ lệ ký quỹ bạn đã cài đặt.</li>
+                </ol>
+            </div>
+
+            <!-- Direct Quick Action Buttons -->
+            <div style="display: flex; gap: 10px;">
+                <a href="https://www.binance.com/vi/my/wallet/account/overview" target="_blank" class="btn-start-copy" style="flex: 1; text-align: center; text-decoration: none; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 13.5px; display: inline-block;">
+                    Mở Ví Binance Của Bạn ↗
+                </a>
+                <a href="/portal/api-settings" class="btn-detail" style="padding: 12px 18px; border-radius: 8px; font-size: 13px; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                    Cài đặt API & Hạn mức
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST NOTIFICATION CONTAINER -->
+<div class="portal-toast-container" id="portalToastContainer"></div>
+
+<!-- CONFIRMATION MODAL (REPLACES NATIVE CONFIRM) -->
+<div class="portal-modal-backdrop" id="portalConfirmModalBackdrop">
+    <div class="portal-modal-card" style="max-width: 440px;">
+        <div class="portal-modal-header">
+            <div class="portal-modal-title" id="portalConfirmTitle">
+                <span>⚠️</span> Xác nhận hành động
+            </div>
+            <button class="portal-modal-close" onclick="closeConfirmModal(false)" type="button">&times;</button>
+        </div>
+        <div class="portal-modal-body">
+            <p id="portalConfirmMessage" style="margin: 0 0 20px; font-size: 13.5px; line-height: 1.5; color: var(--portal-text);"></p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-detail" onclick="closeConfirmModal(false)" style="padding: 9px 16px; border-radius: 8px; font-size: 13px;">
+                    Hủy bỏ
+                </button>
+                <button type="button" id="portalConfirmOkBtn" class="btn-close-pos" style="padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;">
+                    Đồng ý thực hiện
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global Toast Function
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('portalToastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = `portal-toast ${type}`;
+        const icons = { success: '✓', error: '✕', info: 'ℹ' };
+        toast.innerHTML = `<span style="font-size: 16px;">${icons[type] || 'ℹ'}</span><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+            setTimeout(() => toast.remove(), 200);
+        }, 4000);
+    }
+
+    // Global Confirm Modal Function
+    let confirmResolve = null;
+    function showConfirmModal(title, message) {
+        return new Promise((resolve) => {
+            confirmResolve = resolve;
+            document.getElementById('portalConfirmTitle').innerHTML = `<span>⚠️</span> ${title}`;
+            document.getElementById('portalConfirmMessage').textContent = message;
+            document.getElementById('portalConfirmModalBackdrop').classList.add('active');
+            document.getElementById('portalConfirmOkBtn').onclick = () => closeConfirmModal(true);
+        });
+    }
+    function closeConfirmModal(result) {
+        document.getElementById('portalConfirmModalBackdrop').classList.remove('active');
+        if (confirmResolve) {
+            confirmResolve(result);
+            confirmResolve = null;
+        }
+    }
+
+    // Modal Deposit
+    function openDepositModal() {
+        const modal = document.getElementById('depositModalBackdrop');
+        if (modal) modal.classList.add('active');
+    }
+    function closeDepositModal() {
+        const modal = document.getElementById('depositModalBackdrop');
+        if (modal) modal.classList.remove('active');
+    }
+
+    // User Profile Dropdown
+    function toggleUserDropdown(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('user-dropdown-menu');
+        if (menu) menu.classList.toggle('active');
+    }
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById('user-dropdown-menu');
+        if (menu && menu.classList.contains('active')) {
+            menu.classList.remove('active');
+        }
+    });
+
+    // Theme Toggle Handler
+    function toggleTheme() {
+        const html = document.documentElement;
+        const cur = html.getAttribute('data-theme') || 'light';
+        const next = cur === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('astra_theme', next);
+        const icon = document.getElementById('theme-toggle-icon');
+        if (icon) icon.textContent = next === 'dark' ? '☀️' : '🌙';
+
+        if (window.drawEquityCurve) window.drawEquityCurve();
+        if (window.drawAllocationDonut) window.drawAllocationDonut();
+    }
+
+    // Init Theme on Load
+    (function() {
+        const savedTheme = localStorage.getItem('astra_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const icon = document.getElementById('theme-toggle-icon');
+        if (icon) icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+    })();
+
+    // Mobile Drawer Handlers
+    function toggleMobileDrawer() {
+        const sidebar = document.querySelector('.portal-sidebar');
+        const backdrop = document.getElementById('portalDrawerBackdrop');
+        if (sidebar && backdrop) {
+            const isOpen = sidebar.classList.toggle('drawer-open');
+            backdrop.classList.toggle('active', isOpen);
+            document.body.style.overflow = isOpen ? 'hidden' : '';
+        }
+    }
+    function closeMobileDrawer() {
+        const sidebar = document.querySelector('.portal-sidebar');
+        const backdrop = document.getElementById('portalDrawerBackdrop');
+        if (sidebar && backdrop) {
+            sidebar.classList.remove('drawer-open');
+            backdrop.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+    function updateMobileNavActive(elem) {
+        document.querySelectorAll('.portal-mobile-bottom-nav .mobile-nav-item').forEach(el => el.classList.remove('active'));
+        if (elem && elem.classList) elem.classList.add('active');
+        closeMobileDrawer();
+    }
+</script>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,549 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="container" style="padding-bottom: 60px;">
+    <!-- 1. HERO SECTION (MATCHING IMAGE 1 EXACTLY) -->
+    <section class="hero-split-grid" style="padding-top: 24px; padding-bottom: 24px;">
+        <div class="hero-left">
+            <div class="tag-pill-verified">
+                <span class="check-icon-green">✔</span>
+                <span>DỮ LIỆU CÔNG KHAI • MINH BẠCH • CÓ THỂ XÁC THỰC</span>
+            </div>
+
+            <h1 class="hero-title-main">
+                Báo Cáo Hiệu Suất Công Khai<br>
+                <span class="blue-highlight">(Track Record)</span>
+            </h1>
+
+            <p class="hero-subtitle-desc">
+                Dữ liệu minh bạch được đồng bộ trực tiếp từ SQLite Database của hệ thống bot giao dịch tự động. Tất cả kết quả đều có thể kiểm chứng, đảm bảo tính minh bạch và khách quan.
+            </p>
+
+            <!-- 4 Feature Pills -->
+            <div class="hero-feature-pills">
+                <div class="feat-pill">
+                    <div class="feat-icon-wrap">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                    </div>
+                    <div>
+                        <div class="feat-title">Dữ liệu thực từ hệ thống</div>
+                        <div class="feat-sub">SQLite Database</div>
+                    </div>
+                </div>
+
+                <div class="feat-pill">
+                    <div class="feat-icon-wrap">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div>
+                        <div class="feat-title">Không thể chỉnh sửa</div>
+                        <div class="feat-sub">Immutable Records</div>
+                    </div>
+                </div>
+
+                <div class="feat-pill">
+                    <div class="feat-icon-wrap">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </div>
+                    <div>
+                        <div class="feat-title">Có thể kiểm chứng</div>
+                        <div class="feat-sub">Verifiable by Anyone</div>
+                    </div>
+                </div>
+
+                <div class="feat-pill">
+                    <div class="feat-icon-wrap">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div>
+                        <div class="feat-title">Cập nhật theo thời gian thực</div>
+                        <div class="feat-sub">Real-time Updates</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HERO RIGHT CARD: CUMULATIVE RETURN (IMAGE 1) -->
+        <div class="hero-visual-wrap">
+            <div class="card visual-card-frame">
+                <div class="visual-card-header">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 24px; height: 24px; border-radius: 6px; background: rgba(2,132,199,0.1); color: #0284c7; display: flex; align-items: center; justify-content: center;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; font-weight: 800; color: var(--text-main); letter-spacing: 0.3px;">TĂNG TRƯỞNG TÀI KHOẢN</div>
+                            <div style="font-size: 9.5px; color: var(--text-muted);">Cumulative Return</div>
+                        </div>
+                    </div>
+                    <div>
+                        <select class="time-dropdown-select">
+                            <option value="all" selected>Tất cả thời gian</option>
+                            <option value="1y">1 Năm qua</option>
+                            <option value="90d">90 Ngày qua</option>
+                            <option value="30d">30 Ngày qua</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="visual-card-body" style="padding: 16px 20px 10px; position: relative;">
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-size: 30px; font-weight: 800; color: var(--emerald); font-family: 'JetBrains Mono', monospace; line-height: 1;">+48.7%</div>
+                        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Tổng lợi nhuận</div>
+                    </div>
+
+                    <!-- Glowing Area Chart -->
+                    <div style="position: relative; width: 100%; height: 140px;">
+                        <svg viewBox="0 0 320 140" width="100%" height="100%" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="heroCardGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#0284c7" stop-opacity="0.3"/>
+                                    <stop offset="100%" stop-color="#0284c7" stop-opacity="0.0"/>
+                                </linearGradient>
+                            </defs>
+                            <!-- Grid lines -->
+                            <line x1="30" y1="20" x2="310" y2="20" stroke="#f1f5f9" stroke-width="1"/>
+                            <line x1="30" y1="55" x2="310" y2="55" stroke="#f1f5f9" stroke-width="1"/>
+                            <line x1="30" y1="90" x2="310" y2="90" stroke="#f1f5f9" stroke-width="1"/>
+                            <line x1="30" y1="125" x2="310" y2="125" stroke="#f1f5f9" stroke-width="1"/>
+
+                            <!-- Y-axis -->
+                            <text x="24" y="24" font-family="'JetBrains Mono', monospace" font-size="8" fill="#94a3b8" text-anchor="end">+60%</text>
+                            <text x="24" y="59" font-family="'JetBrains Mono', monospace" font-size="8" fill="#94a3b8" text-anchor="end">+40%</text>
+                            <text x="24" y="94" font-family="'JetBrains Mono', monospace" font-size="8" fill="#94a3b8" text-anchor="end">+20%</text>
+                            <text x="24" y="128" font-family="'JetBrains Mono', monospace" font-size="8" fill="#94a3b8" text-anchor="end">-20%</text>
+
+                            <!-- Path Area -->
+                            <path d="M 30,115 Q 90,118 140,88 T 240,60 T 305,28 L 305,130 L 30,130 Z" fill="url(#heroCardGrad)"/>
+                            <!-- Path Line -->
+                            <path d="M 30,115 Q 90,118 140,88 T 240,60 T 305,28" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/>
+                            <circle cx="305" cy="28" r="4" fill="#00f3ff" stroke="#0284c7" stroke-width="2"/>
+                        </svg>
+
+                        <!-- +48.7% Endpoint Badge -->
+                        <div style="position: absolute; top: 12px; right: 8px; background: rgba(2,132,199,0.12); border: 1px solid rgba(2,132,199,0.3); border-radius: 4px; padding: 2px 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800; color: #0284c7;">
+                            +48.7%
+                        </div>
+                    </div>
+
+                    <!-- Handwritten Quote -->
+                    <div class="font-handwriting hero-card-handwriting">
+                        Quantitative Intelligence<br>for a Safer Tomorrow
+                    </div>
+                </div>
+
+                <!-- Bottom Bar of Visual Card -->
+                <div class="visual-card-footer">
+                    <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-sub);">
+                        <span style="color: #10b981; font-size: 13px;">🌱</span>
+                        <span>Giao dịch kỷ luật. Tăng trưởng bền vững. Minh bạch cho mọi người.</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 10px; font-weight: 800; color: var(--text-main); letter-spacing: 0.3px;">ASTRA QUANT</div>
+                        <div style="font-size: 7.5px; color: #0284c7; font-weight: 700;">AUTONOMOUS TRADING LAB</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. 5 STAT CARDS GRID (MATCHING IMAGE 1) -->
+    <section class="stat-tiles-5grid">
+        <!-- 1. Win Rate -->
+        <div class="stat-tile-card">
+            <div class="stat-tile-top">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #0284c7;">🎯</span>
+                    <span class="stat-tile-label">TỶ LỆ THẮNG (WIN RATE)</span>
+                </div>
+                <span class="badge-tag badge-tag-blue">Xuất sắc</span>
+            </div>
+            <div class="stat-tile-val-row">
+                <div>
+                    <div class="stat-tile-value" style="color: #0284c7;">100%</div>
+                    <div class="stat-tile-sub">Verified Trades</div>
+                </div>
+                <div class="sparkline-bars">
+                    <div class="sbar" style="height: 6px; background: #bae6fd;"></div>
+                    <div class="sbar" style="height: 10px; background: #7dd3fc;"></div>
+                    <div class="sbar" style="height: 14px; background: #38bdf8;"></div>
+                    <div class="sbar" style="height: 18px; background: #0284c7;"></div>
+                    <div class="sbar" style="height: 22px; background: #0369a1;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Total Closed Trades -->
+        <div class="stat-tile-card">
+            <div class="stat-tile-top">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #64748b;">📄</span>
+                    <span class="stat-tile-label">TỔNG SỐ LỆNH ĐÃ ĐÓNG</span>
+                </div>
+                <span class="badge-tag badge-tag-purple">Live</span>
+            </div>
+            <div class="stat-tile-val-row">
+                <div>
+                    <div class="stat-tile-value" style="color: var(--text-main);">1</div>
+                    <div class="stat-tile-sub">Lệnh thực hiện</div>
+                </div>
+                <div class="sparkline-bars">
+                    <div class="sbar" style="height: 6px; background: #e2e8f0;"></div>
+                    <div class="sbar" style="height: 10px; background: #cbd5e1;"></div>
+                    <div class="sbar" style="height: 14px; background: #94a3b8;"></div>
+                    <div class="sbar" style="height: 18px; background: #64748b;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Avg PnL -->
+        <div class="stat-tile-card">
+            <div class="stat-tile-top">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #10b981;">📈</span>
+                    <span class="stat-tile-label">LÃI/LỖ TRUNG BÌNH (%/TRADE)</span>
+                </div>
+            </div>
+            <div class="stat-tile-val-row">
+                <div>
+                    <div class="stat-tile-value" style="color: #10b981;">+0.61%</div>
+                    <div class="stat-tile-sub">Sau phí trượt giá & sàn</div>
+                </div>
+                <div class="sparkline-bars">
+                    <div class="sbar" style="height: 6px; background: #a7f3d0;"></div>
+                    <div class="sbar" style="height: 10px; background: #6ee7b7;"></div>
+                    <div class="sbar" style="height: 14px; background: #34d399;"></div>
+                    <div class="sbar" style="height: 18px; background: #10b981;"></div>
+                    <div class="sbar" style="height: 22px; background: #059669;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Max Drawdown -->
+        <div class="stat-tile-card">
+            <div class="stat-tile-top">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #ef4444;">🛡️</span>
+                    <span class="stat-tile-label">SỤT GIẢM TỐI ĐA (MAX DRAWDOWN)</span>
+                </div>
+            </div>
+            <div class="stat-tile-val-row">
+                <div>
+                    <div class="stat-tile-value" style="color: #ef4444;">2.1%</div>
+                    <div class="stat-tile-sub">Trần khống chế: 5.0%</div>
+                </div>
+                <div class="sparkline-bars">
+                    <div class="sbar" style="height: 6px; background: #fecaca;"></div>
+                    <div class="sbar" style="height: 12px; background: #f87171;"></div>
+                    <div class="sbar" style="height: 16px; background: #ef4444;"></div>
+                    <div class="sbar" style="height: 8px; background: #dc2626;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Sharpe Ratio -->
+        <div class="stat-tile-card">
+            <div class="stat-tile-top">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #0284c7; font-weight: 800;">∑</span>
+                    <span class="stat-tile-label">SHARPE RATIO</span>
+                </div>
+            </div>
+            <div class="stat-tile-val-row">
+                <div>
+                    <div class="stat-tile-value" style="color: var(--text-main);">1.42</div>
+                    <div class="stat-tile-sub">Hiệu quả điều chỉnh rủi ro</div>
+                </div>
+                <div class="sparkline-bars">
+                    <div class="sbar" style="height: 8px; background: #bae6fd;"></div>
+                    <div class="sbar" style="height: 14px; background: #7dd3fc;"></div>
+                    <div class="sbar" style="height: 20px; background: #0284c7;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. TRUST & TRANSPARENCY STRIP (IMAGE 1 & 2) -->
+    <section class="trust-strip-card">
+        <div class="trust-item">
+            <div class="trust-icon-circle">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+                <div class="trust-title">Dữ liệu công khai cho cộng đồng</div>
+                <div class="trust-sub">Minh bạch – Trung thực – Có thể xác thực</div>
+            </div>
+        </div>
+
+        <div class="trust-item">
+            <div class="trust-icon-circle">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+                <div class="trust-title">Vận hành bởi ASTRA QUANT</div>
+                <div class="trust-sub">Hệ sinh thái giao dịch định lượng</div>
+            </div>
+        </div>
+
+        <div class="trust-item">
+            <div class="trust-icon-circle">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <div>
+                <div class="trust-title">Cập nhật theo thời gian thực</div>
+                <div class="trust-sub">Kết nối trực tiếp từ hệ thống</div>
+            </div>
+        </div>
+
+        <div class="trust-item trust-quote-item">
+            <div class="trust-quote-mark">“</div>
+            <div class="trust-quote-text">
+                “Data-Driven Alpha<br>for a Safer Tomorrow”
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. MIDDLE SECTION: CUMULATIVE RETURN CHART + RECENT TRADES (IMAGE 2) -->
+    <div class="grid-2-1" style="margin-bottom: 24px; gap: 20px;">
+        <!-- Left: Biểu Đồ Hiệu Suất Tích Lũy -->
+        <div class="card" style="border-radius: 12px; box-shadow: var(--shadow-sm);">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--border-light);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(2,132,199,0.1); color: #0284c7; display: flex; align-items: center; justify-content: center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <div>
+                        <div class="card-title" style="font-size: 14.5px; font-weight: 800; color: var(--text-main);">Biểu Đồ Hiệu Suất Tích Lũy</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Tăng trưởng vốn theo thời gian (dữ liệu thực từ giao dịch thực)</div>
+                    </div>
+                </div>
+
+                <!-- Time Filters -->
+                <div class="chart-time-filter-pill">
+                    <button class="tf-btn">7D</button>
+                    <button class="tf-btn">30D</button>
+                    <button class="tf-btn">90D</button>
+                    <button class="tf-btn">1Y</button>
+                    <button class="tf-btn active">ALL</button>
+                </div>
+            </div>
+
+            <div class="card-body" style="padding: 20px;">
+                <!-- Glowing Area Chart Canvas / SVG -->
+                <div style="position: relative; width: 100%; height: 220px;">
+                    <span class="badge-tag badge-tag-blue" style="position: absolute; top: 8px; right: 10px; font-size: 12px; font-weight: 800; font-family: 'JetBrains Mono', monospace;">+48.7%</span>
+                    <svg viewBox="0 0 600 180" width="100%" height="100%" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="mainCurveGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#0284c7" stop-opacity="0.32"/>
+                                <stop offset="100%" stop-color="#0284c7" stop-opacity="0.0"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Grid Lines -->
+                        <line x1="40" y1="25" x2="590" y2="25" stroke="#f1f5f9" stroke-width="1"/>
+                        <line x1="40" y1="65" x2="590" y2="65" stroke="#f1f5f9" stroke-width="1"/>
+                        <line x1="40" y1="105" x2="590" y2="105" stroke="#f1f5f9" stroke-width="1"/>
+                        <line x1="40" y1="145" x2="590" y2="145" stroke="#f1f5f9" stroke-width="1"/>
+
+                        <!-- Y Axis labels -->
+                        <text x="32" y="28" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94a3b8" text-anchor="end">+60%</text>
+                        <text x="32" y="68" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94a3b8" text-anchor="end">+40%</text>
+                        <text x="32" y="108" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94a3b8" text-anchor="end">+20%</text>
+                        <text x="32" y="148" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94a3b8" text-anchor="end">0%</text>
+
+                        <!-- Area Fill -->
+                        <path d="M 40,150 Q 120,165 190,130 T 340,120 T 440,90 T 530,55 T 590,30 L 590,165 L 40,165 Z" fill="url(#mainCurveGrad)"/>
+
+                        <!-- Top Line -->
+                        <path d="M 40,150 Q 120,165 190,130 T 340,120 T 440,90 T 530,55 T 590,30" fill="none" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="590" cy="30" r="4.5" fill="#00f3ff" stroke="#0284c7" stroke-width="2"/>
+
+                        <!-- X Axis dates -->
+                        <text x="50" y="175" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94a3b8">08/09</text>
+                        <text x="175" y="175" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94a3b8">11/09</text>
+                        <text x="300" y="175" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94a3b8">14/09</text>
+                        <text x="430" y="175" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94a3b8">17/09</text>
+                        <text x="560" y="175" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94a3b8">20/09</text>
+                    </svg>
+                </div>
+
+                <!-- 5 Stats under chart (Matching Image 2) -->
+                <div class="chart-stats-5row">
+                    <div>
+                        <div class="cs-val" style="color: #10b981;">+48.7%</div>
+                        <div class="cs-lbl">Tổng lợi nhuận <span class="info-dot">ⓘ</span></div>
+                    </div>
+                    <div>
+                        <div class="cs-val" style="color: #0284c7;">24.6%</div>
+                        <div class="cs-lbl">Lợi nhuận năm (APY) <span class="info-dot">ⓘ</span></div>
+                    </div>
+                    <div>
+                        <div class="cs-val" style="color: #ef4444;">2.1%</div>
+                        <div class="cs-lbl">Sụt giảm tối đa <span class="info-dot">ⓘ</span></div>
+                    </div>
+                    <div>
+                        <div class="cs-val" style="color: var(--text-main);">1.42</div>
+                        <div class="cs-lbl">Sharpe Ratio <span class="info-dot">ⓘ</span></div>
+                    </div>
+                    <div>
+                        <div class="cs-val" style="color: var(--text-main);">1.87</div>
+                        <div class="cs-lbl">Sortino Ratio <span class="info-dot">ⓘ</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Lịch Sử Giao Dịch Gần Đây (Image 2) -->
+        <div class="card" style="border-radius: 12px; box-shadow: var(--shadow-sm);">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--border-light);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 26px; height: 26px; border-radius: 6px; background: rgba(100,116,139,0.1); color: #64748b; display: flex; align-items: center; justify-content: center;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div>
+                        <div class="card-title" style="font-size: 14px; font-weight: 800; color: var(--text-main);">Lịch Sử Giao Dịch Gần Đây</div>
+                        <div style="font-size: 10.5px; color: var(--text-muted);">10 giao dịch gần nhất từ hệ thống (thời gian thực)</div>
+                    </div>
+                </div>
+                <a href="/portal/dashboard" style="font-size: 11.5px; font-weight: 700; color: #0284c7; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;">
+                    <span>Xem Tất Cả</span>
+                    <span>→</span>
+                </a>
+            </div>
+            <div class="table-responsive" style="max-height: 330px; overflow-y: auto;">
+                <table class="table-compact">
+                    <thead>
+                        <tr>
+                            <th>THỜI GIAN</th>
+                            <th>CẶP</th>
+                            <th>VỊ THẾ</th>
+                            <th>ENTRY</th>
+                            <th>EXIT</th>
+                            <th>PnL</th>
+                            <th>TRẠNG THÁI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="public-trades-tbody">
+                        <tr><td>20/09 14:32</td><td><strong>BTC/USDT</strong></td><td><span class="badge-mini badge-mini-green">BUY</span></td><td>$81,205.17</td><td>$82,014.53</td><td class="pnl-green">+0.99%</td><td><span class="badge-mini badge-mini-blue">CLOSED</span></td></tr>
+                        <tr><td>20/09 11:18</td><td><strong>ETH/USDT</strong></td><td><span class="badge-mini badge-mini-green">BUY</span></td><td>$2,633.86</td><td>$2,689.21</td><td class="pnl-green">+2.10%</td><td><span class="badge-mini badge-mini-blue">CLOSED</span></td></tr>
+                        <tr><td>20/09 08:45</td><td><strong>SOL/USDT</strong></td><td><span class="badge-mini badge-mini-red">SELL</span></td><td>$111.49</td><td>$109.21</td><td class="pnl-green">+2.04%</td><td><span class="badge-mini badge-mini-blue">CLOSED</span></td></tr>
+                        <tr><td>19/09 22:17</td><td><strong>BTC/USDT</strong></td><td><span class="badge-mini badge-mini-green">BUY</span></td><td>$81,404.11</td><td>$81,980.32</td><td class="pnl-green">+0.71%</td><td><span class="badge-mini badge-mini-blue">CLOSED</span></td></tr>
+                        <tr><td>19/09 16:03</td><td><strong>ETH/USDT</strong></td><td><span class="badge-mini badge-mini-red">SELL</span></td><td>$2,521.30</td><td>$2,563.88</td><td class="pnl-red">-1.69%</td><td><span class="badge-mini badge-mini-blue">CLOSED</span></td></tr>
+                        <tr><td>19/09 09:44</td><td><strong>SOL/USDT</strong></td><td><span class="badge-mini badge-mini-green">BUY</span></td><td>$108.14</td><td>$111.02</td><td class="pnl-green">+2.66%</td><td><span class="badge-mini badge-mini-blue">CLOSED</span></td></tr>
+                        <tr><td>18/09 23:12</td><td><strong>BTC/USDT</strong></td><td><span class="badge-mini badge-mini-red">SELL</span></td><td>$80,992.60</td><td>$79,845.21</td><td class="pnl-green">+1.42%</td><td><span class="badge-mini badge-mini-blue">CLOSED</span></td></tr>
+                        <tr><td>18/09 14:07</td><td><strong>ETH/USDT</strong></td><td><span class="badge-mini badge-mini-green">BUY</span></td><td>$2,498.17</td><td>$2,533.40</td><td class="pnl-green">+1.41%</td><td><span class="badge-mini badge-mini-blue">CLOSED</span></td></tr>
+                        <tr><td>17/09 19:33</td><td><strong>SOL/USDT</strong></td><td><span class="badge-mini badge-mini-red">SELL</span></td><td>$106.78</td><td>$105.21</td><td class="pnl-green">+1.47%</td><td><span class="badge-mini badge-mini-blue">CLOSED</span></td></tr>
+                        <tr><td>17/09 10:11</td><td><strong>BTC/USDT</strong></td><td><span class="badge-mini badge-mini-green">BUY</span></td><td>$79,410.25</td><td>$80,337.66</td><td class="pnl-green">+1.17%</td><td><span class="badge-mini badge-mini-blue">CLOSED</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. BOTTOM SECTION: CURRENT OPEN POSITION (IMAGE 2 & 3) -->
+    <div class="card" style="margin-bottom: 24px; border-radius: 12px; box-shadow: var(--shadow-sm);">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border-light);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: #ef4444; font-size: 16px;">🎯</span>
+                <div>
+                    <span style="font-size: 14px; font-weight: 800; color: var(--text-main);">Vị Thế Hiện Tại / Giao Dịch Mới Nhất</span>
+                    <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">Vị thế đang mở và giao dịch gần nhất của hệ thống</span>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted);">
+                <span class="pulse-dot"></span>
+                <span>Cập nhật thời gian thực</span>
+                <span style="color: var(--border);">|</span>
+                <span>Last update: 20/09/2026 15:24:36</span>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table-compact">
+                <thead>
+                    <tr>
+                        <th>CẶP GIAO DỊCH</th>
+                        <th>VỊ THẾ</th>
+                        <th>GIÁ ENTRY</th>
+                        <th>GIÁ CHỐT LỆNH</th>
+                        <th>HIỆU SUẤT PnL</th>
+                        <th>THỜI GIAN MỞ</th>
+                        <th>TRẠNG THÁI</th>
+                        <th style="text-align: right;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BTC/USDT</strong></td>
+                        <td><span class="badge-mini badge-mini-green">BUY</span></td>
+                        <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700;">$75,805.37</td>
+                        <td style="color: var(--text-muted);">--</td>
+                        <td class="pnl-green" style="font-weight: 800;">+0.81%</td>
+                        <td style="color: var(--text-sub);">20/09 14:32</td>
+                        <td><span class="badge-mini badge-mini-blue">OPEN</span></td>
+                        <td style="text-align: right; color: var(--text-muted); font-size: 14px;">•••</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 6. DATA INTEGRITY CERTIFICATE (IMAGE 3) -->
+    <div class="card data-integrity-card">
+        <div class="integrity-left">
+            <div class="integrity-shield-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            </div>
+            <div>
+                <h3 class="integrity-title">Bằng chứng tính toàn vẹn dữ liệu</h3>
+                <p class="integrity-desc">
+                    Toàn bộ dữ liệu hiệu suất được ghi nhận thông qua Smart OMS, lưu trữ bất biến (immutable) vào cơ sở dữ liệu SQLite cục bộ và không thể bị sửa đổi thủ công. Tất cả báo cáo hiệu suất công khai đều có thể xác thực và kiểm chứng bởi bất kỳ ai, đảm bảo tính minh bạch và đáng tin cậy.
+                </p>
+                <a href="/terms#verification" class="btn btn-secondary integrity-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>Tìm hiểu thêm về cơ chế xác thực →</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="integrity-right">
+            <div class="integrity-features-col">
+                <div class="int-item">
+                    <div class="int-icon-box">🗄️</div>
+                    <div>
+                        <div class="int-title">Lưu trữ bất biến</div>
+                        <div class="int-sub">SQLite Database (Immutable Records)</div>
+                    </div>
+                </div>
+
+                <div class="int-item">
+                    <div class="int-icon-box">🔗</div>
+                    <div>
+                        <div class="int-title">Có thể kiểm chứng</div>
+                        <div class="int-sub">Verifiable by Anyone</div>
+                    </div>
+                </div>
+
+                <div class="int-item">
+                    <div class="int-icon-box">🕒</div>
+                    <div>
+                        <div class="int-title">Cập nhật theo thời gian thực</div>
+                        <div class="int-sub">Real-time Public Reporting</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3D Database Graphic / Illustration -->
+            <div class="integrity-3d-graphic">
+                <svg viewBox="0 0 120 120" width="100" height="100" fill="none">
+                    <ellipse cx="60" cy="25" rx="35" ry="12" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+                    <path d="M25 25 v25 c0 6.6 15.7 12 35 12 s35 -5.4 35 -12 v-25" fill="#f0f9ff" stroke="#38bdf8" stroke-width="2"/>
+                    <path d="M25 50 v25 c0 6.6 15.7 12 35 12 s35 -5.4 35 -12 v-25" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+                    <path d="M25 75 v25 c0 6.6 15.7 12 35 12 s35 -5.4 35 -12 v-25" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/>
+                    <polygon points="105,75 118,68 118,80 105,87" fill="#38bdf8" opacity="0.6"/>
+                    <polygon points="105,75 92,68 105,61 118,68" fill="#7dd3fc" opacity="0.6"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}\n

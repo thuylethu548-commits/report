@@ -1,0 +1,312 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block extra_css %}
+<style>
+/* Lesson Desk Enhancements */
+.lesson-filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: var(--panel-header-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+.lesson-topic-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.lesson-pill-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    color: var(--text-sub);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.lesson-pill-btn:hover {
+    color: var(--text-main);
+    border-color: var(--primary);
+}
+.lesson-pill-btn.active {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+.lesson-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    min-width: 260px;
+}
+.lesson-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 12.5px;
+    color: var(--text-main);
+    width: 100%;
+}
+
+/* Agent Attribution Banner inside Card */
+.lesson-agent-strip {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 11px;
+}
+:root[data-theme="light"] .lesson-agent-strip {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+/* Pagination Bar */
+.lesson-pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    margin-top: 14px;
+}
+.lesson-page-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.lesson-page-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.lesson-page-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+.lesson-page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Metrics strip at top */
+.lessons-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.lessons-metric-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 20px;">
+    <!-- HEADER -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+        <div>
+            <h1 style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 6px 0;">Sổ Tay Bài Học Xương Máu & Cẩm Nang Quản Trị Rủi Ro</h1>
+            <p style="font-size: 13px; color: var(--text-sub); margin: 0;">
+                Nơi lưu trữ bất biến mọi kinh nghiệm sinh tồn, nguyên nhân dính Stop Loss và bài học từ các cú sập thị trường để bảo toàn vốn USDT.
+            </p>
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('add-lesson-box').scrollIntoView({behavior: 'smooth'})" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            <span>Thêm Bài Học Mới</span>
+        </button>
+    </div>
+
+    <!-- METRICS OVERVIEW STRIP -->
+    <div class="lessons-metric-grid">
+        <div class="lessons-metric-card">
+            <span style="font-size: 10px; font-weight: 700; color: var(--text-sub); text-transform: uppercase;">Tổng Số Bài Học</span>
+            <span id="metric-total-lessons" style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-main);">--</span>
+            <span style="font-size: 10.5px; color: var(--text-sub);">Đúc kết từ sàn Binance</span>
+        </div>
+        <div class="lessons-metric-card">
+            <span style="font-size: 10px; font-weight: 700; color: var(--text-sub); text-transform: uppercase;">Vốn Tránh Thiệt Hại</span>
+            <span id="metric-total-capital" style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--emerald);">$0</span>
+            <span style="font-size: 10.5px; color: var(--emerald);">Bảo vệ qua Veto Rules</span>
+        </div>
+        <div class="lessons-metric-card">
+            <span style="font-size: 10px; font-weight: 700; color: var(--text-sub); text-transform: uppercase;">Tác Tử Đã Đồng Bộ</span>
+            <span style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--purple);">12 / 12 AGENTS</span>
+            <span style="font-size: 10.5px; color: #a855f7;">Đã nạp Vector Memory</span>
+        </div>
+        <div class="lessons-metric-card">
+            <span style="font-size: 10px; font-weight: 700; color: var(--text-sub); text-transform: uppercase;">Trạng Thái RAG Memory</span>
+            <span style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">HOẠT ĐỘNG</span>
+            <span style="font-size: 10.5px; color: #38bdf8;">Đồng bộ thời gian thực</span>
+        </div>
+    </div>
+
+    <!-- TOPIC FILTER BAR & SEARCH -->
+    <div class="lesson-filter-bar">
+        <div class="lesson-topic-pills">
+            <button class="lesson-pill-btn active" id="pill-ALL" onclick="setLessonTopicFilter('ALL')">
+                <span>Tất Cả</span>
+                <span id="count-topic-ALL" style="font-size: 10px; font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px;">--</span>
+            </button>
+            <button class="lesson-pill-btn" id="pill-STOP_LOSS" onclick="setLessonTopicFilter('STOP_LOSS')">
+                <span>🛡️ Quản Trị Rủi Ro & SL</span>
+                <span id="count-topic-STOP_LOSS" style="font-size: 10px; font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px;">--</span>
+            </button>
+            <button class="lesson-pill-btn" id="pill-MARKET_CRASH" onclick="setLessonTopicFilter('MARKET_CRASH')">
+                <span>📉 Bão Giá & Flash Crash</span>
+                <span id="count-topic-MARKET_CRASH" style="font-size: 10px; font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px;">--</span>
+            </button>
+            <button class="lesson-pill-btn" id="pill-SLIPPAGE" onclick="setLessonTopicFilter('SLIPPAGE')">
+                <span>⚡ Trượt Giá & Spread</span>
+                <span id="count-topic-SLIPPAGE" style="font-size: 10px; font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px;">--</span>
+            </button>
+            <button class="lesson-pill-btn" id="pill-MANUAL_NOTE" onclick="setLessonTopicFilter('MANUAL_NOTE')">
+                <span>🎯 Chiến Thuật & Kỷ Luật</span>
+                <span id="count-topic-MANUAL_NOTE" style="font-size: 10px; font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px;">--</span>
+            </button>
+        </div>
+
+        <div class="lesson-search-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-sub);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="lessonSearchInput" class="lesson-search-input" oninput="onLessonSearchInput()" placeholder="Tìm kiếm bài học, quy tắc, tác tử...">
+        </div>
+    </div>
+
+    <!-- LESSONS LIST -->
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--amber);"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+                <span>Danh Sách Bài Học Đã Huấn Luyện Cho AI</span>
+            </div>
+            <div id="lessons-page-info" style="font-size: 12px; color: var(--text-sub); font-family: 'JetBrains Mono', monospace; font-weight: 600;">
+                Đang tải dữ liệu...
+            </div>
+        </div>
+        <div class="card-body" style="padding: 20px;">
+            <div id="lessons-container">
+                <!-- Populated via admin_app.js -->
+            </div>
+
+            <!-- PAGINATION TOOLBAR -->
+            <div class="lesson-pagination-bar" id="lessons-pagination">
+                <!-- Dynamically generated pagination -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD NEW LESSON FORM -->
+    <div class="card" id="add-lesson-box">
+        <div class="card-header">
+            <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                <span>Ghi Nhận Bài Học & Huấn Luyện Cho Tác Tử AI</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form id="add-lesson-form" onsubmit="addLessonSubmit(event)">
+                <div class="settings-form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Phân Loại Sự Cố (Category / Topic)</label>
+                        <select name="category" class="form-control">
+                            <option value="STOP_LOSS">Bẫy quét râu Stop-Loss (Liquidity Wick)</option>
+                            <option value="MARKET_CRASH">Thị trường sập bão giá (Flash Crash)</option>
+                            <option value="SLIPPAGE">Trượt giá cực đại (Slippage / Spread giãn)</option>
+                            <option value="CIRCUIT_BREAKER">Circuit Breaker ngắt khẩn cấp</option>
+                            <option value="MANUAL_NOTE">Ghi chú chiến thuật Operator</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tác Tử Thụ Hưởng Huấn Luyện (Target AI Agent)</label>
+                        <select name="target_agent" class="form-control">
+                            <option value="Sarah (CRO - Ban Quản Trị Rủi Ro)">Sarah (CRO - Ban Quản Trị Rủi Ro & Veto Engine)</option>
+                            <option value="Dr. Khoa (Trưởng Ban Quant)">Dr. Khoa (Trưởng Ban Quant - Phân Phối Xác Suất)</option>
+                            <option value="Elena (Trader Trưởng Phái Sinh)">Elena (Trader Trưởng Phái Sinh & Funding Arbitrage)</option>
+                            <option value="Astra (Supreme AI - Tổng Chỉ Huy)">Astra (Supreme AI - Tổng Chỉ Huy Toàn Sàn)</option>
+                            <option value="Kenji (Kỹ Sư Trưởng Mạng)">Kenji (Kỹ Sư Trưởng Mạng & Tốc Độ Lan)</option>
+                            <option value="Toàn Bộ 12 Tác Tử AI">Toàn Bộ 12 Tác Tử AI (Toàn Sàn Astra)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-form-grid" style="margin-top: 14px;">
+                    <div class="form-group">
+                        <label class="form-label">Cơ Chế Nạp Tri Thức (Training Mechanism)</label>
+                        <select name="training_method" class="form-control">
+                            <option value="System Prompt Injection">System Prompt Injection (Khẩu Quyết Phản Xạ)</option>
+                            <option value="Dynamic VETO Threshold">Dynamic VETO Threshold (Quy Tắc Cắt Lệnh Tự Động)</option>
+                            <option value="Vector Memory RAG">Vector Memory RAG (Bộ Nhớ Dài Hạn)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ước Tính Vốn Đã Cứu Được / Thiệt Hại Tránh Được ($)</label>
+                        <input type="number" step="10" name="capital_impact" placeholder="Ví dụ: 5000" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label class="form-label">Tiêu Đề Bài Học</label>
+                    <input type="text" name="title" required placeholder="Ví dụ: Sập giá do tin CPI tháng 9 & Bài học không mở vị thế trước giờ tin 15 phút" class="form-control">
+                </div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label class="form-label">Chi Tiết Sự Việc & Nguyên Nhân</label>
+                    <textarea name="details" rows="3" required placeholder="Mô tả cụ thể chuyện gì đã xảy ra, nến biến động như thế nào, bot đã phản ứng ra sao..." class="form-control"></textarea>
+                </div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label class="form-label">Quy Tắc Rút Ra Bắt Buộc Áp Dụng (Survival Rule)</label>
+                    <textarea name="lesson_learned" rows="2" required placeholder="Quy tắc đúc kết: Phải làm gì, cấm tuyệt đối làm gì trong các trường hợp tương tự..." class="form-control"></textarea>
+                </div>
+
+                <input type="hidden" name="operator" value="Desk-Operator">
+
+                <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 24px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        <span>Lưu & Huấn Luyện Cho AI Ngay</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

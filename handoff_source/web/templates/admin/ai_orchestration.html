@@ -1,0 +1,1733 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/orchestration.css?v=202609200520">
+<style>
+.orch-stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+@media (max-width: 900px) {
+    .orch-stats-strip {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+.orch-stat-card {
+    background: var(--bg-card, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.orch-stat-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted, #64748b);
+}
+.orch-stat-val {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+}
+.orch-stat-sub {
+    font-size: 11px;
+    color: var(--text-sub, #94a3b8);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="orch-container">
+    
+    <!-- HEADER AREA -->
+    <div class="orch-header" id="page-main-header">
+        <div class="orch-title-wrap">
+            <div class="orch-icon-badge" style="background: rgba(168, 85, 247, 0.12); color: #a855f7;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="orch-title">Trung Tâm Điều Phối AI &amp; Quản Trị 7 Nguồn API</h1>
+                <p class="orch-subtitle">
+                    Quản lý tập trung 7 nhà cung cấp AI (Vyce, Groq, Gemini, Cloudflare, OpenRouter, 9Router, Local), định tuyến mô hình, hạn mức token và kiểm tra độ trễ.
+                </p>
+            </div>
+        </div>
+        <div class="orch-header-actions">
+            <a href="/admin/settings" class="orch-doc-btn" style="text-decoration: none; color: #10b981; border-color: rgba(16, 185, 129, 0.4);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg>
+                <span>⚡ Sang Cài Đặt Sàn Binance ↗</span>
+            </a>
+            <a href="/admin/performance" class="orch-doc-btn" style="text-decoration: none; color: #0284c7; border-color: rgba(2, 132, 199, 0.4);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                <span>📊 Xem Hiệu Suất &amp; Token ↗</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 TOP STATS CARDS -->
+    <div class="orch-stats-strip">
+        <div class="orch-stat-card">
+            <div class="orch-stat-label">TỔNG NHÀ CUNG CẤP</div>
+            <div class="orch-stat-val orch-stat-providers-val" id="stat-total-providers" style="color: #2563eb;">7</div>
+            <div class="orch-stat-sub">Vyce, Groq, Gemini, Cloudflare, OpenRouter, 9Router, GuRouter</div>
+        </div>
+        <div class="orch-stat-card">
+            <div class="orch-stat-label">MÔ HÌNH HOẠT ĐỘNG</div>
+            <div class="orch-stat-val orch-stat-models-val" id="stat-total-models" style="color: #10b981;">179+</div>
+            <div class="orch-stat-sub">Claude, Grok 4.7, GPT-6 Astra, DeepSeek, Llama-3, Gemini</div>
+        </div>
+        <div class="orch-stat-card">
+            <div class="orch-stat-label">ĐỘ TRỄ TRUNG BÌNH</div>
+            <div class="orch-stat-val orch-stat-latency-val" id="stat-avg-latency" style="color: #a855f7;">245ms</div>
+            <div class="orch-stat-sub">Groq 12ms | 9Router 45ms | Gemini 85ms</div>
+        </div>
+        <div class="orch-stat-card">
+            <div class="orch-stat-label">TỶ LỆ KHẢ DỤNG (UPTIME)</div>
+            <div class="orch-stat-val orch-stat-uptime-val" id="stat-uptime" style="color: #10b981;">99.8%</div>
+            <div class="orch-stat-sub">Độ tin cậy toàn mạng lưới</div>
+        </div>
+    </div>
+
+    <!-- 7 TABS CONTAINER (ALWAYS FLEX & 100% VISIBLE) -->
+    <div id="panel-ai-orchestration" style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- 7 TABS BAR -->
+        <div class="orch-tabs-bar">
+            <button type="button" class="orch-tab-btn active" data-tab="tab-1">
+                <div class="orch-tab-num">1</div>
+                <div class="orch-tab-text">
+                    <span class="orch-tab-title">Nhà Cung Cấp</span>
+                    <span class="orch-tab-sub">Providers</span>
+                </div>
+            </button>
+            <button type="button" class="orch-tab-btn" data-tab="tab-2">
+                <div class="orch-tab-num">2</div>
+                <div class="orch-tab-text">
+                    <span class="orch-tab-title">Mô Hình AI</span>
+                    <span class="orch-tab-sub">Models</span>
+                </div>
+            </button>
+            <button type="button" class="orch-tab-btn" data-tab="tab-3">
+                <div class="orch-tab-num">3</div>
+                <div class="orch-tab-text">
+                    <span class="orch-tab-title">Luật Chuyển Đổi</span>
+                    <span class="orch-tab-sub">Routing Rules</span>
+                </div>
+            </button>
+            <button type="button" class="orch-tab-btn" data-tab="tab-4">
+                <div class="orch-tab-num">4</div>
+                <div class="orch-tab-text">
+                    <span class="orch-tab-title">Token & Hạn Mức</span>
+                    <span class="orch-tab-sub">Tokens & Quotas</span>
+                </div>
+            </button>
+            <button type="button" class="orch-tab-btn" data-tab="tab-5">
+                <div class="orch-tab-num">5</div>
+                <div class="orch-tab-text">
+                    <span class="orch-tab-title">Kiểm Tra Hoạt Động</span>
+                    <span class="orch-tab-sub">Health Checks</span>
+                </div>
+            </button>
+            <button type="button" class="orch-tab-btn" data-tab="tab-6">
+                <div class="orch-tab-num">6</div>
+                <div class="orch-tab-text">
+                    <span class="orch-tab-title">Chi Phí & Tính Năng Trả Phí</span>
+                    <span class="orch-tab-sub">Cost & Paid</span>
+                </div>
+            </button>
+            <button type="button" class="orch-tab-btn" data-tab="tab-7">
+                <div class="orch-tab-num">7</div>
+                <div class="orch-tab-text">
+                    <span class="orch-tab-title">Nhật Ký & Đánh Giá</span>
+                    <span class="orch-tab-sub">Logs & Scorecard</span>
+                </div>
+            </button>
+        </div>
+
+        <!-- TAB 1: NHÀ CUNG CẤP (PROVIDERS) -->
+        <div id="panel-tab-1" data-tab-id="tab-1" class="orch-panel active">
+            
+            <div class="orch-grid-top">
+                <!-- PROVIDERS TABLE -->
+                <div class="orch-card">
+                    <div class="orch-card-header">
+                        <div>
+                            <div class="orch-card-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                                <span>Danh Sách Nhà Cung Cấp API</span>
+                            </div>
+                            <p class="orch-card-desc">Quản lý kết nối, trạng thái và cấu hình cho các nhà cung cấp AI API.</p>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="openAddProviderModal()" style="font-size: 12px; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Thêm Nhà Cung Cấp</span>
+                        </button>
+                    </div>
+                    <div class="orch-card-body" style="padding: 0; overflow-x: auto;">
+                        <table class="orch-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 32px;">#</th>
+                                    <th>Nhà Cung Cấp</th>
+                                    <th>API Key</th>
+                                    <th>Loại</th>
+                                    <th>Trạng Thái</th>
+                                    <th>Độ Trễ</th>
+                                    <th>Model</th>
+                                    <th>Ưu Tiên</th>
+                                    <th>Hạn Mức</th>
+                                    <th style="text-align: right;">Bật/Tắt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="color: var(--text-sub); font-weight: 700;">1</td>
+                                    <td>
+                                        <div class="orch-prov-cell">
+                                            <div class="orch-prov-icon" style="background: rgba(99, 102, 241, 0.12); color: #6366f1;">V</div>
+                                            <div class="orch-prov-info">
+                                                <span class="orch-prov-name">Vyce AI</span>
+                                                <span class="orch-prov-sub">Custom AI Gateway ($773.88 Balance)</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="orch-key-box">
+                                            <span class="orch-key-text">••••••••••</span>
+                                            <button type="button" class="orch-eye-btn" onclick="toggleKeyVisibility(this, '***REDACTED***')">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-cyan" style="font-size: 10px;">Freemium</span></td>
+                                    <td><span class="orch-status-active" id="status-badge-vyce">Hoạt động</span></td>
+                                    <td id="lat-vyce" style="font-weight: 700;">849 ms</td>
+                                    <td>12</td>
+                                    <td>
+                                        <select class="form-control" style="padding: 2px 4px; font-size: 11px; width: 44px;">
+                                            <option value="1" selected>1</option><option value="2">2</option><option value="3">3</option>
+                                        </select>
+                                    </td>
+                                    <td style="color: var(--text-sub); font-size: 11px;">1,000 req</td>
+                                    <td style="text-align: right;">
+                                        <label class="orch-switch">
+                                            <input type="checkbox" checked onchange="toggleProvider('vyce', this)">
+                                            <span class="orch-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="color: var(--text-sub); font-weight: 700;">2</td>
+                                    <td>
+                                        <div class="orch-prov-cell">
+                                            <div class="orch-prov-icon" style="background: rgba(239, 68, 68, 0.12); color: #ef4444;">g</div>
+                                            <div class="orch-prov-info">
+                                                <span class="orch-prov-name">Groq</span>
+                                                <span class="orch-prov-sub">Ultra Fast Inference (Siêu tốc 0.25s)</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="orch-key-box">
+                                            <span class="orch-key-text">••••••••••</span>
+                                            <button type="button" class="orch-eye-btn" onclick="toggleKeyVisibility(this, 'gsk_REDACTED_FOR_SECURITY')">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-green" style="font-size: 10px;">Free Tier</span></td>
+                                    <td><span class="orch-status-active" id="status-badge-groq">Hoạt động</span></td>
+                                    <td id="lat-groq" style="color: #10b981; font-weight: 700;">470 ms</td>
+                                    <td>28</td>
+                                    <td>
+                                        <select class="form-control" style="padding: 2px 4px; font-size: 11px; width: 44px;">
+                                            <option value="1">1</option><option value="2" selected>2</option><option value="3">3</option>
+                                        </select>
+                                    </td>
+                                    <td style="color: var(--text-sub); font-size: 11px;">3,000 req</td>
+                                    <td style="text-align: right;">
+                                        <label class="orch-switch">
+                                            <input type="checkbox" checked onchange="toggleProvider('groq', this)">
+                                            <span class="orch-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="color: var(--text-sub); font-weight: 700;">3</td>
+                                    <td>
+                                        <div class="orch-prov-cell">
+                                            <div class="orch-prov-icon" style="background: rgba(37, 99, 235, 0.12); color: #2563eb;">G</div>
+                                            <div class="orch-prov-info">
+                                                <span class="orch-prov-name">Google Gemini</span>
+                                                <span class="orch-prov-sub">Multi-modal AI (15 RPM Free)</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="orch-key-box">
+                                            <span class="orch-key-text">••••••••••</span>
+                                            <button type="button" class="orch-eye-btn" onclick="toggleKeyVisibility(this, 'AQ.REDACTED_GEMINI_KEY')">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-amber" style="font-size: 10px;">Free / Paid</span></td>
+                                    <td><span class="orch-status-active" id="status-badge-gemini">Hoạt động</span></td>
+                                    <td id="lat-gemini" style="font-weight: 700;">415 ms</td>
+                                    <td>15</td>
+                                    <td>
+                                        <select class="form-control" style="padding: 2px 4px; font-size: 11px; width: 44px;">
+                                            <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option>
+                                        </select>
+                                    </td>
+                                    <td style="color: var(--text-sub); font-size: 11px;">1,500 req</td>
+                                    <td style="text-align: right;">
+                                        <label class="orch-switch">
+                                            <input type="checkbox" checked onchange="toggleProvider('gemini', this)">
+                                            <span class="orch-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="color: var(--text-sub); font-weight: 700;">4</td>
+                                    <td>
+                                        <div class="orch-prov-cell">
+                                            <div class="orch-prov-icon" style="background: rgba(249, 115, 22, 0.12); color: #f97316;">C</div>
+                                            <div class="orch-prov-info">
+                                                <span class="orch-prov-name">Cloudflare AI</span>
+                                                <span class="orch-prov-sub">Workers AI (10k Neurons/ngày)</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="orch-key-box">
+                                            <span class="orch-key-text">••••••••••</span>
+                                            <button type="button" class="orch-eye-btn" onclick="toggleKeyVisibility(this, 'cfut_REDACTED_CLOUDFLARE_TOKEN')">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-green" style="font-size: 10px;">Free Tier</span></td>
+                                    <td><span class="orch-status-active" id="status-badge-cloudflare">Hoạt động</span></td>
+                                    <td id="lat-cloudflare" style="font-weight: 700;">582 ms</td>
+                                    <td>9</td>
+                                    <td>
+                                        <select class="form-control" style="padding: 2px 4px; font-size: 11px; width: 44px;">
+                                            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option>
+                                        </select>
+                                    </td>
+                                    <td style="color: var(--text-sub); font-size: 11px;">10,000 req</td>
+                                    <td style="text-align: right;">
+                                        <label class="orch-switch">
+                                            <input type="checkbox" checked onchange="toggleProvider('cloudflare', this)">
+                                            <span class="orch-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="color: var(--text-sub); font-weight: 700;">5</td>
+                                    <td>
+                                        <div class="orch-prov-cell">
+                                            <div class="orch-prov-icon" style="background: rgba(147, 51, 234, 0.12); color: #9333ea;">O</div>
+                                            <div class="orch-prov-info">
+                                                <span class="orch-prov-name">OpenRouter</span>
+                                                <span class="orch-prov-sub">Multi-provider Router (:free models)</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="orch-key-box">
+                                            <span class="orch-key-text">••••••••••</span>
+                                            <button type="button" class="orch-eye-btn" onclick="toggleKeyVisibility(this, '***REDACTED***')">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-cyan" style="font-size: 10px;">Freemium</span></td>
+                                    <td><span class="orch-status-active" id="status-badge-openrouter">Hoạt động</span></td>
+                                    <td id="lat-openrouter" style="color: #10b981; font-weight: 700;">396 ms</td>
+                                    <td>100+</td>
+                                    <td>
+                                        <select class="form-control" style="padding: 2px 4px; font-size: 11px; width: 44px;">
+                                            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option>
+                                        </select>
+                                    </td>
+                                    <td style="color: var(--text-sub); font-size: 11px;">2,000 req</td>
+                                    <td style="text-align: right;">
+                                        <label class="orch-switch">
+                                            <input type="checkbox" checked onchange="toggleProvider('openrouter', this)">
+                                            <span class="orch-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="color: var(--text-sub); font-weight: 700;">6</td>
+                                    <td>
+                                        <div class="orch-prov-cell">
+                                            <div class="orch-prov-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">9</div>
+                                            <div class="orch-prov-info">
+                                                <span class="orch-prov-name">9Router (VPS)</span>
+                                                <span class="orch-prov-sub">Local ChatGPT Plus K12 Codex</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="orch-key-box">
+                                            <span class="orch-key-text">••••••••••</span>
+                                            <button type="button" class="orch-eye-btn" onclick="toggleKeyVisibility(this, '***REDACTED***')">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-purple" style="font-size: 10px;">Local Proxy</span></td>
+                                    <td><span class="orch-status-active" id="status-badge-ninerouter">Hoạt động</span></td>
+                                    <td id="lat-ninerouter" style="color: #10b981; font-weight: 700;">120 ms</td>
+                                    <td>8</td>
+                                    <td>
+                                        <select class="form-control" style="padding: 2px 4px; font-size: 11px; width: 44px;">
+                                            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6" selected>6</option>
+                                        </select>
+                                    </td>
+                                    <td style="color: var(--text-sub); font-size: 11px;">Không giới hạn</td>
+                                    <td style="text-align: right;">
+                                        <label class="orch-switch">
+                                            <input type="checkbox" checked onchange="toggleProvider('ninerouter', this)">
+                                            <span class="orch-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="color: var(--text-sub); font-weight: 700;">7</td>
+                                    <td>
+                                        <div class="orch-prov-cell">
+                                            <div class="orch-prov-icon" style="background: rgba(244, 63, 94, 0.12); color: #f43f5e;">G</div>
+                                            <div class="orch-prov-info">
+                                                <span class="orch-prov-name">GuRouter (Community)</span>
+                                                <span class="orch-prov-sub">Admin VN 5B Pool (VietQR Proxy)</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="orch-key-box">
+                                            <span class="orch-key-text">••••••••••</span>
+                                            <button type="button" class="orch-eye-btn" onclick="toggleKeyVisibility(this, '***REDACTED***')">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge" style="font-size: 10px; background: rgba(244, 63, 94, 0.12); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3);">Proxy Trial</span></td>
+                                    <td><span class="orch-status-active" id="status-badge-gurouter">Hoạt động</span></td>
+                                    <td id="lat-gurouter" style="color: #f59e0b; font-weight: 700;">610 ms</td>
+                                    <td>7</td>
+                                    <td>
+                                        <select class="form-control" style="padding: 2px 4px; font-size: 11px; width: 44px;">
+                                            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7" selected>7</option>
+                                        </select>
+                                    </td>
+                                    <td style="color: var(--text-sub); font-size: 11px;">5B Pool / Trial</td>
+                                    <td style="text-align: right;">
+                                        <label class="orch-switch">
+                                            <input type="checkbox" checked onchange="toggleProvider('gurouter', this)">
+                                            <span class="orch-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- RIGHT CARDS -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- SYSTEM OVERVIEW -->
+                    <div class="orch-card">
+                        <div class="orch-card-header">
+                            <div class="orch-card-title">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                                <span>Tổng Quan Hệ Thống</span>
+                            </div>
+                            <span class="badge badge-green" style="font-size: 9px; padding: 2px 7px;">LIVE</span>
+                        </div>
+                        <div class="orch-card-body">
+                            <div class="orch-stats-grid">
+                                <div class="orch-stat-item">
+                                    <div class="orch-stat-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="orch-stat-val orch-stat-providers-val" id="stat-total-providers-side">7</div>
+                                        <div class="orch-stat-lbl">Nhà cung cấp</div>
+                                    </div>
+                                </div>
+                                <div class="orch-stat-item">
+                                    <div class="orch-stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.9a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="orch-stat-val orch-stat-models-val" id="stat-total-models-side">179+</div>
+                                        <div class="orch-stat-lbl">Tổng số model</div>
+                                    </div>
+                                </div>
+                                <div class="orch-stat-item">
+                                    <div class="orch-stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="orch-stat-val orch-stat-latency-val" id="stat-avg-latency-side" style="color: #10b981;">245ms</div>
+                                        <div class="orch-stat-lbl">Độ trễ trung bình</div>
+                                    </div>
+                                </div>
+                                <div class="orch-stat-item">
+                                    <div class="orch-stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="orch-stat-val orch-stat-uptime-val" id="stat-uptime-side">99.8%</div>
+                                        <div class="orch-stat-lbl">Uptime (24h)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAID FEATURES COMPARISON -->
+                    <div class="orch-card">
+                        <div class="orch-card-header">
+                            <div>
+                                <div class="orch-card-title">
+                                    <span style="color: #f59e0b;">👑</span>
+                                    <span>Tính Năng Nâng Cao / Trả Phí</span>
+                                </div>
+                                <p class="orch-card-desc">So sánh nhanh các tính năng premium giữa các nhà cung cấp.</p>
+                            </div>
+                        </div>
+                        <div class="orch-card-body" style="padding: 0;">
+                            <table class="orch-table" style="font-size: 11.5px;">
+                                <thead>
+                                    <tr>
+                                        <th>Nhà CC</th>
+                                        <th>Free Tier</th>
+                                        <th>Cần Thẻ</th>
+                                        <th>Advanced Models</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="font-weight: 700;">Vyce AI</td>
+                                        <td><span style="color: #10b981;">✔</span></td>
+                                        <td style="color: var(--text-sub);">Tùy chọn</td>
+                                        <td style="color: #2563eb; font-weight: 600;">Có ($773.88)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 700;">Groq</td>
+                                        <td><span style="color: #10b981;">✔</span></td>
+                                        <td style="color: var(--text-sub);">Không</td>
+                                        <td style="color: #2563eb; font-weight: 600;">Có (Siêu tốc 0.2s)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 700;">Gemini</td>
+                                        <td><span style="color: #10b981;">✔ (15 RPM)</span></td>
+                                        <td style="color: #ef4444;">Có (Pro)</td>
+                                        <td style="color: #2563eb; font-weight: 600;">Có (Flash/Pro 1M)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 700;">Cloudflare</td>
+                                        <td><span style="color: #10b981;">✔ (10k)</span></td>
+                                        <td style="color: var(--text-sub);">Không</td>
+                                        <td style="color: #2563eb; font-weight: 600;">Có (Llama 3.3)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 700;">OpenRouter</td>
+                                        <td><span style="color: #10b981;">✔ (:free)</span></td>
+                                        <td style="color: var(--text-sub);">Tùy chọn</td>
+                                        <td style="color: #2563eb; font-weight: 600;">Có (100+ Models)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 700;">9Router (VPS)</td>
+                                        <td><span style="color: #10b981;">✔ (Unlimited)</span></td>
+                                        <td style="color: var(--text-sub);">Không</td>
+                                        <td style="color: #2563eb; font-weight: 600;">Có (Grok 4.7, GPT-6, 5.6-Sol)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 700;">GuRouter</td>
+                                        <td><span style="color: #10b981;">✔ (Trial 5B)</span></td>
+                                        <td style="color: var(--text-sub);">Không (VietQR)</td>
+                                        <td style="color: #2563eb; font-weight: 600;">Có (GPT-6 Luna, MiniMax)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIER MATRIX KANBAN BOARD (BẢNG PHÂN HẠNG THEO TIER) -->
+            <div class="orch-card" style="margin-top: 5px;">
+                <div class="orch-card-header" style="border-bottom: 1px solid var(--border); padding: 14px 18px;">
+                    <div>
+                        <div class="orch-card-title" style="display: flex; align-items: center; gap: 8px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #6366f1;"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                            <span>Bảng Phân Hạng Kanban Theo Tier & Quản Trị Rủi Ro (Multi-Tier Model Pool)</span>
+                        </div>
+                        <p class="orch-card-desc" style="margin: 3px 0 0 0; font-size: 12px;">Phân bổ nhiệm vụ nghiêm ngặt: <strong>Tier 1</strong> bảo vệ tiền thật tài khoản Binance; <strong>Tier 2</strong> quét tốc độ cao; <strong>Tier 3</strong> bể free; <strong>Tier 4</strong> thử nghiệm proxy cộng đồng có công tắc bật/tắt độc lập.</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span class="badge badge-purple" style="font-size: 11px; padding: 4px 10px;">7 Nhà Cung Cấp Active</span>
+                        <button type="button" class="btn btn-primary" onclick="pingAllProviders()" style="font-size: 11.5px; padding: 6px 12px;">⚡ Kiểm Tra Độ Trễ Toàn Bể</button>
+                    </div>
+                </div>
+                <div class="orch-card-body" style="padding: 16px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                        
+                        <!-- TIER 1 -->
+                        <div style="background: rgba(99, 102, 241, 0.04); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 16px;">👑</span>
+                                    <strong style="color: #6366f1; font-size: 13px;">TIER 1 · CORE VETO</strong>
+                                </div>
+                                <span class="badge badge-purple" style="font-size: 9.5px; padding: 2px 6px;">KHÓA BẢO VỆ</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-sub); line-height: 1.35;">
+                                Duyệt lệnh tiền thật trên Binance, bảo toàn vốn, tự động rút bài học xương máu (Post-Mortem). Tuyệt đối không dùng proxy trôi nổi.
+                            </div>
+                            
+                            <!-- Tier 1 Cards -->
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">Claude-3.5-Sonnet</strong>
+                                    <span style="font-size: 10px; color: #10b981; font-weight: 700;">849ms</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub);">Vyce AI Proxy · Cố Vấn Tối Cao (Veto)</div>
+                            </div>
+
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">Grok 4.7 (xAI)</strong>
+                                    <span style="font-size: 10px; color: #10b981; font-weight: 700;">1 Connected</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub);">9Router Grok CLI · Hội Đồng Độc Lập</div>
+                            </div>
+
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">DeepSeek V4.1</strong>
+                                    <span style="font-size: 10px; color: #6366f1; font-weight: 700;">Reasoning</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub);">Vyce AI Proxy · Bóc tách SMC & Cấu Trúc</div>
+                            </div>
+                        </div>
+
+                        <!-- TIER 2 -->
+                        <div style="background: rgba(16, 185, 129, 0.04); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 16px;">⚡</span>
+                                    <strong style="color: #10b981; font-size: 13px;">TIER 2 · RADAR SIÊU TỐC</strong>
+                                </div>
+                                <span class="badge badge-green" style="font-size: 9.5px; padding: 2px 6px;">TOP SPEED</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-sub); line-height: 1.35;">
+                                Quét momentum 15m, phát hiện đột biến volume, tính toán Orderbook và đa khung thời gian MTF.
+                            </div>
+
+                            <!-- Tier 2 Cards -->
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">Llama-3.3-70B</strong>
+                                    <span style="font-size: 10px; color: #10b981; font-weight: 700;">180ms</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub);">Groq LPU · Quét Orderbook siêu tốc</div>
+                            </div>
+
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">Gemini 3.8 Flash</strong>
+                                    <span style="font-size: 10px; color: #f59e0b; font-weight: 700;">1M Context · Reasoning</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub);">Google AI Studio · Đa khung MTF & Suy luận logic</div>
+                            </div>
+
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">GPT-5.6 Terra</strong>
+                                    <span style="font-size: 10px; color: #a855f7; font-weight: 700;">120ms</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub);">9Router Local VPS · Tính toán chiến thuật</div>
+                            </div>
+                        </div>
+
+                        <!-- TIER 3 -->
+                        <div style="background: rgba(6, 182, 212, 0.04); border: 1.5px solid rgba(6, 182, 212, 0.35); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 16px;">🆓</span>
+                                    <strong style="color: #06b6d4; font-size: 13px;">TIER 3 · BỂ TOKEN FREE</strong>
+                                </div>
+                                <span class="badge badge-cyan" style="font-size: 9.5px; padding: 2px 6px;">FREE QUOTA</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-sub); line-height: 1.35;">
+                                Hạn mức miễn phí hàng ngày từ các nhà phát triển lớn. Chuyên dùng cho cày cuốc ngầm, tóm tắt tin tức.
+                            </div>
+
+                            <!-- Tier 3 Cards -->
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">OpenCode Free</strong>
+                                    <span style="font-size: 10px; color: #10b981; font-weight: 700;">Ready</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub);">9Router Free Tier · Mô hình mở cộng đồng</div>
+                            </div>
+
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">Nemotron 3.5 Lightning</strong>
+                                    <span style="font-size: 10px; color: #06b6d4; font-weight: 700;">Free Quota</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub);">OpenRouter :free · Phân tích thị trường tổng quan</div>
+                            </div>
+
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">Cloudflare Workers AI</strong>
+                                    <span style="font-size: 10px; color: #10b981; font-weight: 700;">10k/ngày</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub);">Cloudflare · Đánh nhãn Sentiment tin tức</div>
+                            </div>
+                        </div>
+
+                        <!-- TIER 4 -->
+                        <div style="background: rgba(244, 63, 94, 0.04); border: 1.5px solid rgba(244, 63, 94, 0.35); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 16px;">🧪</span>
+                                    <strong style="color: #f43f5e; font-size: 13px;">TIER 4 · CỬA THỬ NGHIỆM</strong>
+                                </div>
+                                <span class="badge" style="font-size: 9.5px; padding: 2px 6px; background: rgba(244, 63, 94, 0.12); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3);">CÁCH LY AN TOÀN</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-sub); line-height: 1.35;">
+                                Proxy cộng đồng / MMO admin 5B token. Có công tắc Bật/Tắt tức thì, tự ngắt failover khi kênh lỗi/hết token.
+                            </div>
+
+                            <!-- Tier 4 Cards -->
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">gpt-6-luna / gpt-6-sol</strong>
+                                    <span style="font-size: 10px; color: #10b981; font-weight: 700;">Online (Ratio 0.05)</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub); margin-bottom: 6px;">GuRouter · Thử nghiệm Vibe Coding / Scout</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 10px; color: var(--text-sub);">Công tắc kênh:</span>
+                                    <label class="orch-switch" style="transform: scale(0.85); transform-origin: right center;">
+                                        <input type="checkbox" checked onchange="toggleProvider('gurouter', this)">
+                                        <span class="orch-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div style="background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 12px; color: var(--text-main);">MiniMax-M3 / M2.7</strong>
+                                    <span style="font-size: 10px; color: #ef4444; font-weight: 700;">Hết Quota Upstream</span>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub);">Pool 5 Tỷ của admin VN cạn · Tự động ngắt failover</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOWER ROW 3 CARDS -->
+            <div class="orch-grid-three">
+                <!-- PRIMARY & FALLBACK -->
+                <div class="orch-card">
+                    <div class="orch-card-header">
+                        <div class="orch-card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8Z"/><path d="m9 12 2 2 4-4"/></svg>
+                            <span>Cấu Hình Mô Hình Chính & Dự Phòng</span>
+                        </div>
+                    </div>
+                    <div class="orch-card-body">
+                        <div style="margin-bottom: 12px;">
+                            <label class="form-label" style="font-size: 11.5px; font-weight: 700;">Model Chính (Primary)</label>
+                            <select id="select-primary-model" class="form-control" style="font-size: 13px; font-weight: 600;">
+                                <option value="Vyce AI - claude-sonnet-4-6" selected>Vyce AI - claude-sonnet-4-6 (Supreme Gatekeeper)</option>
+                                <option value="Vyce AI - deepseek-v4.1">Vyce AI - deepseek-v4.1 (Deep Reasoning)</option>
+                                <option value="Vyce AI - qwen3.8-flash">Vyce AI - qwen3.8-flash (1M Context · Reasoning)</option>
+                                <option value="Vyce AI - deepseek-v4-flash">Vyce AI - deepseek-v4-flash (Ultra Fast & Low Cost)</option>
+                                <option value="Vyce AI - deepseek-v4-flash-lr">Vyce AI - deepseek-v4-flash-lr (Long Reasoning 1M)</option>
+                                <option value="Groq - llama-3.1-70b">Groq - llama-3.1-70b (Ultra Fast 180ms)</option>
+                                <option value="Gemini - gemini-3.8-flash">Gemini - gemini-3.8-flash (Reasoning 1M Context)</option>
+                                <option value="9Router - cx/gpt-5.6-terra">9Router - cx/gpt-5.6-terra (Local VPS)</option>
+                            </select>
+                            <div class="form-desc" style="font-size: 11px; margin-top: 4px;">Mô hình mặc định được sử dụng cho hầu hết tác vụ giao dịch và phân tích.</div>
+                        </div>
+
+                        <div>
+                            <label class="form-label" style="font-size: 11.5px; font-weight: 700;">Chuỗi Dự Phòng (Fallback Chain)</label>
+                            <div class="orch-fallback-chain">
+                                <span class="orch-chain-pill">1. Groq - llama-3.1-70b</span>
+                                <span class="orch-chain-arrow">→</span>
+                                <span class="orch-chain-pill">2. Gemini - gemini-3.8-flash</span>
+                                <span class="orch-chain-arrow">→</span>
+                                <span class="orch-chain-pill">3. OpenRouter - auto-select</span>
+                                <button type="button" class="orch-chain-add" onclick="alert('Đã cấu hình tự động dự phòng sang 9Router Local VPS!')">+ Thêm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CIRCUIT BREAKER -->
+                <div class="orch-card">
+                    <div class="orch-card-header">
+                        <div class="orch-card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #10b981;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <span>Cấu Hình Bảo Vệ & Circuit Breaker</span>
+                        </div>
+                    </div>
+                    <div class="orch-card-body">
+                        <div class="orch-cb-row">
+                            <div class="orch-cb-field">
+                                <label>Ngưỡng Ngắt Circuit Breaker (%)</label>
+                                <input type="number" id="input-cb-drawdown" step="0.005" value="0.02" class="form-control">
+                                <div style="font-size: 10px; color: var(--text-sub); margin-top: 3px;">Ngắt khi tỷ lệ lỗi liên tiếp vượt 2.0%</div>
+                            </div>
+                            <div class="orch-cb-field">
+                                <label>Timeout Yêu Cầu (giây)</label>
+                                <input type="number" id="input-cb-timeout" step="1" value="30" class="form-control">
+                                <div style="font-size: 10px; color: var(--text-sub); margin-top: 3px;">Thời gian chờ phản hồi tối đa</div>
+                            </div>
+                        </div>
+
+                        <div class="orch-toggle-row">
+                            <div class="orch-toggle-info">
+                                <div class="orch-toggle-title">Tự động chuyển sang model dự phòng</div>
+                                <div class="orch-toggle-desc">Tự động failover khi model chính gặp sự cố</div>
+                            </div>
+                            <label class="orch-switch">
+                                <input type="checkbox" id="switch-auto-fallback" checked>
+                                <span class="orch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="orch-toggle-row">
+                            <div class="orch-toggle-info">
+                                <div class="orch-toggle-title">Ghi log chi tiết lỗi và hiệu suất</div>
+                                <div class="orch-toggle-desc">Lưu log để phân tích và cải thiện</div>
+                            </div>
+                            <label class="orch-switch">
+                                <input type="checkbox" id="switch-detailed-log" checked>
+                                <span class="orch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SCORECARD -->
+                <div class="orch-card">
+                    <div class="orch-card-header">
+                        <div>
+                            <div class="orch-card-title">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+                                <span>Đánh Giá Hiệu Suất Mô Hình</span>
+                            </div>
+                            <p class="orch-card-desc">Chấm điểm dựa trên dữ liệu thực tế 7 ngày qua.</p>
+                        </div>
+                    </div>
+                    <div class="orch-card-body" style="padding: 0;">
+                        <table class="orch-table" style="font-size: 11px;">
+                            <thead>
+                                <tr>
+                                    <th>Model</th>
+                                    <th>Chất lượng</th>
+                                    <th>Tốc độ</th>
+                                    <th>Chi phí</th>
+                                    <th>Ổn định</th>
+                                    <th style="font-weight: 800;">Tổng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-weight: 700;">deepseek-r1</td>
+                                    <td style="color: #10b981; font-weight: 600;">9.2</td>
+                                    <td>8.5</td>
+                                    <td>8.0</td>
+                                    <td>9.1</td>
+                                    <td><span class="badge badge-green" style="font-weight: 800;">8.7</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 700;">llama-3.1-70b</td>
+                                    <td>8.6</td>
+                                    <td style="color: #10b981; font-weight: 600;">9.5</td>
+                                    <td style="color: #10b981; font-weight: 600;">9.2</td>
+                                    <td>8.8</td>
+                                    <td><span class="badge badge-green" style="font-weight: 800; background: rgba(16, 185, 129, 0.2);">9.0</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 700;">gemini-3.8-flash</td>
+                                    <td style="color: #10b981; font-weight: 600;">9.4</td>
+                                    <td>8.8</td>
+                                    <td>9.5</td>
+                                    <td>9.2</td>
+                                    <td><span class="badge badge-green" style="font-weight: 800;">9.2</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 700;">claude-3.5</td>
+                                    <td>8.8</td>
+                                    <td>7.8</td>
+                                    <td style="color: #ef4444;">6.5</td>
+                                    <td>8.7</td>
+                                    <td><span class="badge badge-amber" style="font-weight: 800;">8.0</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 700;">gpt-4o-mini</td>
+                                    <td>8.2</td>
+                                    <td>8.7</td>
+                                    <td>8.8</td>
+                                    <td>8.5</td>
+                                    <td><span class="badge badge-cyan" style="font-weight: 800;">8.6</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI RECOMMENDATION BANNER -->
+            <div class="orch-ai-banner">
+                <div class="orch-banner-left">
+                    <div class="orch-sparkle-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                    </div>
+                    <div class="orch-banner-text">
+                        <strong>Gợi Ý Từ AI:</strong> Dựa trên dữ liệu 7 ngày qua, mô hình <strong>llama-3.1-70b</strong> cho hiệu suất tốt nhất về tốc độ và chi phí. Bạn có thể cân nhắc đặt làm model chính cho các tác vụ phân tích nhanh.
+                    </div>
+                </div>
+                <div class="orch-banner-actions">
+                    <button type="button" class="btn btn-primary" onclick="applyAiSuggestion()" style="padding: 8px 16px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span>Áp Dụng Gợi Ý</span>
+                    </button>
+                    <button type="button" class="btn" onclick="switchOrchTab('tab-7')" style="font-size: 12px; padding: 8px 14px;">
+                        <span>Xem Chi Tiết Phân Tích →</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: MÔ HÌNH AI -->
+        <div id="panel-tab-2" data-tab-id="tab-2" class="orch-panel">
+            <div class="orch-card">
+                <div class="orch-card-header">
+                    <div>
+                        <h2 class="orch-card-title">Danh Mục & Thuộc Tính Mô Hình AI (AI Model Catalog)</h2>
+                        <p class="orch-card-desc">Tổng hợp các mô hình khả dụng theo từng Provider, dung lượng Context window, thế mạnh chuyên biệt và chi phí tham khảo.</p>
+                    </div>
+                    <button class="btn btn-primary btn-ping-all" onclick="pingAllProviders()">Ping Toàn Bộ Nhà Cung Cấp</button>
+                </div>
+                <div class="orch-card-body">
+                    <!-- SEARCH & FILTER BAR -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);">
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;" id="model-filter-pills">
+                            <button type="button" class="btn btn-sm btn-filter-model active" data-filter="all" style="font-size: 11px; padding: 4px 10px; border-radius: 20px;">Tất Cả (179+ Models)</button>
+                            <button type="button" class="btn btn-sm btn-filter-model" data-filter="ninerouter" style="font-size: 11px; padding: 4px 10px; border-radius: 20px;">9Router VPS (Grok 4.7 & GPT-6)</button>
+                            <button type="button" class="btn btn-sm btn-filter-model" data-filter="vyce" style="font-size: 11px; padding: 4px 10px; border-radius: 20px;">Vyce AI (Claude & DeepSeek)</button>
+                            <button type="button" class="btn btn-sm btn-filter-model" data-filter="groq" style="font-size: 11px; padding: 4px 10px; border-radius: 20px;">Groq LPU (GPT-120B & Llama)</button>
+                            <button type="button" class="btn btn-sm btn-filter-model" data-filter="gemini" style="font-size: 11px; padding: 4px 10px; border-radius: 20px;">Google Gemini (3.8 Flash)</button>
+                            <button type="button" class="btn btn-sm btn-filter-model" data-filter="cloudflare" style="font-size: 11px; padding: 4px 10px; border-radius: 20px;">Cloudflare AI</button>
+                            <button type="button" class="btn btn-sm btn-filter-model" data-filter="community" style="font-size: 11px; padding: 4px 10px; border-radius: 20px;">OpenRouter & GuRouter</button>
+                        </div>
+                        <div style="position: relative; min-width: 240px; flex: 1; max-width: 320px;">
+                            <input type="text" id="model-search-input" class="form-control" placeholder="🔍 Tìm model (grok, gpt-6, claude, deepseek)..." style="font-size: 11.5px; padding: 6px 12px 6px 30px; border-radius: 20px;">
+                        </div>
+                    </div>
+
+                    <!-- COMPLETE MODEL CARDS GRID -->
+                    <div class="orch-catalog-grid" id="orch-model-catalog-grid">
+                        
+                        <!-- 1. Grok 4.7 -->
+                        <div class="orch-model-card" data-provider="ninerouter" data-name="grok 4.7 xai devil's advocate macro lead">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">Grok 4.7 (xAI SuperGrok)</div>
+                                    <div class="orch-model-provider">9Router VPS :20128 · gcli/grok-4.7</div>
+                                </div>
+                                <span class="badge badge-purple" style="font-weight: 800;">Devil's Advocate</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Trưởng Ban Tình Báo Vĩ Mô (Agent Hash). Quét tin tức X/Binance 15m/lần, bóc bẫy thanh lý phe Bò, bảo vệ két vốn 450U ngoài sàn.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag purple">131K Context</span>
+                                <span class="orch-tag blue">9Router Grok CLI</span>
+                                <span class="orch-tag green">Độ trễ 45ms</span>
+                                <span class="orch-tag amber">Trọng Tài Vĩ Mô</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. GPT-6 Astra -->
+                        <div class="orch-model-card" data-provider="ninerouter" data-name="gpt-6 astra codex plus supreme arbiter var">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">GPT-6 Astra (OpenAI Codex Plus)</div>
+                                    <div class="orch-model-provider">9Router VPS :20128 · cx/gpt-6-astra</div>
+                                </div>
+                                <span class="badge badge-cyan" style="font-weight: 800;">Supreme Arbiter</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Tổng Quản Tác Chiến & Chủ Tịch Hội Đồng VAR Tối Cao. Thẩm định luận điểm Bò vs Gấu, ra phán quyết chung cuộc duyệt lệnh hoặc hạ tỷ trọng (Size Multiplier).
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag blue">256K Context</span>
+                                <span class="orch-tag purple">Codex Plus</span>
+                                <span class="orch-tag green">Phán Quyết Ràng Buộc</span>
+                                <span class="orch-tag amber">Core Veto</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Claude Sonnet 4.6 -->
+                        <div class="orch-model-card" data-provider="vyce" data-name="claude sonnet 4.6 3.5 vyce ai gatekeeper">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">Claude Sonnet 4.6 (Claude-3.5)</div>
+                                    <div class="orch-model-provider">Vyce AI Proxy · claude-sonnet-4-6</div>
+                                </div>
+                                <span class="badge badge-cyan">Reasoning</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Cố Vấn Tối Cao (Supreme Risk Council). Veto tín hiệu kỹ thuật, bóc tách cấu trúc SMC và tự động rút bài học xương máu (Post-Mortem) vào SQLite.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag blue">270K Context</span>
+                                <span class="orch-tag purple">Gatekeeper</span>
+                                <span class="orch-tag amber">$3.0 / $15.0 1M tokens</span>
+                            </div>
+                        </div>
+
+                        <!-- 4. GPT-OSS-120B (Groq) -->
+                        <div class="orch-model-card" data-provider="groq" data-name="gpt-oss-120b groq lpu lead bull momentum">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">OpenAI GPT-OSS-120B (Groq)</div>
+                                    <div class="orch-model-provider">Groq LPU Inference · openai/gpt-oss-120b</div>
+                                </div>
+                                <span class="badge badge-green">Lead Bull 80ms</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Trưởng Phe Bò (Momentum Strategist Hiệp 1). Phân tích cấu trúc nến tăng, phát hiện bứt phá EMA/Bollinger với tốc độ LPU cực hạn 80ms.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag green">131K Context</span>
+                                <span class="orch-tag blue">LPU Hardware</span>
+                                <span class="orch-tag purple">80ms Latency</span>
+                                <span class="orch-tag amber">Hiệp 1 VAR</span>
+                            </div>
+                        </div>
+
+                        <!-- 5. DeepSeek V4.1 -->
+                        <div class="orch-model-card" data-provider="vyce" data-name="deepseek v4.1 reasoning smc vyce">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">DeepSeek V4.1 (Reasoning)</div>
+                                    <div class="orch-model-provider">Vyce AI Proxy · deepseek-v4.1</div>
+                                </div>
+                                <span class="badge badge-purple">SMC Analyst</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Bóc tách dòng tiền tổ chức Smart Money Concepts (SMC), xác định vùng mất cân bằng Imbalance FVG và bẫy thanh khoản tổ chức.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag purple">128K Context</span>
+                                <span class="orch-tag blue">Deep Reasoning</span>
+                                <span class="orch-tag amber">$0.55 / $2.19 1M</span>
+                            </div>
+                        </div>
+
+                        <!-- 6. DeepSeek V4 Flash -->
+                        <div class="orch-model-card" data-provider="vyce" data-name="deepseek v4 flash fast scanner vyce">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">DeepSeek V4 Flash (Vyce)</div>
+                                    <div class="orch-model-provider">Vyce AI Proxy · deepseek-v4-flash</div>
+                                </div>
+                                <span class="badge badge-green">Ultra Fast</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Phân tích tin tức vĩ mô nhanh, tính toán tham số rủi ro với tốc độ cao và chi phí cực thấp ($0.22/1M tokens).
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag blue">270K Context</span>
+                                <span class="orch-tag green">Fast Scanner</span>
+                                <span class="orch-tag amber">$0.22 / $0.66 1M</span>
+                            </div>
+                        </div>
+
+                        <!-- 7. GPT-6 Sol -->
+                        <div class="orch-model-card" data-provider="ninerouter" data-name="gpt-6 sol gpt-5.6 quant core ninerouter gurouter">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">GPT-6 Sol (Quant Core)</div>
+                                    <div class="orch-model-provider">9Router & GuRouter · cx/gpt-6-sol</div>
+                                </div>
+                                <span class="badge badge-amber">Quant Math</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Động cơ tính toán hội tụ toán học Fibonacci, Kelly Criterion và phân bổ quy mô vốn vị thế thích ứng theo độ biến động ATR.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag amber">Dynamic Sizing</span>
+                                <span class="orch-tag blue">9Router & GuRouter</span>
+                                <span class="orch-tag green">Kelly Criterion</span>
+                            </div>
+                        </div>
+
+                        <!-- 8. GPT-5.6 Terra -->
+                        <div class="orch-model-card" data-provider="ninerouter" data-name="gpt-5.6 terra local vps 9router">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">GPT-5.6 Terra (Local VPS)</div>
+                                    <div class="orch-model-provider">9Router VPS :20128 · cx/gpt-5.6-terra</div>
+                                </div>
+                                <span class="badge badge-purple">Local Dedicated</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Tận dụng tài khoản ChatGPT Plus K12 cá nhân. Chạy liên tục nội bộ không lo phát sinh chi phí theo token API. Độ trễ cực thấp 120ms.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag blue">Localhost 127.0.0.1</span>
+                                <span class="orch-tag green">Unlimited Req</span>
+                            </div>
+                        </div>
+
+                        <!-- 9. Llama-3.3-70B (Groq) -->
+                        <div class="orch-model-card" data-provider="groq" data-name="llama-3.3-70b versatile groq cloud">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">Llama-3.3-70B-Versatile (Groq)</div>
+                                    <div class="orch-model-provider">Groq Cloud · llama-3.3-70b-versatile</div>
+                                </div>
+                                <span class="badge badge-green">Top Speed 0.2s</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Bộ vi xử lý LPU suy luận cực nhanh 200–300 tokens/giây. Rất phù hợp quét Orderbook và phát hiện micro-structure bất thường.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag green">128K Context</span>
+                                <span class="orch-tag blue">Free Tier</span>
+                                <span class="orch-tag purple">180ms Latency</span>
+                            </div>
+                        </div>
+
+                        <!-- 10. Llama-3.1-8B-Instant (Groq) -->
+                        <div class="orch-model-card" data-provider="groq" data-name="llama-3.1-8b instant groq lpu micro-tick">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">Llama-3.1-8B-Instant (Groq)</div>
+                                    <div class="orch-model-provider">Groq Cloud · llama-3.1-8b-instant</div>
+                                </div>
+                                <span class="badge badge-green">12ms Micro-Tick</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Tốc độ phản hồi kỷ lục 12ms. Chuyên phát hiện giật râu quét thanh khoản bất thường trên khung thời gian 1s và 1m.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag purple">128K Context</span>
+                                <span class="orch-tag green">12ms Latency</span>
+                                <span class="orch-tag blue">Zero Cost</span>
+                            </div>
+                        </div>
+
+                        <!-- 11. Gemini 3.8 Flash -->
+                        <div class="orch-model-card" data-provider="gemini" data-name="gemini 3.8 flash google reasoning 1m context">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">Gemini 3.8 Flash (Reasoning)</div>
+                                    <div class="orch-model-provider">Google AI Studio · gemini-3.8-flash</div>
+                                </div>
+                                <span class="badge badge-amber">1M Context</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Mô hình thế hệ mới nhất của Google. Tích hợp Thought Signature Reasoning, phân tích đa khung MTF và đọc cấu trúc thị trường không trễ.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag purple">1,048,576 Context</span>
+                                <span class="orch-tag green">Free 15 RPM</span>
+                                <span class="orch-tag blue">Reasoning 3.8</span>
+                            </div>
+                        </div>
+
+                        <!-- 12. Gemini 3.7 Flash -->
+                        <div class="orch-model-card" data-provider="gemini" data-name="gemini 3.7 flash google ai studio high throughput">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">Gemini 3.7 Flash (High Throughput)</div>
+                                    <div class="orch-model-provider">Google AI Studio · gemini-3.7-flash</div>
+                                </div>
+                                <span class="badge badge-amber">Scout Engine</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Trinh sát thị trường tự động, quét song song dữ liệu giá 100 coin đồng thời với chi phí 0đ từ hạn mức 15 RPM miễn phí.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag purple">1M Context</span>
+                                <span class="orch-tag green">Free 15 RPM</span>
+                                <span class="orch-tag blue">85ms Latency</span>
+                            </div>
+                        </div>
+
+                        <!-- 13. Cloudflare Workers AI -->
+                        <div class="orch-model-card" data-provider="cloudflare" data-name="cloudflare workers ai llama-3.3-70b edge">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">Cloudflare Llama-3.3-70B</div>
+                                    <div class="orch-model-provider">Cloudflare Workers AI · llama-3.3-70b-fast</div>
+                                </div>
+                                <span class="badge badge-green">Edge Free</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Máy chủ biên toàn cầu Edge AI. Chạy 10,000 neurons miễn phí mỗi ngày, chuyên phân loại cảm xúc tin tức thị trường.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag green">10k Neurons/ngày</span>
+                                <span class="orch-tag blue">Edge 110ms</span>
+                                <span class="orch-tag amber">Sentiment Guard</span>
+                            </div>
+                        </div>
+
+                        <!-- 14. Agnes 3.0 Flash -->
+                        <div class="orch-model-card" data-provider="vyce" data-name="agnes 3.0 flash vyce ai proxy sentiment">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">Agnes 3.0 Flash (Vyce)</div>
+                                    <div class="orch-model-provider">Vyce AI Proxy · agnes-3.0-flash</div>
+                                </div>
+                                <span class="badge badge-cyan">Social Quant</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Bộ tổng hợp cảm xúc mạng xã hội (Twitter/X, Telegram Alpha leaks), phát hiện sớm dòng tiền FOMO của cộng đồng retail.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag blue">Social Sentiment</span>
+                                <span class="orch-tag purple">Meme Hunter</span>
+                            </div>
+                        </div>
+
+                        <!-- 15. Nemotron 3.5 Lightning -->
+                        <div class="orch-model-card" data-provider="community" data-name="nemotron 3.5 lightning openrouter free">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">Nemotron 3.5 Lightning (:free)</div>
+                                    <div class="orch-model-provider">OpenRouter Free · nvidia/nemotron-3.5</div>
+                                </div>
+                                <span class="badge badge-cyan">Free Quota</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Mô hình mã nguồn mở tối ưu của NVIDIA. Hạn mức miễn phí hàng ngày, phục vụ tóm tắt bối cảnh thị trường không lo tốn tiền API.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag blue">NVIDIA Tech</span>
+                                <span class="orch-tag green">100% Free Tier</span>
+                            </div>
+                        </div>
+
+                        <!-- 16. GuRouter GPT-6 Luna -->
+                        <div class="orch-model-card" data-provider="community" data-name="gpt-6 luna gurouter community vietqr">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">GPT-6 Luna (GuRouter)</div>
+                                    <div class="orch-model-provider">GuRouter VietQR · gpt-6-luna</div>
+                                </div>
+                                <span class="badge badge-rose" style="color: #f43f5e; background: rgba(244,63,94,0.12);">VietQR Proxy</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Bể proxy cộng đồng tài trợ bởi Admin VN. Kết nối linh hoạt qua VietQR nạp tiền tự động, hỗ trợ các mô hình dự phòng nhẹ.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag purple">5B Pool</span>
+                                <span class="orch-tag green">VietQR Gate</span>
+                            </div>
+                        </div>
+
+                        <!-- 17. OpenRouter 100+ Free Pool -->
+                        <div class="orch-model-card" data-provider="community" data-name="openrouter 100+ free models qwen mistral deepseek">
+                            <div class="orch-model-header">
+                                <div>
+                                    <div class="orch-model-name">OpenRouter 100+ Free Models</div>
+                                    <div class="orch-model-provider">OpenRouter Hub · :free models</div>
+                                </div>
+                                <span class="badge badge-cyan">100+ Models</span>
+                            </div>
+                            <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">
+                                Bể hơn 100 mô hình mở (Qwen 2.5, Mistral NeMo, DeepSeek R1, Gemma 2, Phi-3). Tự động failover khi toàn bộ các nguồn trả phí bị nghẽn.
+                            </div>
+                            <div class="orch-tag-list">
+                                <span class="orch-tag blue">100+ Mô Hình</span>
+                                <span class="orch-tag green">Dự Phòng Khẩn Cấp</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: LUẬT CHUYỂN ĐỔI -->
+        <div id="panel-tab-3" data-tab-id="tab-3" class="orch-panel">
+            <div class="orch-card">
+                <div class="orch-card-header">
+                    <div>
+                        <h2 class="orch-card-title">Ma Trận Định Tuyến Thông Minh & Luật Failover (Smart Routing)</h2>
+                        <p class="orch-card-desc">Tách bạch nhiệm vụ cụ thể cho từng Agent theo chuẩn kiến trúc Freqtrade / Hummingbot 2026.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveOrchestrationRules()">Lưu Luật Định Tuyến</button>
+                </div>
+                <div class="orch-card-body">
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="padding: 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card);">
+                            <div style="font-weight: 700; font-size: 14px; color: #2563eb; margin-bottom: 6px;">1. Nhiệm vụ: AI Risk Veto Gatekeeper (Cố Vấn Tối Cao)</div>
+                            <div style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">Khi thuật toán sinh tín hiệu, Gatekeeper chỉ duyệt (APPROVE) hoặc hủy (VETO) bảo toàn vốn.</div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+                                <div>
+                                    <label style="font-size: 11px; font-weight: 600; color: var(--text-sub);">Mô hình ưu tiên 1</label>
+                                    <div class="form-control" style="font-weight: 700;">Vyce AI · Claude-3.5-Sonnet</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; font-weight: 600; color: var(--text-sub);">Fallback 1 (khi > 2.5s)</label>
+                                    <div class="form-control" style="font-weight: 700;">Vyce AI · DeepSeek V4.1</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; font-weight: 600; color: var(--text-sub);">Fallback 2 (khẩn cấp)</label>
+                                    <div class="form-control" style="font-weight: 700;">Google Gemini · 3.8 Flash</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding: 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card);">
+                            <div style="font-weight: 700; font-size: 14px; color: #10b981; margin-bottom: 6px;">2. Nhiệm vụ: Post-Trade Forensics ("Bài học xương máu")</div>
+                            <div style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">Khi chạm Stop-Loss hoặc trượt giá, AI bóc tách nguyên nhân và tự động lưu vào `/admin/lessons`.</div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+                                <div>
+                                    <label style="font-size: 11px; font-weight: 600; color: var(--text-sub);">Mô hình phân tích chính</label>
+                                    <div class="form-control" style="font-weight: 700;">Vyce AI · Claude-3.5-Sonnet</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; font-weight: 600; color: var(--text-sub);">Dự phòng miễn phí</label>
+                                    <div class="form-control" style="font-weight: 700;">OpenRouter · nvidia/nemotron-3.5-lightning:free</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding: 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card);">
+                            <div style="font-weight: 700; font-size: 14px; color: #f59e0b; margin-bottom: 6px;">3. Nhiệm vụ: Quét Bất Thường Kỹ Thuật Siêu Tốc (Anomaly Watchdog)</div>
+                            <div style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">Quét liên tục Orderbook Imbalance, Funding Rate với độ trễ dưới 250ms.</div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+                                <div>
+                                    <label style="font-size: 11px; font-weight: 600; color: var(--text-sub);">Mô hình chính</label>
+                                    <div class="form-control" style="font-weight: 700;">Groq · Llama-3.3-70B-Versatile (180ms)</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; font-weight: 600; color: var(--text-sub);">Dự phòng</label>
+                                    <div class="form-control" style="font-weight: 700;">Cloudflare AI · Llama-3.3-70b-instruct</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: TOKEN & HẠN MỨC -->
+        <div id="panel-tab-4" data-tab-id="tab-4" class="orch-panel">
+            <div class="orch-card">
+                <div class="orch-card-header">
+                    <div>
+                        <h2 class="orch-card-title">Quản Trị Token & Hạn Mức Yêu Cầu (Token & Quota Meters)</h2>
+                        <p class="orch-card-desc">Theo dõi dung lượng token tiêu thụ, số dư ví tín dụng khả dụng và ngưỡng chặn tự động.</p>
+                    </div>
+                </div>
+                <div class="orch-card-body">
+                    <div class="orch-quota-grid">
+                        <div class="orch-quota-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; font-size: 13px;">Vyce AI Proxy</span>
+                                <span class="badge badge-cyan">$773.88 Balance</span>
+                            </div>
+                            <div class="orch-meter-bar">
+                                <div class="orch-meter-fill" style="width: 14%; background: #2563eb;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub);">
+                                <span>Đã dùng: 142 req</span>
+                                <span>Hạn mức: 1,000 req/ngày</span>
+                            </div>
+                        </div>
+
+                        <div class="orch-quota-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; font-size: 13px;">Groq Cloud</span>
+                                <span class="badge badge-green">Free Tier 30 RPM</span>
+                            </div>
+                            <div class="orch-meter-bar">
+                                <div class="orch-meter-fill" style="width: 8%; background: #10b981;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub);">
+                                <span>Tốc độ: 2.4 RPM</span>
+                                <span>Trần: 30 RPM / 14,400 RPD</span>
+                            </div>
+                        </div>
+
+                        <div class="orch-quota-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; font-size: 13px;">Google Gemini</span>
+                                <span class="badge badge-amber">Free 15 RPM</span>
+                            </div>
+                            <div class="orch-meter-bar">
+                                <div class="orch-meter-fill" style="width: 20%; background: #f59e0b;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub);">
+                                <span>Tốc độ: 3.1 RPM</span>
+                                <span>Trần: 15 RPM (Zero thẻ)</span>
+                            </div>
+                        </div>
+
+                        <div class="orch-quota-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; font-size: 13px;">Cloudflare AI</span>
+                                <span class="badge badge-green">10k Neurons/ngày</span>
+                            </div>
+                            <div class="orch-meter-bar">
+                                <div class="orch-meter-fill" style="width: 5%; background: #10b981;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub);">
+                                <span>Đã dùng: 512 neurons</span>
+                                <span>Trần: 10,000 neurons/ngày</span>
+                            </div>
+                        </div>
+
+                        <div class="orch-quota-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; font-size: 13px;">OpenRouter</span>
+                                <span class="badge badge-cyan">Free :free Models</span>
+                            </div>
+                            <div class="orch-meter-bar">
+                                <div class="orch-meter-fill" style="width: 12%; background: #6366f1;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub);">
+                                <span>Đã dùng: 240 req</span>
+                                <span>Hạn mức: 2,000 req/ngày</span>
+                            </div>
+                        </div>
+
+                        <div class="orch-quota-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; font-size: 13px;">9Router Local VPS</span>
+                                <span class="badge badge-purple">Unlimited</span>
+                            </div>
+                            <div class="orch-meter-bar">
+                                <div class="orch-meter-fill" style="width: 100%; background: #8b5cf6;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub);">
+                                <span>Tài khoản Plus K12</span>
+                                <span>Không giới hạn API</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: KIỂM TRA HOẠT ĐỘNG (HEALTH CHECKS) -->
+        <div id="panel-tab-5" data-tab-id="tab-5" class="orch-panel">
+            <div class="orch-card">
+                <div class="orch-card-header orch-ping-header">
+                    <div>
+                        <h2 class="orch-card-title">Kiểm Tra Hoạt Động & Đo Độ Trễ Thời Gian Thực (Health Checks & Live Ping)</h2>
+                        <p class="orch-card-desc">Gửi tín hiệu kiểm tra đồng thời tới toàn bộ 6 nguồn API để xác định độ trễ và khả năng sẵn sàng.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-ping-all" onclick="pingAllProviders()" style="font-size: 12.5px; padding: 9px 18px; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span>Ping Toàn Bộ Nhà Cung Cấp</span>
+                    </button>
+                </div>
+                <div class="orch-card-body" style="padding: 0;">
+                    <table class="orch-table">
+                        <thead>
+                            <tr>
+                                <th>Nhà Cung Cấp</th>
+                                <th>Endpoint URL</th>
+                                <th>Độ Trễ Phản Hồi (ms)</th>
+                                <th>Biểu Đồ Trực Quan</th>
+                                <th>Trạng Thái</th>
+                                <th>Mã HTTP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 700;">Vyce AI Proxy</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-sub);">https://vyceai.com/v1/models</td>
+                                <td id="tab5-lat-vyce" style="font-weight: 700;">849 ms</td>
+                                <td>
+                                    <div class="orch-latency-bar-wrap">
+                                        <div class="orch-latency-bar">
+                                            <div id="tab5-bar-vyce" class="orch-latency-fill" style="width: 28%; background: #10b981;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="orch-status-active">Hoạt động</span></td>
+                                <td><span class="badge badge-green">200 OK</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">Groq Cloud</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-sub);">https://api.groq.com/openai/v1/models</td>
+                                <td id="tab5-lat-groq" style="font-weight: 700; color: #10b981;">470 ms</td>
+                                <td>
+                                    <div class="orch-latency-bar-wrap">
+                                        <div class="orch-latency-bar">
+                                            <div id="tab5-bar-groq" class="orch-latency-fill" style="width: 15%; background: #10b981;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="orch-status-active">Hoạt động</span></td>
+                                <td><span class="badge badge-green">200 OK</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">Google Gemini</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-sub);">https://generativelanguage.googleapis.com/v1beta/openai/models</td>
+                                <td id="tab5-lat-gemini" style="font-weight: 700; color: #10b981;">415 ms</td>
+                                <td>
+                                    <div class="orch-latency-bar-wrap">
+                                        <div class="orch-latency-bar">
+                                            <div id="tab5-bar-gemini" class="orch-latency-fill" style="width: 14%; background: #10b981;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="orch-status-active">Hoạt động</span></td>
+                                <td><span class="badge badge-green">200 OK</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">Cloudflare AI</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-sub);">https://api.cloudflare.com/client/v4/user/tokens/verify</td>
+                                <td id="tab5-lat-cloudflare" style="font-weight: 700;">582 ms</td>
+                                <td>
+                                    <div class="orch-latency-bar-wrap">
+                                        <div class="orch-latency-bar">
+                                            <div id="tab5-bar-cloudflare" class="orch-latency-fill" style="width: 19%; background: #10b981;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="orch-status-active">Hoạt động</span></td>
+                                <td><span class="badge badge-green">200 OK</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">OpenRouter</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-sub);">https://openrouter.ai/api/v1/models</td>
+                                <td id="tab5-lat-openrouter" style="font-weight: 700; color: #10b981;">396 ms</td>
+                                <td>
+                                    <div class="orch-latency-bar-wrap">
+                                        <div class="orch-latency-bar">
+                                            <div id="tab5-bar-openrouter" class="orch-latency-fill" style="width: 13%; background: #10b981;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <td><span class="orch-status-active">Hoạt động</span></td>
+                                <td><span class="badge badge-green">200 OK</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">9Router (Local VPS)</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-sub);">http://localhost:20128/v1/models</td>
+                                <td id="tab5-lat-ninerouter" style="font-weight: 700; color: #10b981;">120 ms</td>
+                                <td>
+                                    <div class="orch-latency-bar-wrap">
+                                        <div class="orch-latency-bar">
+                                            <div id="tab5-bar-ninerouter" class="orch-latency-fill" style="width: 6%; background: #10b981;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="orch-status-active">Hoạt động</span></td>
+                                <td><span class="badge badge-green">200 OK</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="padding: 12px 18px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-sub);" id="ping-last-timestamp">
+                        Đã kiểm tra kết nối với toàn bộ các nguồn API đang hoạt động.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: CHI PHÍ & TRẢ PHÍ -->
+        <div id="panel-tab-6" data-tab-id="tab-6" class="orch-panel">
+            <div class="orch-card">
+                <div class="orch-card-header">
+                    <div>
+                        <h2 class="orch-card-title">Chi Phí & Tính Năng Trả Phí Giữa Các Nhà Cung Cấp</h2>
+                        <p class="orch-card-desc">Bảng phân bổ chi phí trên 1 Triệu Token và bài toán tối ưu ngân sách cho bot định lượng.</p>
+                    </div>
+                </div>
+                <div class="orch-card-body">
+                    <table class="orch-table">
+                        <thead>
+                            <tr>
+                                <th>Nhà Cung Cấp</th>
+                                <th>Mô Hình Đại Diện</th>
+                                <th>Giá Input / 1M Tokens</th>
+                                <th>Giá Output / 1M Tokens</th>
+                                <th>Thẻ Thanh Toán Quốc Tế</th>
+                                <th>Ước Tính Chi Phí Bot / Tháng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 700;">Vyce AI</td>
+                                <td>Claude Sonnet 4.6</td>
+                                <td>$3.00</td>
+                                <td>$15.00</td>
+                                <td>Hỗ trợ Nạp số dư ($773.88 có sẵn)</td>
+                                <td style="color: #10b981; font-weight: 700;">$0.00 (Trừ ví có sẵn)</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">Groq Cloud</td>
+                                <td>Llama-3.3-70b</td>
+                                <td>$0.00 (Free Tier)</td>
+                                <td>$0.00 (Free Tier)</td>
+                                <td>Không cần thẻ</td>
+                                <td style="color: #10b981; font-weight: 700;">$0.00 / tháng</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">Google Gemini</td>
+                                <td>Gemini-3.8-Flash</td>
+                                <td>$0.00 (15 RPM Free)</td>
+                                <td>$0.00 (15 RPM Free)</td>
+                                <td>Chỉ cần khi nâng Pro</td>
+                                <td style="color: #10b981; font-weight: 700;">$0.00 / tháng</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">Cloudflare AI</td>
+                                <td>Llama-3.3-70b</td>
+                                <td>$0.00 (10k Neurons)</td>
+                                <td>$0.00 (10k Neurons)</td>
+                                <td>Không cần thẻ</td>
+                                <td style="color: #10b981; font-weight: 700;">$0.00 / tháng</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">OpenRouter</td>
+                                <td>Nemotron-3.5-Free</td>
+                                <td>$0.00 (:free tags)</td>
+                                <td>$0.00 (:free tags)</td>
+                                <td>Tùy chọn</td>
+                                <td style="color: #10b981; font-weight: 700;">$0.00 / tháng</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 18px; padding: 14px; background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 8px; font-size: 12.5px; line-height: 1.5;">
+                        💡 <strong>Chiến lược tiết kiệm 100% chi phí vận hành:</strong> Với cấu hình hiện tại kết hợp Groq (quét nhanh) + Gemini 3.8 Flash (đa khung & reasoning) + $773.88 ví Vyce (chỉ gọi khi cần Veto lệnh lớn và khám nghiệm Stop Loss), bot của bạn có thể vận hành liên tục 24/7 mà <strong>không tốn thêm bất kỳ một đồng chi phí nào</strong> trong ít nhất 1–2 năm tới!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 7: NHẬT KÝ & ĐÁNH GIÁ (SCORECARD) -->
+        <div id="panel-tab-7" data-tab-id="tab-7" class="orch-panel">
+            <div class="orch-card">
+                <div class="orch-card-header">
+                    <div>
+                        <h2 class="orch-card-title">Phòng Lab Đánh Giá Hiệu Suất & Điểm Chấm Thực Chiến (Model Evaluation Lab)</h2>
+                        <p class="orch-card-desc">Đo lường độ chính xác Veto, tỷ lệ hoàn trả JSON Schema chuẩn, tỷ lệ thắng theo từng Model AI.</p>
+                    </div>
+                </div>
+                <div class="orch-card-body">
+                    <table class="orch-table">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Nhà CC</th>
+                                <th>Phân Loại</th>
+                                <th>Độ Trễ</th>
+                                <th>JSON Hợp Lệ</th>
+                                <th>Độ Chuẩn Veto</th>
+                                <th>Win Rate Kèm AI</th>
+                                <th>Điểm Tổng Thể</th>
+                                <th>Khuyến Nghị</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 700;">claude-3-5-sonnet</td>
+                                <td>Vyce AI</td>
+                                <td>Risk Gatekeeper</td>
+                                <td>1250ms</td>
+                                <td><span style="color: #10b981; font-weight: 700;">99.8%</span></td>
+                                <td><span style="color: #10b981; font-weight: 700;">94.2%</span></td>
+                                <td style="font-weight: 700;">70.5%</td>
+                                <td><span class="badge badge-green" style="font-weight: 800;">8.8 / 10</span></td>
+                                <td><span class="badge badge-green">Khuyên dùng Gatekeeper</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">llama-3.1-70b</td>
+                                <td>Groq</td>
+                                <td>Fast Scan</td>
+                                <td style="color: #10b981; font-weight: 700;">220ms</td>
+                                <td><span style="color: #10b981; font-weight: 700;">99.4%</span></td>
+                                <td>88.5%</td>
+                                <td style="font-weight: 700;">72.1%</td>
+                                <td><span class="badge badge-green" style="font-weight: 800;">9.0 / 10</span></td>
+                                <td><span class="badge badge-cyan">Hiệu suất / Chi phí #1</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">gemini-3.8-flash</td>
+                                <td>Google Gemini</td>
+                                <td>Macro & MTF</td>
+                                <td>320ms</td>
+                                <td>99.2%</td>
+                                <td>92.5%</td>
+                                <td style="font-weight: 700;">74.0%</td>
+                                <td><span class="badge badge-green" style="font-weight: 800;">9.2 / 10</span></td>
+                                <td><span class="badge badge-green">Reasoning MTF 1H/4H</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">deepseek-r1</td>
+                                <td>Vyce AI</td>
+                                <td>Deep Reasoner</td>
+                                <td>850ms</td>
+                                <td>99.1%</td>
+                                <td>92.1%</td>
+                                <td style="font-weight: 700;">68.4%</td>
+                                <td><span class="badge badge-green" style="font-weight: 800;">8.7 / 10</span></td>
+                                <td><span class="badge badge-cyan">Dự phòng Gatekeeper #1</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700;">gpt-4o-mini</td>
+                                <td>9Router VPS</td>
+                                <td>General Assistant</td>
+                                <td>520ms</td>
+                                <td>98.5%</td>
+                                <td>86.0%</td>
+                                <td style="font-weight: 700;">64.2%</td>
+                                <td><span class="badge badge-amber" style="font-weight: 800;">8.6 / 10</span></td>
+                                <td><span class="badge badge-purple">Local Backup</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="/static/js/orchestration.js?v=202609200520"></script>
+{% endblock %}

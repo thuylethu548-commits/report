@@ -1,0 +1,701 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block content %}
+<!-- 1. COCKPIT SUB-HEADER & LIVE TELEMETRY TICKER -->
+<div class="cockpit-sub-header">
+    <div class="sub-header-left">
+        <div class="telemetry-title-box">
+            <svg class="telemetry-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);">
+                <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 9h2"/><path d="M20 14h2"/><path d="M2 9h2"/><path d="M2 14h2"/><path d="M15 20v2"/><path d="M9 20v2"/>
+            </svg>
+            <span class="telemetry-title">HỆ THỐNG 12 TÁC TỬ ASTRA TELEMETRY</span>
+            <span class="badge badge-green" style="font-size: 9px; padding: 2px 7px;">12/12 ACTIVE</span>
+        </div>
+        <div class="sub-header-links">
+            <span class="telemetry-hint">(Nhấp chip để xem thông số chi tiết)</span>
+            <span class="sub-divider">|</span>
+            <a href="/admin/settings" class="sub-link-settings">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Quản Lý Tham Số</span>
+            </a>
+        </div>
+    </div>
+    <div class="sub-header-right">
+        <span class="sub-tagline">Multi-Agent Trading · Real-time Telemetry · Risk First</span>
+        <div class="live-clock-box">
+            <span class="live-clock-time" id="cockpit-live-clock">14:28:17</span>
+            <span class="live-clock-date" id="cockpit-live-date">09 Thg 4, 2025</span>
+        </div>
+        <div class="market-status-pill">
+            <span class="pulse-dot"></span>
+            <span>Thị trường: Mở cửa</span>
+        </div>
+        <div class="mini-ticker-box">
+            <div class="mini-ticker-pill" id="ticker-btc">
+                <span class="ticker-sym">BTC</span>
+                <span class="ticker-val" id="ticker-btc-val">$76,564</span>
+                <span class="ticker-change up" id="ticker-btc-change">+1.24%</span>
+            </div>
+            <div class="mini-ticker-pill" id="ticker-eth">
+                <span class="ticker-sym">ETH</span>
+                <span class="ticker-val" id="ticker-eth-val">$3,412</span>
+                <span class="ticker-change up" id="ticker-eth-change">+0.87%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. 10 ASTRA FLEET TELEMETRY CARDS (2 ROWS x 5 COLS) -->
+<div class="fleet-telemetry-container">
+    <div class="fleet-telemetry-grid" id="fleet-chips-row">
+        <!-- Cards populated dynamically via admin_app.js with fallback structure -->
+    </div>
+</div>
+
+<!-- 3. 8 DENSE KPI METRIC CARDS -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">Tổng Giá Trị Vốn</div>
+        <div class="kpi-val" id="kpi-portfolio">$9.99</div>
+        <div class="kpi-sub" id="kpi-mode-label">Live | Binance (USDⓈ-M)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">24h Realized PnL</div>
+        <div class="kpi-val green" id="kpi-pnl">+$0.00</div>
+        <div class="kpi-sub" id="kpi-pnl-pct">+0.00%</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Tỷ Lệ Thắng (Win Rate)</div>
+        <div class="kpi-val" id="kpi-winrate">62.3%</div>
+        <div class="kpi-sub" id="kpi-trades-count">124W / 75L (3 ngày)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Sụt Giảm Ngày (Drawdown)</div>
+        <div class="kpi-val" id="kpi-drawdown">0.08%</div>
+        <div class="kpi-sub">Ngưỡng: 2.00%</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Trạng Thái Risk Gate</div>
+        <div class="kpi-val green" id="kpi-riskgate">ARMED</div>
+        <div class="kpi-sub" id="rule-circuit-status">Không phát hiện rủi ro</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Vị Thế Mở (Positions)</div>
+        <div class="kpi-val" id="kpi-positions">1</div>
+        <div class="kpi-sub" id="kpi-pos-sub">PNL mở: +$12.34</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Chế Độ Thị Trường</div>
+        <div class="kpi-val" style="color: var(--primary);" id="kpi-regime">Ranging</div>
+        <div class="kpi-sub" id="kpi-regime-sub">Vol: Thấp | Xu hướng: Trung tính</div>
+    </div>
+    <div class="kpi-card" title="Theo dõi hạn mức Claude-3.5-Sonnet & GPT-5.6 (9Router 26 Codex)">
+        <div class="kpi-label">Quota AI (Claude & GPT-5.6)</div>
+        <div class="kpi-val" style="color: #a855f7;" id="kpi-tokens">123,307 tokens</div>
+        <div class="kpi-sub" id="kpi-ai-cost">Chi phí: $0.2378 (307 calls)</div>
+    </div>
+</div>
+
+<!-- 4. REAL-TIME LIVE POSITION HARVEST STRIP & VAR COUNCIL INTELLIGENCE (100% REAL DATA) -->
+<div class="cockpit-action-strip-wrapper">
+    <!-- KHỐI 1: DẢI BẢO VỆ VỐN & CHỐT LÃI TỨC THÌ (REAL-TIME LIVE POSITION HARVEST STRIP) -->
+    <div class="harvest-strip-card" id="harvest-strip-card">
+        <div class="harvest-strip-left">
+            <div class="harvest-radar-indicator" id="harvest-radar-box">
+                <span class="radar-ping" id="radar-ping"></span>
+                <span class="radar-dot" id="radar-dot"></span>
+            </div>
+            <div class="harvest-info-main">
+                <div class="harvest-title-row">
+                    <span class="harvest-status-badge badge-neutral" id="harvest-live-badge">
+                        <span class="pulse-icon" id="harvest-radar-icon">🛡️</span>
+                        <span id="harvest-badge-text">TRẠNG THÁI BẢO VỆ VỐN</span>
+                    </span>
+                    <span class="harvest-symbol-chip" id="harvest-sym-name" style="display: none;">BTC/USDT</span>
+                    <span class="harvest-side-chip badge-green" id="harvest-side-tag" style="display: none;">LONG 3x</span>
+                    <span class="harvest-pos-counter" id="harvest-pos-counter" style="display: none;">(1/2 vị thế)</span>
+                </div>
+                <div class="harvest-summary-text" id="harvest-live-desc">
+                    🛡️ TRẠNG THÁI BẢO VỆ VỐN: 0 Vị thế rủi ro | Quét tín hiệu 8 cặp coin 24/7 | Sẵn sàng đón setup mới
+                </div>
+                <!-- Dynamic metrics row shown when position is open -->
+                <div class="harvest-metrics-row" id="harvest-metrics-container" style="display: none;">
+                    <div class="h-metric-item">
+                        <span class="h-metric-lbl">Giá vào (Entry):</span>
+                        <span class="h-metric-val" id="harvest-entry">$0.00</span>
+                    </div>
+                    <div class="h-metric-item">
+                        <span class="h-metric-lbl">Giá thị trường (Mark):</span>
+                        <span class="h-metric-val" id="harvest-curr">$0.00</span>
+                    </div>
+                    <div class="h-metric-item">
+                        <span class="h-metric-lbl">PnL Chưa Chốt:</span>
+                        <span class="h-metric-val pnl-val" id="harvest-pnl">+$0.0000 (+0.00%)</span>
+                    </div>
+                    <div class="h-metric-item" id="harvest-sl-tp-box">
+                        <span class="h-metric-lbl">SL / TP:</span>
+                        <span class="h-metric-val" id="harvest-sltp">0 / 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="harvest-strip-right">
+            <!-- Dynamic position switcher tabs if multiple positions are open -->
+            <div class="harvest-pos-tabs" id="harvest-pos-tabs" style="display: none;"></div>
+            <button class="btn-harvest-action" id="btn-harvest-now" disabled type="button" onclick="execute1ClickTakeProfit()">
+                <span class="harvest-btn-icon" id="harvest-btn-icon">⚡</span>
+                <span class="harvest-btn-text" id="harvest-btn-text">Chờ Vị Thế Mới...</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- KHỐI 2 & 3: VAR COUNCIL AI TICKER & A/B BENCHMARK WIDGET -->
+    <div class="var-council-benchmark-row">
+        <!-- Khối 2: VAR COUNCIL AI INTELLIGENCE TICKER -->
+        <div class="var-council-ticker">
+            <div class="var-ticker-badge">
+                <span class="var-pulse-ai">🤖</span>
+                <span class="var-badge-title">HỘI ĐỒNG VAR TRANH BIỆN</span>
+                <span class="var-badge-models">(GROK 4.7 & GPT-6)</span>
+            </div>
+            <div class="var-ticker-content" id="var-ticker-text">
+                <span class="var-decision-pill pill-approved" id="var-decision-pill">APPROVED</span>
+                <span class="var-symbol" id="var-council-symbol">BTC/USDT</span>
+                <span class="var-divider">|</span>
+                <span class="var-reasoning-body" id="var-council-reasoning">
+                    Đang đồng bộ nhận định phản biện đa tác tử thời gian thực...
+                </span>
+            </div>
+            <div class="var-ticker-time" id="var-council-timestamp">--:--:--</div>
+        </div>
+
+        <!-- Khối 3: MINI WIDGET ĐỐI SÁCH A/B (10 LỆNH ĐẦU VS 10 LỆNH SAU) -->
+        <div class="ab-benchmark-widget">
+            <div class="ab-metrics-group">
+                <div class="ab-chip ab-phase-1" title="10 lệnh ban đầu (Baseline EMA Trend)">
+                    <span class="ab-tag">GĐ1 (10 Lệnh Đầu):</span>
+                    <span class="ab-stat" id="ab-phase1-stat">70% Win (+$3.84)</span>
+                </div>
+                <div class="ab-chip ab-phase-2" title="Giai đoạn 2: Tích hợp Grok 4.7 & GPT-6 Astra">
+                    <span class="ab-tag">GĐ2 (Grok 4.7 & GPT-6):</span>
+                    <span class="ab-stat live-blink" id="ab-phase2-stat">Live (0/10 Lệnh)</span>
+                </div>
+            </div>
+            <a href="/admin/research" class="ab-lab-link" title="Xem phòng thí nghiệm A/B & Đối soát chi tiết">
+                <span>Xem Lab</span>
+                <span class="ab-arrow">↗</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 5. MIDDLE SECTION: LIVE CANDLESTICK CHART & 5-STAGE PIPELINE -->
+<div class="grid-2-1">
+    <!-- Candlestick & Master Equity/Revenue Chart Card -->
+    <div class="card chart-card">
+        <div class="card-header chart-card-header">
+            <!-- Top Row: Chart View Tabs + Direct Links to Quantum / Performance -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid var(--border-color, #e2e8f0); padding-bottom: 8px;">
+                <div class="chart-view-tabs" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button class="tf-btn active" id="btn-view-candle" onclick="switchMainChartView('candle')" style="font-size: 11.5px; padding: 5px 12px; font-weight: 700; cursor: pointer;">
+                        📊 Nến BTC/USDT Live
+                    </button>
+                    <button class="tf-btn" id="btn-view-equity" onclick="switchMainChartView('equity')" style="font-size: 11.5px; padding: 5px 12px; font-weight: 700; cursor: pointer; color: #10b981;">
+                        📈 Doanh Thu & Đường Cong Vốn (Equity)
+                    </button>
+                    <button class="tf-btn" id="btn-view-volume" onclick="switchMainChartView('volume')" style="font-size: 11.5px; padding: 5px 12px; font-weight: 700; cursor: pointer; color: #0284c7;">
+                        💵 Doanh Số Khối Lượng (Volume)
+                    </button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; font-size: 11.5px; font-weight: 700;">
+                    <a href="/admin/quantum" style="color: #ec4899; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Mô phỏng 5D Quantum & Monte Carlo">
+                        <span>🚀 Quantum Desk</span>
+                        <span style="font-size: 9px;">↗</span>
+                    </a>
+                    <span style="color: var(--text-muted); opacity: 0.5;">|</span>
+                    <a href="/admin/performance" style="color: #0284c7; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Hiệu suất Token AI & Cột 7 ngày">
+                        <span>🏆 Scorecard AI</span>
+                        <span style="font-size: 9px;">↗</span>
+                    </a>
+                    <span style="color: var(--text-muted); opacity: 0.5;">|</span>
+                    <a href="/admin/pixel-floor" style="color: #10b981; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Sàn giao dịch 8-Bit Pixel Floor">
+                        <span>👾 Sàn Pixel</span>
+                        <span style="font-size: 9px;">↗</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Candlestick Header Top (Visible only in 'candle' mode) -->
+            <div id="candle-header-controls">
+                <div class="chart-header-top">
+                    <div class="card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+                        <span>BTC/USDT Live Candlestick & EMA 20/50 Strategy Overlay</span>
+                    </div>
+                    <div class="live-ticker-price-badge">
+                        <span class="live-ticker-price" id="top-live-price">$76,564.62</span>
+                    </div>
+                </div>
+
+                <!-- Toolbar row: Symbol, Price, Timeframes, Tools -->
+                <div class="chart-toolbar">
+                    <div class="chart-symbol-group">
+                        <span class="chart-symbol-name">BTC/USDT</span>
+                        <span class="chart-big-price" id="chart-big-price">$76,564.62</span>
+                        <span class="chart-price-change up" id="chart-price-change">+932.18 (+1.24%)</span>
+                    </div>
+                    <div class="chart-actions-group">
+                        <div class="timeframe-btn-group">
+                            <button class="tf-btn" data-tf="1m" onclick="switchTimeframe('1m')">1m</button>
+                            <button class="tf-btn" data-tf="5m" onclick="switchTimeframe('5m')">5m</button>
+                            <button class="tf-btn active" data-tf="15m" onclick="switchTimeframe('15m')">15m</button>
+                            <button class="tf-btn" data-tf="1h" onclick="switchTimeframe('1h')">1h</button>
+                            <button class="tf-btn" data-tf="4h" onclick="switchTimeframe('4h')">4h</button>
+                            <button class="tf-btn" data-tf="1d" onclick="switchTimeframe('1d')">1d</button>
+                        </div>
+                        <div class="pro-dropdown-wrap">
+                            <button class="btn-chart-tool" id="btn-indicators" onclick="toggleMainIndicatorMenu(event)" title="Bật/Tắt Chỉ báo">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                <span>Chỉ báo</span>
+                            </button>
+                            <div class="pro-indicator-menu" id="mainIndicatorMenu" style="display: none;">
+                                <label><input type="checkbox" id="main-chk-ema20" checked onchange="toggleIndicator('ema20')"> EMA 20 (Cyan)</label>
+                                <label><input type="checkbox" id="main-chk-ema50" checked onchange="toggleIndicator('ema50')"> EMA 50 (Purple)</label>
+                                <label><input type="checkbox" id="main-chk-bb" checked onchange="toggleIndicator('bb')"> Bollinger Bands (20, 2)</label>
+                                <label><input type="checkbox" id="main-chk-vol" checked onchange="toggleIndicator('vol')"> Khối Lượng (Volume)</label>
+                            </div>
+                        </div>
+                        <button class="btn-chart-tool" onclick="openProTradeViewModal()" title="Mở View Trade Sàn Chi Tiết (Order Book & Trades)" style="border-color: rgba(56,189,248,0.4); color: #38bdf8; background: rgba(56,189,248,0.1);">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>
+                            <span style="font-weight: 700;">View Sàn ↗</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- OHLCV & Indicators Legend Row -->
+                <div class="chart-meta-row">
+                    <div class="ohlcv-readout-row">
+                        <span>O <strong id="ohlcv-open">76,420.12</strong></span>
+                        <span>H <strong id="ohlcv-high">76,612.38</strong></span>
+                        <span>L <strong id="ohlcv-low">76,398.55</strong></span>
+                        <span>C <strong id="ohlcv-close">76,564.62</strong></span>
+                        <span class="ohlcv-delta up" id="ohlcv-delta">+144.50 (+0.19%)</span>
+                    </div>
+                    <div class="chart-legend-row">
+                        <span class="legend-pill ema20">● EMA 20: <strong id="legend-ema20">76,480.10</strong></span>
+                        <span class="legend-pill ema50">● EMA 50: <strong id="legend-ema50">76,210.45</strong></span>
+                        <span class="legend-pill bb">● BB (20,2): <strong id="legend-bb">[76,820 / 76,150]</strong></span>
+                        <span class="legend-pill vol">● Volume: <strong id="legend-vol">1.24K</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body chart-card-body">
+            <!-- 1. Candlestick Canvas Container -->
+            <div class="chart-canvas-container" id="chart-canvas-container">
+                <canvas id="mainChart"></canvas>
+            </div>
+
+            <!-- 2. Master Equity & Revenue Curve Container -->
+            <div class="chart-canvas-container" id="equity-chart-container" style="display: none; height: 100%; flex-direction: column; justify-content: space-between; padding: 4px 0;">
+                <!-- Equity Summary Banner -->
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; padding: 10px 16px; margin-bottom: 8px;">
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">TỔNG DOANH THU (REALIZED PNL)</div>
+                        <div style="font-size: 20px; font-weight: 800; color: #10b981; font-family: 'JetBrains Mono', monospace;" id="master-rev-pnl">+$0.4556 USDT</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">TỔNG DOANH SỐ (VOLUME TRADED)</div>
+                        <div style="font-size: 16px; font-weight: 800; color: var(--text-main); font-family: 'JetBrains Mono', monospace;" id="master-rev-vol">$53.05 USDT</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">TỶ LỆ THẮNG (WIN RATE)</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #0284c7; font-family: 'JetBrains Mono', monospace;" id="master-rev-winrate">83.3% (5W / 1L)</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">TỔNG VỐN HIỆN TẠI (EQUITY)</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #a855f7; font-family: 'JetBrains Mono', monospace;" id="master-rev-equity">$32.3956 USDT</div>
+                    </div>
+                </div>
+
+                <!-- Interactive SVG Equity Chart Box -->
+                <div id="master-equity-svg-box" style="flex: 1; width: 100%; min-height: 280px; position: relative;">
+                    <!-- SVG injected dynamically -->
+                </div>
+            </div>
+
+            <!-- 3. Trading Volume Chart Container -->
+            <div class="chart-canvas-container" id="volume-chart-container" style="display: none; height: 100%; flex-direction: column; justify-content: space-between; padding: 4px 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: rgba(14,165,233,0.06); border: 1px solid rgba(14,165,233,0.2); border-radius: 8px; padding: 10px 16px; margin-bottom: 8px;">
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">TỔNG KHỐI LƯỢNG LUÂN CHUYỂN</div>
+                        <div style="font-size: 20px; font-weight: 800; color: #0284c7; font-family: 'JetBrains Mono', monospace;" id="master-vol-total">$53.05 USDT</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">LẦN TRADE LỚN NHẤT</div>
+                        <div style="font-size: 16px; font-weight: 800; color: var(--text-main); font-family: 'JetBrains Mono', monospace;" id="master-vol-max">$19.97 (BTC)</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">SỐ LẦN TRADE ĐÃ KHỚP</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #10b981; font-family: 'JetBrains Mono', monospace;" id="master-vol-count">6 Lệnh Hoàn Tất</div>
+                    </div>
+                </div>
+                <div id="master-volume-svg-box" style="flex: 1; width: 100%; min-height: 280px; position: relative;">
+                    <!-- SVG injected dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5-Stage Decision Pipeline Card -->
+    <div class="card pipeline-card">
+        <div class="card-header">
+            <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span>Quy Trình Ra Quyết Định 5 Bước</span>
+            </div>
+            <span class="badge badge-green" style="display: inline-flex; align-items: center; gap: 5px; font-size: 10px; padding: 2px 7px;">
+                <span class="pulse-dot" style="width: 5px; height: 5px; background: var(--emerald);"></span>
+                <span>LIVE</span>
+            </span>
+        </div>
+        <div class="card-body pipeline-body">
+            <!-- Step 1 -->
+            <div class="pipeline-step-item">
+                <div class="step-check-icon checked">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="step-content">
+                    <div class="step-head">
+                        <span class="step-title">Phát Tín Hiệu (Signal Generation)</span>
+                        <span class="step-time-pill">22ms</span>
+                    </div>
+                    <div class="step-desc">Astra-Trend & MeanRev phân tích đa khung thời gian.</div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="pipeline-step-item">
+                <div class="step-check-icon checked">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="step-content">
+                    <div class="step-head">
+                        <span class="step-title">Tranh Biện Cố Vấn AI (Grok 4.7 & GPT-6 Astra)</span>
+                        <span class="step-time-pill">Active</span>
+                    </div>
+                    <div class="step-desc">Hội đồng Trọng tài VaR đối kháng 3 hiệp Bull/Bear/Arbiter.</div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="pipeline-step-item">
+                <div class="step-check-icon checked">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="step-content">
+                    <div class="step-head">
+                        <span class="step-title">Chốt Chặn An Toàn (4-Level Risk Gate)</span>
+                        <span class="step-time-pill">12ms</span>
+                    </div>
+                    <div class="step-desc">Kiểm tra drawdown, vị thế, biến động, tương quan.</div>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="pipeline-step-item">
+                <div class="step-check-icon checked">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="step-content">
+                    <div class="step-head">
+                        <span class="step-title">Thực Thi Lệnh (Execution)</span>
+                        <span class="step-time-pill">Futures</span>
+                    </div>
+                    <div class="step-desc">Khớp lệnh qua Binance Futures (USDⓈ-M Live).</div>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="pipeline-step-item active">
+                <div class="step-check-icon pending">
+                    <span class="pulse-dot" style="width: 6px; height: 6px; background: var(--primary);"></span>
+                </div>
+                <div class="step-content">
+                    <div class="step-head">
+                        <span class="step-title">Giám Sát & Hậu Kiểm (Monitor & Learn)</span>
+                        <span class="step-time-pill neutral">--</span>
+                    </div>
+                    <div class="step-desc">Cập nhật PnL, lưu log, huấn luyện liên tục.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 6. BOTTOM SECTION: ACTIVE POSITIONS & MARKET INDICATORS -->
+<div class="grid-2-1">
+    <!-- Active Positions Tabbed Table -->
+    <div class="card positions-card">
+        <div class="card-header positions-header">
+            <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                <span>Vị Thế Đang Mở (<span id="pos-tab-count">1</span>)</span>
+            </div>
+            <div class="pos-tabs-group">
+                <button class="pos-tab active" id="tab-btn-open" onclick="switchPosTab('open')">
+                    <span>Vị thế mở (<span id="tab-open-count">1</span>)</span>
+                </button>
+                <button class="pos-tab" id="tab-btn-pending" onclick="switchPosTab('pending')">
+                    <span>Lệnh chờ (0)</span>
+                </button>
+                <button class="pos-tab" id="tab-btn-history" onclick="switchPosTab('history')">
+                    <span>Lịch sử gần đây</span>
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table quant-table">
+                <thead>
+                    <tr>
+                        <th style="width: 36px;">#</th>
+                        <th>Cặp</th>
+                        <th>Hướng</th>
+                        <th>Số lượng</th>
+                        <th>Giá vào</th>
+                        <th>Giá hiện tại</th>
+                        <th>PnL (USDT)</th>
+                        <th>PnL (%)</th>
+                        <th>Thời gian</th>
+                        <th style="text-align: right;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="positions-tbody">
+                    <!-- Populated via admin_app.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Market Indicators Live Table -->
+    <div class="card indicators-card">
+        <div class="card-header">
+            <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span>Tín Hiệu Thị Trường</span>
+            </div>
+            <span style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="market-indicators-updated">
+                Cập nhật: 14:28:17
+            </span>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <table class="table market-indicator-table">
+                <thead>
+                    <tr>
+                        <th>Chỉ Báo</th>
+                        <th>Giá Trị</th>
+                        <th style="text-align: right;">Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>RSI (14)</strong></td>
+                        <td class="mono-val" id="ind-rsi-val">56.2</td>
+                        <td style="text-align: right;"><span class="badge badge-neutral" id="ind-rsi-badge">Trung tính</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MACD (12,26,9)</strong></td>
+                        <td class="mono-val green" id="ind-macd-val">+12.4</td>
+                        <td style="text-align: right;"><span class="badge badge-green" id="ind-macd-badge">Tăng giá</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Funding Rate (8h)</strong></td>
+                        <td class="mono-val" id="ind-funding-val">0.010%</td>
+                        <td style="text-align: right;"><span class="badge badge-blue" id="ind-funding-badge">Bình thường</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Volatility (24h)</strong></td>
+                        <td class="mono-val" id="ind-vol-val">1.23%</td>
+                        <td style="text-align: right;"><span class="badge badge-neutral" id="ind-vol-badge">Thấp</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Long/Short Ratio</strong></td>
+                        <td class="mono-val" id="ind-ls-val">1.18</td>
+                        <td style="text-align: right;"><span class="badge badge-neutral" id="ind-ls-badge">Trung tính</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     PRO EXCHANGE TRADE VIEW MODAL (CHUẨN SÀN GIAO DỊCH BINANCE / TRADINGVIEW)
+     ========================================================================== -->
+<div class="pro-trade-modal-overlay" id="proTradeViewModal" style="display: none;" onclick="if(event.target===this) closeProTradeViewModal()">
+    <div class="pro-trade-modal-container" onclick="event.stopPropagation()">
+        <!-- Top Bar -->
+        <div class="pro-trade-header">
+            <div class="pro-trade-header-left">
+                <div class="pro-pair-selector-wrap">
+                    <select id="pro-pair-select" onchange="switchProTradeSymbol(this.value)" class="pro-pair-select">
+                        <option value="BTC/USDT" selected>BTC/USDT (Bitcoin)</option>
+                        <option value="ETH/USDT">ETH/USDT (Ethereum)</option>
+                        <option value="SOL/USDT">SOL/USDT (Solana)</option>
+                        <option value="BNB/USDT">BNB/USDT (BNB)</option>
+                    </select>
+                </div>
+
+                <div class="pro-header-stats">
+                    <div class="pro-stat-item">
+                        <span class="pro-stat-val big" id="pro-header-price">$81,182.10</span>
+                        <span class="pro-stat-sub up" id="pro-header-change">+0.38%</span>
+                    </div>
+                    <div class="pro-stat-item">
+                        <span class="pro-stat-lbl">24h High</span>
+                        <span class="pro-stat-val" id="pro-24h-high">$81,950.00</span>
+                    </div>
+                    <div class="pro-stat-item">
+                        <span class="pro-stat-lbl">24h Low</span>
+                        <span class="pro-stat-val" id="pro-24h-low">$79,420.00</span>
+                    </div>
+                    <div class="pro-stat-item">
+                        <span class="pro-stat-lbl">24h Volume</span>
+                        <span class="pro-stat-val" id="pro-24h-vol">42,819.5 BTC</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pro-trade-header-right">
+                <!-- Timeframe Pills -->
+                <div class="pro-tf-group">
+                    <button class="pro-tf-btn" data-tf="1m" onclick="switchProTimeframe('1m')">1m</button>
+                    <button class="pro-tf-btn" data-tf="5m" onclick="switchProTimeframe('5m')">5m</button>
+                    <button class="pro-tf-btn active" data-tf="15m" onclick="switchProTimeframe('15m')">15m</button>
+                    <button class="pro-tf-btn" data-tf="1h" onclick="switchProTimeframe('1h')">1h</button>
+                    <button class="pro-tf-btn" data-tf="4h" onclick="switchProTimeframe('4h')">4h</button>
+                    <button class="pro-tf-btn" data-tf="1d" onclick="switchProTimeframe('1d')">1d</button>
+                </div>
+
+                <!-- Indicator Dropdown Toggle -->
+                <div class="pro-dropdown-wrap">
+                    <button class="pro-btn-tool" onclick="toggleIndicatorMenu(event)">
+                        <span>📊 Chỉ báo</span> <span>▼</span>
+                    </button>
+                    <div class="pro-indicator-menu" id="proIndicatorMenu" style="display: none;">
+                        <label><input type="checkbox" id="chk-ema20" checked onchange="toggleIndicator('ema20')"> EMA 20 (Cyan)</label>
+                        <label><input type="checkbox" id="chk-ema50" checked onchange="toggleIndicator('ema50')"> EMA 50 (Purple)</label>
+                        <label><input type="checkbox" id="chk-bb" checked onchange="toggleIndicator('bb')"> Bollinger Bands (20, 2)</label>
+                        <label><input type="checkbox" id="chk-vol" checked onchange="toggleIndicator('vol')"> Khối Lượng (Volume)</label>
+                    </div>
+                </div>
+
+                <button class="pro-btn-close" onclick="closeProTradeViewModal()" title="Đóng View Sàn">✕</button>
+            </div>
+        </div>
+
+        <!-- Main Body Grid: Left = Chart, Right = Order Book & Trades -->
+        <div class="pro-trade-body">
+            <!-- Left Panel: Candlestick Chart with interactive Canvas -->
+            <div class="pro-chart-col">
+                <div class="pro-chart-legend" id="pro-chart-legend">
+                    <!-- Dynamic OHLCV readout -->
+                    <span>O: <b id="pro-ohlcv-o">--</b></span>
+                    <span>H: <b id="pro-ohlcv-h">--</b></span>
+                    <span>L: <b id="pro-ohlcv-l">--</b></span>
+                    <span>C: <b id="pro-ohlcv-c">--</b></span>
+                    <span id="pro-ohlcv-d" class="up">--</span>
+                    <span style="color: #00f3ff;">EMA 20: <b id="pro-legend-ema20">--</b></span>
+                    <span style="color: #c084fc;">EMA 50: <b id="pro-legend-ema50">--</b></span>
+                    <span style="color: #f59e0b;">BB: <b id="pro-legend-bb">--</b></span>
+                    <span style="color: #94a3b8;">Vol: <b id="pro-legend-vol">--</b></span>
+                </div>
+                <div class="pro-canvas-wrap" id="proCanvasWrap">
+                    <canvas id="proChartCanvas"></canvas>
+                </div>
+
+                <!-- Bottom Tab Strip: Candle Detail / Bot Orders / AI Council Signals -->
+                <div class="pro-bottom-tabs">
+                    <div class="pro-tab-headers">
+                        <button class="pro-tab-btn active" id="tab-btn-candle-info" onclick="switchProTab('candle-info', this)">🔬 Chi Tiết Nến Đang Chọn</button>
+                        <button class="pro-tab-btn" id="tab-btn-bot-trades" onclick="switchProTab('bot-trades', this)">📋 Lệnh Bot Tại Cặp Này</button>
+                        <button class="pro-tab-btn" id="tab-btn-ai-signals" onclick="switchProTab('ai-signals', this)">⚡ Đánh Giá AI Council</button>
+                    </div>
+
+                    <div class="pro-tab-content" id="pro-tab-candle-info">
+                        <!-- Populated with detailed candle statistics -->
+                        <div class="pro-candle-details-grid" id="proCandleDetailsGrid">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="pro-tab-content" id="pro-tab-bot-trades" style="display: none;">
+                        <div class="pro-trades-table-wrap" id="proBotTradesWrap">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="pro-tab-content" id="pro-tab-ai-signals" style="display: none;">
+                        <div class="pro-signals-wrap" id="proSignalsWrap">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Live Order Book (Sổ Lệnh) & Market Trades -->
+            <div class="pro-side-col">
+                <!-- Sổ Lệnh (Order Book) -->
+                <div class="pro-orderbook-box">
+                    <div class="pro-panel-title">
+                        <span>SỔ LỆNH (ORDER BOOK)</span>
+                        <span class="pro-pill-depth">LIVE DEPTH</span>
+                    </div>
+
+                    <div class="pro-ob-header">
+                        <span>Giá (USDT)</span>
+                        <span style="text-align: right;">Số Lượng</span>
+                        <span style="text-align: right;">Tổng</span>
+                    </div>
+
+                    <!-- Asks (Red) -->
+                    <div class="pro-ob-list asks" id="pro-ob-asks">
+                        <!-- Injected dynamically -->
+                    </div>
+
+                    <!-- Middle Price & Spread -->
+                    <div class="pro-ob-middle">
+                        <span class="pro-ob-last-price up" id="pro-ob-price">$81,182.10</span>
+                        <span class="pro-ob-spread" id="pro-ob-spread">Spread: 0.10 (0.00%)</span>
+                    </div>
+
+                    <!-- Bids (Green) -->
+                    <div class="pro-ob-list bids" id="pro-ob-bids">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Lịch Sử Khớp Lệnh Thị Trường (Recent Trades) -->
+                <div class="pro-trades-box">
+                    <div class="pro-panel-title">
+                        <span>KHỚP LỆNH GẦN ĐÂY (MARKET TRADES)</span>
+                        <span style="font-size: 9.5px; color: #10b981;">● REALTIME</span>
+                    </div>
+
+                    <div class="pro-trades-header">
+                        <span>Giá (USDT)</span>
+                        <span style="text-align: right;">Khối Lượng</span>
+                        <span style="text-align: right;">Thời Gian</span>
+                    </div>
+
+                    <div class="pro-market-trades-list" id="pro-market-trades-list">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

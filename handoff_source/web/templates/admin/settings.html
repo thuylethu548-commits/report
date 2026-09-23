@@ -1,0 +1,404 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/orchestration.css">
+{% endblock %}
+
+{% block content %}
+<div class="orch-container">
+    
+    <!-- HEADER AREA -->
+    <div class="orch-header" id="page-main-header">
+        <div class="orch-title-wrap">
+            <div class="orch-icon-badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="orch-title">Cài Đặt Giao Dịch Binance &amp; Quản Trị Rủi Ro</h1>
+                <p class="orch-subtitle">
+                    Tùy chỉnh tham số giao dịch Binance Futures / Spot, đòn bẩy, SL/TP ATR, khống chế Drawdown và kết nối Telegram.
+                </p>
+            </div>
+        </div>
+        <div class="orch-header-actions">
+            <a href="/admin/ai-orchestration" class="orch-ai-btn" style="text-decoration: none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                <div class="orch-ai-btn-text">
+                    <span class="orch-ai-btn-title">Điều Phối 7 Nguồn AI ↗</span>
+                    <span class="orch-ai-btn-sub">Vyce, Groq, Gemini, Cloudflare, 9Router...</span>
+                </div>
+            </a>
+            <a href="/admin/performance" class="orch-doc-btn" style="text-decoration: none; color: #0284c7; border-color: rgba(2, 132, 199, 0.4);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                <span>Hiệu Suất AI ↗</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- BANNER CHUYỂN HƯỚNG NHANH SANG TRUNG TÂM ĐIỀU PHỐI AI & HIỆU SUẤT -->
+    <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(168, 85, 247, 0.15); display: flex; align-items: center; justify-content: center; color: #a855f7; flex-shrink: 0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+                </svg>
+            </div>
+            <div>
+                <div style="font-size: 14px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                    <span>Trung Tâm Điều Phối AI &amp; 7 Nguồn API Đã Được Tách Thành Trang Riêng Biệt</span>
+                    <span class="badge badge-purple" style="font-size: 9px; padding: 2px 7px;">7 NGUỒN MỚI</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-sub); margin-top: 2px;">
+                    Cấu hình Vyce, Groq, Gemini, Cloudflare, OpenRouter, 9Router, định tuyến mô hình, hạn mức token và độ trễ ping thực tế.
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="/admin/ai-orchestration" class="btn btn-primary" style="padding: 8px 16px; font-size: 12.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; background: #7c3aed; border-color: #6d28d9;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                <span>Mở Điều Phối AI (7 Nguồn) ↗</span>
+            </a>
+            <a href="/admin/performance" class="btn" style="padding: 8px 16px; font-size: 12.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                <span>Xem Hiệu Suất &amp; Token ↗</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- CÀI ĐẶT GIAO DỊCH & SÀN BINANCE -->
+    <div id="panel-trading-setup" style="display: block;">
+        <div class="card" style="box-shadow: 0 4px 20px rgba(0,0,0,0.04); border-radius: 12px;">
+            <div class="card-header" style="background: var(--panel-header-bg); padding: 16px 20px;">
+                <div class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg>
+                    <span style="font-size: 15px; font-weight: 800;">Bảng Tham Số Vận Hành & Khống Chế Rủi Ro (Trading Setup Form)</span>
+                </div>
+                <span class="badge badge-green" style="font-size: 10px; padding: 4px 9px;">TỰ ĐỘNG ĐỒNG BỘ RUNTIME</span>
+            </div>
+            <div class="card-body" style="padding: 24px;">
+                <form id="settings-form" onsubmit="saveDynamicSettings(event)">
+                    <div class="settings-form-grid">
+                        
+                        <!-- Trading Mode -->
+                        <div class="form-group">
+                            <label class="form-label">Chế Độ Giao Dịch (Trading Mode)</label>
+                            <select name="TRADING_MODE" class="form-control">
+                                <option value="paper" {% if settings.TRADING_MODE == 'paper' %}selected{% endif %}>
+                                    🧪 Paper Trading (Mô phỏng an toàn với $50 USDT ảo)
+                                </option>
+                                <option value="live" {% if settings.TRADING_MODE == 'live' %}selected{% endif %}>
+                                    🔴 Live Trading (Giao dịch tiền thật trên Binance Spot / Futures)
+                                </option>
+                            </select>
+                            <div class="form-desc">Khuyến cáo luôn để Paper Trading khi thử nghiệm chiến lược mới.</div>
+                        </div>
+
+                        <!-- Target Symbol -->
+                        <div class="form-group">
+                            <label class="form-label">Cặp Tiền Giao Dịch Mục Tiêu</label>
+                            <input type="text" name="SYMBOL" value="{{ settings.SYMBOL }}" class="form-control" placeholder="BTC/USDT">
+                            <div class="form-desc">Ví dụ: BTC/USDT, ETH/USDT, SOL/USDT.</div>
+                        </div>
+
+                        <!-- Timeframe -->
+                        <div class="form-group">
+                            <label class="form-label">Khung Thời Gian Nến (Timeframe)</label>
+                            <select name="TIMEFRAME" class="form-control">
+                                <option value="15m" {% if settings.TIMEFRAME == '15m' %}selected{% endif %}>15m (Nến 15 Phút - Khuyến nghị)</option>
+                                <option value="1h" {% if settings.TIMEFRAME == '1h' %}selected{% endif %}>1h (Nến 1 Giờ - Trung hạn)</option>
+                                <option value="4h" {% if settings.TIMEFRAME == '4h' %}selected{% endif %}>4h (Nến 4 Giờ - Dài hạn)</option>
+                                <option value="5m" {% if settings.TIMEFRAME == '5m' %}selected{% endif %}>5m (Nến 5 Phút - Scalping nhanh)</option>
+                            </select>
+                            <div class="form-desc">Khung nến để các Agent tính toán EMA và RSI.</div>
+                        </div>
+
+                        <!-- Max Daily Drawdown -->
+                        <div class="form-group">
+                            <label class="form-label">Ngưỡng Ngắt Circuit Breaker Ngày (%)</label>
+                            <input type="number" step="0.005" min="0.01" max="0.05" name="DAILY_MAX_DRAWDOWN_PERCENT" 
+                                   value="{{ settings.DAILY_MAX_DRAWDOWN_PERCENT }}" class="form-control">
+                            <div class="form-desc">Mặc định 0.02 (2.0%). Ràng buộc an toàn: Tối đa cho phép 0.05 (5.0%).</div>
+                        </div>
+
+                        <!-- Max Order Size -->
+                        <div class="form-group">
+                            <label class="form-label">Khối Lượng Tối Đa / Lệnh (USDT)</label>
+                            <input type="number" step="1" min="10" max="200" name="MAX_ORDER_SIZE_USDT" 
+                                   value="{{ settings.MAX_ORDER_SIZE_USDT or 50.0 }}" class="form-control">
+                            <div class="form-desc">Giới hạn số tiền phân bổ cho 1 lệnh (Spot/Margin).</div>
+                        </div>
+
+                        <!-- AI Advisory Toggle -->
+                        <div class="form-group">
+                            <label class="form-label">Cố Vấn Trí Tuệ Nhân Tạo (AI Advisory Gatekeeper)</label>
+                            <select name="ENABLE_AI_ADVISORY" class="form-control">
+                                <option value="true" {% if settings.ENABLE_AI_ADVISORY %}selected{% endif %}>Bật Cố Vấn AI Gatekeeper (Khuyến nghị)</option>
+                                <option value="false" {% if not settings.ENABLE_AI_ADVISORY %}selected{% endif %}>Tắt AI (Chỉ dùng tín hiệu kỹ thuật thuần túy)</option>
+                            </select>
+                            <div class="form-desc">AI nhận diện chế độ thị trường và veto/approve tín hiệu.</div>
+                        </div>
+
+                        <!-- Stop-Loss ATR Multiplier -->
+                        <div class="form-group">
+                            <label class="form-label">Hệ Số Cắt Lỗ Động (ATR Stop-Loss)</label>
+                            <input type="number" step="0.1" min="1.0" max="3.0" name="STOP_LOSS_ATR_MULTIPLIER" 
+                                   value="{{ settings.STOP_LOSS_ATR_MULTIPLIER or 1.5 }}" class="form-control">
+                            <div class="form-desc">Khoảng cách Stop-Loss = Giá vào - (Hệ số x ATR). Chuẩn là 1.5x.</div>
+                        </div>
+
+                        <!-- Take-Profit ATR Multiplier -->
+                        <div class="form-group">
+                            <label class="form-label">Hệ Số Chốt Lời Động (ATR Take-Profit)</label>
+                            <input type="number" step="0.1" min="1.5" max="5.0" name="TAKE_PROFIT_ATR_MULTIPLIER" 
+                                   value="{{ settings.TAKE_PROFIT_ATR_MULTIPLIER or 3.0 }}" class="form-control">
+                            <div class="form-desc">Khoảng cách Take-Profit = Giá vào + (Hệ số x ATR). Chuẩn là 3.0x.</div>
+                        </div>
+
+                        <!-- Multi-Timeframe Trend Confluence Filter -->
+                        <div class="form-group">
+                            <label class="form-label">Bộ Lọc Đa Khung Thời Gian (15m + 1h + 4h EMA50)</label>
+                            <select name="ENABLE_MULTI_TIMEFRAME" class="form-control">
+                                <option value="true" {% if settings.ENABLE_MULTI_TIMEFRAME %}selected{% endif %}>Bật Đồng Thuận Đa Khung (Khuyến nghị bảo toàn vốn)</option>
+                                <option value="false" {% if not settings.ENABLE_MULTI_TIMEFRAME %}selected{% endif %}>Tắt (Chỉ theo dõi khung nến đơn)</option>
+                            </select>
+                            <div class="form-desc">Chỉ mở lệnh MUA khi cả khung 1h và 4h đều trên đường EMA 50, chống bẫy Bull Trap.</div>
+                        </div>
+
+                        <!-- Telegram Notifications -->
+                        <div class="form-group">
+                            <label class="form-label">Thông Báo Telegram 24/7</label>
+                            <select name="ENABLE_TELEGRAM" class="form-control">
+                                <option value="true" {% if settings.ENABLE_TELEGRAM %}selected{% endif %}>Bật Báo Động Telegram</option>
+                                <option value="false" {% if not settings.ENABLE_TELEGRAM %}selected{% endif %}>Tắt Báo Động Telegram</option>
+                            </select>
+                            <div class="form-desc">Bắn tin nhắn khi khớp lệnh, dời SL hòa vốn, trailing bám đỉnh hoặc có bài học xương máu.</div>
+                        </div>
+
+                        <!-- Telegram Bot Token -->
+                        <div class="form-group">
+                            <label class="form-label">Telegram Bot Token</label>
+                            <input type="password" name="TELEGRAM_BOT_TOKEN" value="{{ settings.TELEGRAM_BOT_TOKEN }}" class="form-control" placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz">
+                            <div class="form-desc">Token từ @BotFather trên Telegram.</div>
+                        </div>
+
+                        <!-- Telegram Chat ID -->
+                        <div class="form-group">
+                            <label class="form-label">Telegram Chat ID</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="input-telegram-chat-id" name="TELEGRAM_CHAT_ID" value="{{ settings.TELEGRAM_CHAT_ID }}" class="form-control" placeholder="-100123456789 hoặc ID cá nhân" style="flex: 1;">
+                                <button type="button" class="btn btn-primary" onclick="autoSyncTelegramChatId()" style="white-space: nowrap; font-size: 12px; padding: 8px 14px; display: inline-flex; align-items: center; gap: 6px;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    <span>Tự Động Lấy Chat ID</span>
+                                </button>
+                                <button type="button" class="btn" onclick="sendTestTelegramMessage()" style="white-space: nowrap; font-size: 12px; padding: 8px 14px; display: inline-flex; align-items: center; gap: 6px;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                    <span>Test Gửi Tin</span>
+                                </button>
+                            </div>
+                            <div class="form-desc" style="margin-top: 6px;">
+                                <strong>Hướng dẫn kích hoạt:</strong> Mở Telegram, vào bot <a href="https://t.me/tienductradev1_bot" target="_blank" style="color: var(--primary); font-weight: 700;">@tienductradev1_bot</a>, bấm <strong>Start</strong>, sau đó bấm nút <strong>"Tự Động Lấy Chat ID"</strong>.
+                            </div>
+                        </div>
+
+                        <!-- Auto-Trade 24/7 Master Switch -->
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; align-items: center; gap: 6px;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+                                <span>Auto-Trade 24/7 (Săn Lệnh Hoàn Toàn Tự Động)</span>
+                            </label>
+                            <select name="AUTO_TRADE_ENABLED" class="form-control">
+                                <option value="true" {% if settings.AUTO_TRADE_ENABLED %}selected{% endif %}>[BẬT] Tự Động Khớp Lệnh 24/7 (Không cần bấm tay)</option>
+                                <option value="false" {% if not settings.AUTO_TRADE_ENABLED %}selected{% endif %}>[TẮT] Chỉ sinh tín hiệu quan sát / Vào lệnh thủ công</option>
+                            </select>
+                            <div class="form-desc">Khi bật, bot tự quét tín hiệu, kiểm định qua Cố Vấn AI và tự động bắn lệnh.</div>
+                        </div>
+
+                        <!-- Cooldown Minutes -->
+                        <div class="form-group">
+                            <label class="form-label">Khoảng Cách Nghỉ Giữa Các Lệnh (Cooldown)</label>
+                            <input type="number" min="5" max="120" name="COOLDOWN_MINUTES" value="{{ settings.COOLDOWN_MINUTES or 15 }}" class="form-control">
+                            <div class="form-desc">Số phút tối thiểu giữa 2 lệnh liên tiếp của cùng 1 cặp coin (Chống overtrading sideway).</div>
+                        </div>
+
+                        <!-- Market Type (Spot vs Futures 2 Chiều) -->
+                        <div class="form-group">
+                            <label class="form-label">Kiểu Thị Trường (Market Type)</label>
+                            <select name="MARKET_TYPE" class="form-control">
+                                <option value="futures" {% if settings.MARKET_TYPE == 'futures' %}selected{% endif %}>
+                                    USDⓈ-M Futures (Đánh 2 Chiều: BUY / Long & SELL / Short)
+                                </option>
+                                <option value="spot" {% if settings.MARKET_TYPE == 'spot' %}selected{% endif %}>
+                                    Spot (Chỉ Mua tích lũy và Bán chốt lời 1 chiều)
+                                </option>
+                            </select>
+                            <div class="form-desc">Chế độ Futures cho phép kiếm lợi nhuận cả khi thị trường Uptrend lẫn Downtrend sập mạnh.</div>
+                        </div>
+
+                        <!-- Futures Leverage -->
+                        <div class="form-group">
+                            <label class="form-label">Đòn Bẩy Ký Quỹ Futures (Leverage)</label>
+                            <select name="FUTURES_LEVERAGE" class="form-control">
+                                <option value="1" {% if settings.FUTURES_LEVERAGE == 1 %}selected{% endif %}>1x (Không đòn bẩy - An toàn tuyệt đối)</option>
+                                <option value="3" {% if settings.FUTURES_LEVERAGE == 3 %}selected{% endif %}>3x (Khuyến nghị chuẩn định lượng)</option>
+                                <option value="5" {% if settings.FUTURES_LEVERAGE == 5 %}selected{% endif %}>5x (Trung bình - Quản trị rủi ro chặt)</option>
+                                <option value="10" {% if settings.FUTURES_LEVERAGE == 10 %}selected{% endif %}>10x (Biên độ cao - Chỉ dành cho vốn nhỏ)</option>
+                            </select>
+                            <div class="form-desc">Cơ chế ký quỹ cô lập (Isolated Margin) bảo vệ tối đa số dư còn lại.</div>
+                        </div>
+
+                        <!-- Live Max USDT Cap Per Order -->
+                        <div class="form-group">
+                            <label class="form-label">Hạn Mức Vốn Tiền Thật Tối Đa / Lệnh (Safety Cap)</label>
+                            <input type="number" step="5" min="10" max="500" name="LIVE_MAX_USDT_PER_ORDER" 
+                                   value="{{ settings.LIVE_MAX_USDT_PER_ORDER or 20.0 }}" class="form-control">
+                            <div class="form-desc">Khi bật Live thật, bot KHÔNG BAO GIỜ dùng quá số tiền này cho mỗi lệnh để bảo vệ 100% ví Binance.</div>
+                        </div>
+
+                        <!-- Binance API Key -->
+                        <div class="form-group">
+                            <label class="form-label">Binance API Key (Giao Dịch Thật)</label>
+                            <input type="text" name="BINANCE_API_KEY" value="{{ settings.BINANCE_API_KEY }}" class="form-control" placeholder="Dán API Key từ tài khoản Binance của bạn">
+                            <div class="form-desc">Yêu cầu bật quyền: Đọc (Read) và Giao dịch Spot/Futures. <strong>KHÔNG BẬT QUYỀN RÚT TIỀN (WITHDRAW)</strong>.</div>
+                        </div>
+
+                        <!-- Binance API Secret -->
+                        <div class="form-group">
+                            <label class="form-label">Binance API Secret (Bí Mật Sàn)</label>
+                            <input type="password" name="BINANCE_API_SECRET" value="{{ settings.BINANCE_API_SECRET }}" class="form-control" placeholder="Dán API Secret từ tài khoản Binance của bạn">
+                            <div class="form-desc">Lưu trữ an toàn trong SQLite cục bộ trên máy chủ.</div>
+                        </div>
+
+                        <!-- Test Binance Connection Button -->
+                        <div class="form-group" style="grid-column: 1 / -1; background: var(--panel-header-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">Kiểm Tra Kết Nối Binance Gateway & Số Dư Thật</div>
+                                    <div style="font-size: 12px; color: var(--text-sub);">Xác thực API Key/Secret và hiển thị số dư khả dụng từ Binance trước khi kích hoạt Live.</div>
+                                </div>
+                                <button type="button" id="btn-check-binance" class="btn btn-primary" onclick="checkBinanceConnection()" style="font-size: 12.5px; padding: 9px 18px; display: inline-flex; align-items: center; gap: 6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <span>Kiểm Tra Kết Nối & Số Dư Thật Ngay</span>
+                                </button>
+                            </div>
+                            <div id="binance-check-result" style="display: none; margin-top: 12px; padding: 10px 14px; border-radius: 6px; background: var(--bg-card); font-size: 13px; line-height: 1.5;"></div>
+                        </div>
+
+                    </div>
+
+                    <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px;">
+                        <a href="/admin" class="btn">Hủy Bỏ</a>
+                        <button type="submit" class="btn btn-primary" style="padding: 10px 24px; display: inline-flex; align-items: center; gap: 8px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                            <span>Lưu & Áp Dụng Ngay Vào Bot</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <!-- SUPABASE CLOUD HYBRID DATABASE CARD -->
+    <div class="card" style="box-shadow: 0 4px 20px rgba(0,0,0,0.04); border-radius: 12px; margin-top: 24px; border: 1px solid rgba(16, 185, 129, 0.35); background: linear-gradient(135deg, rgba(6, 78, 59, 0.08) 0%, rgba(2, 6, 23, 0.02) 100%);">
+        <div class="card-header" style="background: var(--panel-header-bg); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div class="card-title" style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; color: #10b981;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span style="font-size: 15px; font-weight: 800;">Cơ Sở Dữ Liệu Đám Mây Supabase Cloud (Hybrid Sync Architecture)</span>
+                    <div style="font-size: 11px; color: var(--text-sub); font-family: 'JetBrains Mono', monospace;">ldtaziouuvmcwssqmggn • PostgreSQL 17 (ap-northeast-2 Seoul)</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="supabase-status-badge" class="badge badge-green" style="font-size: 10px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
+                    <span>ĐANG KẾT NỐI (ONLINE)</span>
+                </span>
+                <button type="button" id="btn-supabase-sync" class="btn btn-primary" onclick="triggerSupabaseSync()" style="font-size: 12px; padding: 7px 16px; background: #059669; border-color: #047857; display: inline-flex; align-items: center; gap: 6px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    <span id="supabase-sync-btn-text">Đồng Bộ Lên Cloud Ngay</span>
+                </button>
+            </div>
+        </div>
+        <div class="card-body" style="padding: 20px;">
+            <div style="font-size: 12.5px; color: var(--text-sub); margin-bottom: 16px; line-height: 1.5;">
+                Hệ thống vận hành kiến trúc Hybrid: <strong>SQLite siêu tốc</strong> trên VPS xử lý khớp lệnh vi mô &lt;1ms không độ trễ mạng, song song <strong>Supabase Cloud</strong> tự động lưu trữ vĩnh viễn toàn bộ lệnh khớp, tín hiệu AI, phản biện đa tác tử và sao lưu từ xa.
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px;">
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">LỆNH KHỚP (TRADES)</div>
+                    <div id="supa-trades-count" style="font-size: 18px; font-weight: 800; color: #10b981; font-family: 'JetBrains Mono', monospace; margin-top: 4px;">19</div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Đã đồng bộ Cloud</div>
+                </div>
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">TÍN HIỆU (SIGNALS)</div>
+                    <div id="supa-signals-count" style="font-size: 18px; font-weight: 800; color: #38bdf8; font-family: 'JetBrains Mono', monospace; margin-top: 4px;">99</div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Chiến lược & Lọc nhiễu</div>
+                </div>
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">BÀI HỌC (LESSONS)</div>
+                    <div id="supa-lessons-count" style="font-size: 18px; font-weight: 800; color: #f59e0b; font-family: 'JetBrains Mono', monospace; margin-top: 4px;">22</div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Nguyên tắc quản trị vốn</div>
+                </div>
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">NHẬT KÝ CỐ VẤN AI</div>
+                    <div id="supa-ai-count" style="font-size: 18px; font-weight: 800; color: #a855f7; font-family: 'JetBrains Mono', monospace; margin-top: 4px;">50+</div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Vyce & Hội đồng AI</div>
+                </div>
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">PHẢN BIỆN 10 TÁC TỬ</div>
+                    <div style="font-size: 18px; font-weight: 800; color: #f43f5e; font-family: 'JetBrains Mono', monospace; margin-top: 4px;">TỰ ĐỘNG</div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Debates phòng ban 3D</div>
+                </div>
+            </div>
+            <div id="supabase-sync-msg" style="display: none; margin-top: 14px; padding: 10px 14px; border-radius: 6px; font-size: 12.5px;"></div>
+        </div>
+    </div>
+
+    <script>
+    async function triggerSupabaseSync() {
+        const btn = document.getElementById('btn-supabase-sync');
+        const btnText = document.getElementById('supabase-sync-btn-text');
+        const msgBox = document.getElementById('supabase-sync-msg');
+        btn.disabled = true;
+        btnText.textContent = 'Đang đồng bộ...';
+        try {
+            const resp = await fetch('/api/v1/supabase/sync-now', { method: 'POST' });
+            const data = await resp.json();
+            if (data.success) {
+                msgBox.style.display = 'block';
+                msgBox.style.background = 'rgba(16, 185, 129, 0.15)';
+                msgBox.style.border = '1px solid #10b981';
+                msgBox.style.color = '#10b981';
+                msgBox.innerHTML = `✓ Đồng bộ thành công <strong>${data.synced_counts.trades} lệnh</strong>, <strong>${data.synced_counts.signals} tín hiệu</strong>, <strong>${data.synced_counts.trading_lessons} bài học</strong> lên Supabase Cloud trong ${data.duration_ms}ms.`;
+                if (data.total_records) {
+                    document.getElementById('supa-trades-count').textContent = data.total_records.trades;
+                    document.getElementById('supa-signals-count').textContent = data.total_records.signals;
+                    document.getElementById('supa-lessons-count').textContent = data.total_records.trading_lessons;
+                    document.getElementById('supa-ai-count').textContent = data.total_records.ai_advisory_logs;
+                }
+            } else {
+                msgBox.style.display = 'block';
+                msgBox.style.background = 'rgba(239, 68, 68, 0.15)';
+                msgBox.style.border = '1px solid #ef4444';
+                msgBox.style.color = '#ef4444';
+                msgBox.innerHTML = `✕ Lỗi đồng bộ: ${data.error || 'Vui lòng kiểm tra cấu hình'}`;
+            }
+        } catch (e) {
+            msgBox.style.display = 'block';
+            msgBox.style.background = 'rgba(239, 68, 68, 0.15)';
+            msgBox.style.border = '1px solid #ef4444';
+            msgBox.style.color = '#ef4444';
+            msgBox.innerHTML = `✕ Không thể kết nối API Supabase: ${e.message}`;
+        } finally {
+            btn.disabled = false;
+            btnText.textContent = 'Đồng Bộ Lên Cloud Ngay';
+        }
+    }
+    </script>
+</div>
+{% endblock %}

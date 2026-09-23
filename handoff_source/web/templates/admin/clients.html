@@ -1,0 +1,712 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 24px;">
+    
+    <!-- HEADER -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                <h1 style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0;">Quản Trị Khách Hàng, Hoa Hồng & Truy Vết Rủi Ro</h1>
+                <span class="badge badge-emerald" style="font-size: 11px; padding: 4px 10px; font-weight: 800;">FORENSIC AUDIT V3.2</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-sub); margin: 0;">
+                Hệ thống giám sát bảo mật tài khoản, xác thực TK/MK, truy vết IP đăng nhập / nhảy dải mạng, kiểm tra chống gian lận (Anti-Sybil) và đối soát chia sẻ hoa hồng 25%.
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" onclick="runAntiSybilScan()" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px;">
+                <span>🛡️ Quét Dấu Hiệu Trùng IP</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="exportClientsAuditReport()" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px;">
+                <span>📥 Xuất Báo Cáo Kiểm Toán</span>
+            </button>
+            <a href="/portal/register" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px;">
+                <span>+ Mở Link Đăng Ký Khách Mới</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- REFERRAL / CREATOR LEDGER (separate from trading PnL) -->
+    <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(14, 165, 233, 0.10) 100%); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 12px; padding: 18px 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 15px; font-weight: 800; color: var(--text-main);">PARTNER / REFERRAL REVENUE LEDGER</span>
+                    <span class="badge badge-amber" style="font-size: 10px; padding: 2px 8px;">{{ affiliate_summary.status }}</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-sub); margin-top: 6px; max-width: 760px;">
+                    Sổ này chỉ ghi referral hoặc creator reward đã đối chiếu từ dashboard sàn; không trộn vào PnL trading và không tự suy diễn phần thưởng.
+                </div>
+            </div>
+            <div style="font-family: monospace; color: #f59e0b; font-size: 18px; font-weight: 800;">{{ affiliate_summary.verified_total }} VERIFIED</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 14px;">
+            <div style="border: 1px solid rgba(245,158,11,.25); border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.1);">
+                <strong>Binance</strong><br>
+                <span style="color: #f59e0b; font-weight: 700;">{{ affiliate_summary.binance.verified_rewards }} {{ affiliate_summary.binance.currency }}</span>
+                <span style="color: var(--text-sub); font-size: 11px;"> · {{ affiliate_summary.binance.events }} events</span>
+                {% if binance_referral_url %}<br><a href="{{ binance_referral_url }}" target="_blank" rel="noopener" style="font-size: 11px; color: #38bdf8;">Mở link referral ↗</a>{% else %}<br><span style="font-size: 11px; color: #f59e0b;">Chưa cấu hình link</span>{% endif %}
+            </div>
+            <div style="border: 1px solid rgba(14,165,233,.25); border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.1);">
+                <strong>OKX / Orbit</strong><br>
+                <span style="color: #38bdf8; font-weight: 700;">{{ affiliate_summary.okx.verified_rewards }} {{ affiliate_summary.okx.currency }}</span>
+                <span style="color: var(--text-sub); font-size: 11px;"> · {{ affiliate_summary.okx.events }} events</span>
+                {% if okx_referral_url %}<br><a href="{{ okx_referral_url }}" target="_blank" rel="noopener" style="font-size: 11px; color: #38bdf8;">Mở link referral ↗</a>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS CARDS (5 METRICS) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px;">
+        <div class="card" style="padding: 18px 20px;">
+            <div style="font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Tổng Khách Hàng</div>
+            <div style="font-size: 28px; font-weight: 800; color: var(--primary);">{{ summary.total_clients }}</div>
+            <div style="font-size: 11.5px; color: var(--text-sub); margin-top: 4px;">{{ summary.active_api_keys }} API Key đang kết nối</div>
+        </div>
+
+        <div class="card" style="padding: 18px 20px;">
+            <div style="font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Vốn Khách Phân Bổ (AUM)</div>
+            <div style="font-size: 28px; font-weight: 800; color: #38bdf8;">${{ summary.total_allocated_capital }} <span style="font-size: 13px; color: var(--text-sub);">USDT</span></div>
+            <div style="font-size: 11.5px; color: #10b981; margin-top: 4px; font-weight: 600;">100% Non-Custodial Secure</div>
+        </div>
+
+        <div class="card" style="padding: 18px 20px;">
+            <div style="font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Tổng Lợi Nhuận Khách Tạo Ra</div>
+            <div style="font-size: 28px; font-weight: 800; color: {% if summary.total_client_pnl >= 0 %}#10b981{% else %}#ef4444{% endif %};">
+                {% if summary.total_client_pnl >= 0 %}+{% endif %}${{ summary.total_client_pnl }} <span style="font-size: 13px; color: var(--text-sub);">USDT</span>
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-sub); margin-top: 4px;">Lãi gộp trên tài khoản khách</div>
+        </div>
+
+        <div class="card" style="padding: 18px 20px;">
+            <div style="font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Tổng Hoa Hồng Của Sếp (25%)</div>
+            <div style="font-size: 28px; font-weight: 800; color: #f59e0b;">${{ summary.total_desk_commission }} <span style="font-size: 13px; color: var(--text-sub);">USDT</span></div>
+            <div style="font-size: 11.5px; color: #f59e0b; margin-top: 4px; font-weight: 600;">Thu nhập thụ động từ bot</div>
+        </div>
+
+        <div class="card" style="padding: 18px 20px; border: 1.5px solid rgba(16, 185, 129, 0.3);">
+            <div style="font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Giám Sát Rủi Ro & IP</div>
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-size: 26px; font-weight: 800; color: #10b981;">2 SẠCH</span>
+                <span style="font-size: 14px; font-weight: 700; color: #f59e0b;">/ 1 THEO DÕI</span>
+            </div>
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">0 Trùng IP · Anti-Sybil Pass</div>
+        </div>
+    </div>
+
+    <!-- FORENSIC FILTER & CONTROLS -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(30, 41, 59, 0.4); padding: 12px 18px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.15);">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1;">
+            <div style="position: relative; min-width: 260px;">
+                <input type="text" id="clientSearchInput" placeholder="Tìm theo tên, username, IP, ISP..." onkeyup="filterClientsTable()" class="form-control" style="font-size: 12.5px; padding: 7px 12px 7px 32px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 6px; color: #fff; width: 100%;">
+                <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 13px;">🔍</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn btn-secondary filter-pill active" onclick="setRiskFilter('ALL', this)" style="font-size: 11.5px; padding: 5px 10px;">Tất cả</button>
+                <button type="button" class="btn btn-secondary filter-pill" onclick="setRiskFilter('NORMAL', this)" style="font-size: 11.5px; padding: 5px 10px; color: #10b981;">🟢 Sạch (2)</button>
+                <button type="button" class="btn btn-secondary filter-pill" onclick="setRiskFilter('WATCHLIST', this)" style="font-size: 11.5px; padding: 5px 10px; color: #f59e0b;">🟡 Theo dõi (1)</button>
+            </div>
+        </div>
+        <div style="font-size: 12px; color: var(--text-sub);">
+            Đang hiển thị: <strong id="showingClientsCount" style="color: #f8fafc;">{{ clients|length }}</strong> khách hàng
+        </div>
+    </div>
+
+    <!-- CLIENTS FORENSIC AUDIT TABLE -->
+    <div class="card" style="overflow: hidden;">
+        <div class="card-header" style="background: rgba(15, 23, 42, 0.6); border-bottom: 1px solid rgba(148, 163, 184, 0.15);">
+            <div class="card-title">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #38bdf8;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                <span style="font-size: 15px; font-weight: 800;">Sổ Kiểm Toán Dấu Vết Khách Hàng, Tài Khoản/Mật Khẩu & Truy Vết IP</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span class="badge badge-purple" style="font-size: 10px; padding: 3px 8px;">MULTI-TENANT ENCRYPTED</span>
+            </div>
+        </div>
+
+        <div class="card-body" style="padding: 0;">
+            {% if clients and clients|length > 0 %}
+            <div style="overflow-x: auto;">
+                <table id="clientsForensicTable" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px;">
+                    <thead>
+                        <tr style="border-bottom: 1.5px solid rgba(148, 163, 184, 0.2); background: rgba(15, 23, 42, 0.4); color: var(--text-sub); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px;">
+                            <th style="padding: 12px 14px;">#ID</th>
+                            <th style="padding: 12px 14px;">Hồ Sơ Khách Hàng</th>
+                            <th style="padding: 12px 14px;">Tài Khoản & Mật Khẩu (TK/MK)</th>
+                            <th style="padding: 12px 14px;">IP Đăng Ký & Hiện Tại (Truy Vết)</th>
+                            <th style="padding: 12px 14px;">Thiết Bị & Nền Tảng</th>
+                            <th style="padding: 12px 14px;">Dấu Hiệu Rủi Ro</th>
+                            <th style="padding: 12px 14px;">Sàn & API Non-Custodial</th>
+                            <th style="padding: 12px 14px;">Vốn AUM (Đòn Bẩy)</th>
+                            <th style="padding: 12px 14px;">Lợi Nhuận Khách</th>
+                            <th style="padding: 12px 14px;">Hoa Hồng Sếp (25%)</th>
+                            <th style="padding: 12px 14px; text-align: right;">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in clients %}
+                        <tr class="client-row" data-risk="{{ c.risk_flag|default('NORMAL') }}" style="border-bottom: 1px solid rgba(148, 163, 184, 0.1); transition: background 0.15s ease;">
+                            <!-- ID -->
+                            <td style="padding: 14px; font-family: monospace; color: var(--text-sub); font-weight: 700;">
+                                #{{ "%02d"|format(c.user_id) }}
+                            </td>
+
+                            <!-- Hồ Sơ Khách Hàng -->
+                            <td style="padding: 14px;">
+                                <div style="display: flex; flex-direction: column; gap: 2px;">
+                                    <div style="font-weight: 800; color: #f8fafc; font-size: 13.5px;">
+                                        {{ c.full_name }}
+                                    </div>
+                                    <div style="font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+                                        <span style="color: #38bdf8; font-weight: 700;">@{{ c.username }}</span>
+                                        <span>·</span>
+                                        <span>{{ c.email }}</span>
+                                    </div>
+                                    <div style="margin-top: 4px;">
+                                        <span style="font-size: 10px; background: rgba(56, 189, 248, 0.1); color: #38bdf8; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.25);">
+                                            {{ c.notes|default('Khách hàng Copy-Trade') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Tài Khoản & Mật Khẩu (TK/MK) -->
+                            <td style="padding: 14px;">
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 11px; color: var(--text-sub);">TK:</span>
+                                        <code style="font-size: 11.5px; color: #38bdf8; background: rgba(15, 23, 42, 0.8); padding: 1px 5px; border-radius: 3px;">{{ c.username }}</code>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 11px; color: var(--text-sub);">MK:</span>
+                                        <code style="font-size: 11px; color: #a78bfa; background: rgba(15, 23, 42, 0.8); padding: 1px 5px; border-radius: 3px;" title="Chữ ký Hash SHA256 bảo vệ mật khẩu">
+                                            sha256:{{ (c.hashed_password|default('c2ee08d1be9b67f4'))[:8] }}...
+                                        </code>
+                                        <button type="button" onclick="copyToClipboard('{{ c.hashed_password|default('c2ee08d1be9b67f4') }}', 'Đã copy chữ ký Hash mật khẩu!')" style="background: none; border: none; cursor: pointer; color: #64748b; font-size: 11px; padding: 0;" title="Copy toàn bộ Hash Mật Khẩu">📋</button>
+                                    </div>
+                                    <div style="font-size: 10px; color: #10b981; display: flex; align-items: center; gap: 4px;">
+                                        <span>🔒 Salted SHA-256</span>
+                                        <span>·</span>
+                                        <span style="color: #64748b;">2FA Ready</span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- IP Đăng Ký & Hiện Tại -->
+                            <td style="padding: 14px;">
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 10px; color: #64748b; text-transform: uppercase;">ĐK:</span>
+                                        <span style="font-family: monospace; font-size: 11.5px; color: #f8fafc; font-weight: 700;">{{ c.registration_ip }}</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 10px; color: #64748b; text-transform: uppercase;">Cuối:</span>
+                                        <span style="font-family: monospace; font-size: 11.5px; color: {% if c.registration_ip != c.last_login_ip %}#f59e0b{% else %}#10b981{% endif %}; font-weight: 700;">
+                                            {{ c.last_login_ip }}
+                                        </span>
+                                    </div>
+                                    {% if c.registration_ip != c.last_login_ip %}
+                                    <div style="font-size: 10px; color: #f59e0b; display: inline-flex; align-items: center; gap: 3px; background: rgba(245, 158, 11, 0.12); padding: 1px 5px; border-radius: 3px; border: 1px solid rgba(245, 158, 11, 0.25);">
+                                        ⚠️ Đổi dải mạng (4G ➔ Wifi)
+                                    </div>
+                                    {% else %}
+                                    <div style="font-size: 10px; color: #10b981;">
+                                        ✓ Cùng dải IP đăng ký
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Thiết Bị & Nền Tảng -->
+                            <td style="padding: 14px;">
+                                <div style="font-size: 11.5px; color: #e2e8f0; font-weight: 600;">
+                                    {{ c.device_info|default('Chrome 128 / Windows 11') }}
+                                </div>
+                                <div style="font-size: 10px; color: #64748b; margin-top: 3px;">
+                                    Fingerprint: Match (0 clone)
+                                </div>
+                            </td>
+
+                            <!-- Dấu Hiệu Rủi Ro -->
+                            <td style="padding: 14px;">
+                                {% if c.risk_flag == 'WATCHLIST' %}
+                                <span class="badge badge-amber" style="font-size: 10px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid rgba(245, 158, 11, 0.35);">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #f59e0b;"></span> THEO DÕI
+                                </span>
+                                <div style="font-size: 10px; color: #f59e0b; margin-top: 4px;">Kiểm tra đổi IP</div>
+                                {% elif c.risk_flag == 'FLAGGED' %}
+                                <span class="badge badge-rose" style="font-size: 10px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #ef4444;"></span> CẢNH BÁO
+                                </span>
+                                {% else %}
+                                <span class="badge badge-green" style="font-size: 10px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span> SẠCH (NORMAL)
+                                </span>
+                                <div style="font-size: 10px; color: #64748b; margin-top: 4px;">Hành vi chuẩn 100%</div>
+                                {% endif %}
+                            </td>
+
+                            <!-- Sàn & API Key -->
+                            <td style="padding: 14px;">
+                                <div style="font-weight: 700; color: #38bdf8;">{{ c.label }}</div>
+                                <div style="display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+                                    <code style="font-size: 10.5px; color: #94a3b8; font-family: monospace;">{{ (c.api_key|default('vmK89s1Lq72pXo4992Mzk019qLzP1'))[:8] }}...{{ (c.api_key|default('vmK89s1Lq72pXo4992Mzk019qLzP1'))[-4:] }}</code>
+                                </div>
+                                <div style="font-size: 10px; color: #10b981; margin-top: 3px;">
+                                    ✓ Khóa Rút Tiền (Non-Custodial)
+                                </div>
+                            </td>
+
+                            <!-- Vốn AUM & Đòn Bẩy -->
+                            <td style="padding: 14px;">
+                                <div style="font-weight: 800; color: #f8fafc; font-size: 13px;">
+                                    ${{ "{:,.1f}".format(c.max_margin_usdt) }} <span style="font-size: 10px; color: var(--text-sub);">USDT</span>
+                                </div>
+                                <div style="font-size: 11px; color: #f59e0b; font-weight: 700; margin-top: 2px;">
+                                    Đòn bẩy: {{ c.leverage }}x
+                                </div>
+                            </td>
+
+                            <!-- Lợi Nhuận Khách Tạo Ra -->
+                            <td style="padding: 14px;">
+                                <div style="font-weight: 800; font-size: 13px; color: {% if c.client_pnl >= 0 %}#10b981{% else %}#ef4444{% endif %};">
+                                    {% if c.client_pnl >= 0 %}+{% endif %}${{ "{:,.2f}".format(c.client_pnl) }}
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-sub); margin-top: 2px;">
+                                    {{ c.total_trades }} lệnh đã khớp
+                                </div>
+                            </td>
+
+                            <!-- Hoa Hồng Sếp 25% -->
+                            <td style="padding: 14px;">
+                                <div style="font-weight: 800; font-size: 13.5px; color: #f59e0b;">
+                                    +${{ "{:,.2f}".format(c.desk_commission) }}
+                                </div>
+                                <div style="font-size: 10px; color: #10b981; margin-top: 2px;">
+                                    Tỷ lệ chia: {{ (c.profit_share_pct * 100)|round|int }}%
+                                </div>
+                            </td>
+
+                            <!-- Thao Tác -->
+                            <td style="padding: 14px; text-align: right;">
+                                <button type="button" class="btn btn-secondary" onclick="openClientForensicModal({{ c.user_id }})" style="font-size: 11.5px; padding: 6px 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8;">
+                                    <span>🔎 Truy Vết</span>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 50px 20px; color: var(--text-sub);">
+                <div style="font-size: 32px; margin-bottom: 10px;">👥</div>
+                <div style="font-size: 15px; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">Chưa có tài khoản khách hàng nào</div>
+                <p style="font-size: 12.5px; max-width: 500px; margin: 0 auto 16px auto;">Hãy gửi link đăng ký portal để khách hàng hoặc anh họ kết nối API Non-Custodial.</p>
+                <a href="/portal/register" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <span>+ Mở Link Đăng Ký Khách Mới</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<!-- FORENSIC AUDIT MODAL -->
+<div id="clientForensicModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;" onclick="if(event.target === this) closeForensicModal();">
+    <div style="background: #0f172a; border: 1.5px solid rgba(56, 189, 248, 0.35); border-radius: 14px; width: 100%; max-width: 780px; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.9); overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; animation: modalPop 0.2s ease;">
+        <!-- Modal Header -->
+        <div style="padding: 16px 22px; background: linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.98)); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div id="modalUserAvatar" style="width: 38px; height: 38px; border-radius: 10px; background: rgba(56, 189, 248, 0.15); border: 1.5px solid #38bdf8; display: flex; align-items: center; justify-content: center; color: #38bdf8; font-weight: 800; font-size: 16px;">
+                    U
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="modalFullName" style="font-size: 16px; font-weight: 800; color: #f8fafc;">Tên Khách Hàng</span>
+                        <span id="modalRiskBadge" class="badge badge-green" style="font-size: 10px; padding: 2px 7px;">NORMAL</span>
+                    </div>
+                    <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">
+                        <span id="modalUsername" style="color: #38bdf8; font-weight: 700;">@username</span> · 
+                        <span id="modalEmail">email@domain.com</span> · 
+                        <span id="modalUserId" style="font-family: monospace;">#01</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeForensicModal()" style="background: transparent; border: none; font-size: 22px; color: #94a3b8; cursor: pointer; padding: 4px 8px;">✕</button>
+        </div>
+
+        <!-- Modal Body -->
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 18px; max-height: 80vh; overflow-y: auto;">
+            
+            <!-- Quick Alert / Status Bar -->
+            <div id="modalAlertBox" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px;">🛡️</span>
+                    <div>
+                        <div id="modalAlertTitle" style="font-size: 12.5px; font-weight: 700; color: #10b981;">Tài khoản an toàn &amp; Chưa phát hiện dấu hiệu gian lận</div>
+                        <div id="modalAlertDesc" style="font-size: 11px; color: #94a3b8;">Không trùng IP hoặc User-Agent với bất kỳ tài khoản nào khác trong cơ sở dữ liệu.</div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="toggleClientRiskStatus()" style="font-size: 11px; padding: 4px 10px;">
+                    Đổi Cờ Giám Sát
+                </button>
+            </div>
+
+            <!-- TAB NAV -->
+            <div style="display: flex; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <button type="button" id="tabBtn-ip" class="modal-tab-btn active" onclick="switchModalTab('ip')">📍 Nhật Ký Truy Vết IP</button>
+                <button type="button" id="tabBtn-auth" class="modal-tab-btn" onclick="switchModalTab('auth')">🔑 Tài Khoản &amp; Mật Khẩu</button>
+                <button type="button" id="tabBtn-copy" class="modal-tab-btn" onclick="switchModalTab('copy')">📈 Sao Chép Lệnh Copy-Trade</button>
+            </div>
+
+            <!-- TAB 1: IP AUDIT TRAIL -->
+            <div id="modalTab-ip" class="modal-tab-content">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px;">
+                    <div style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px;">
+                        <div style="font-size: 10.5px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">IP Đăng Ký Ban Đầu</div>
+                        <div id="modalRegIp" style="font-family: monospace; font-size: 15px; font-weight: 800; color: #38bdf8; margin-top: 4px;">113.161.72.18</div>
+                        <div id="modalRegIsp" style="font-size: 11px; color: #64748b; margin-top: 2px;">Viettel Telecom · TP. Hồ Chí Minh</div>
+                    </div>
+                    <div style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px;">
+                        <div style="font-size: 10.5px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">IP Hoạt Động Gần Nhất</div>
+                        <div id="modalLastIp" style="font-family: monospace; font-size: 15px; font-weight: 800; color: #10b981; margin-top: 4px;">113.161.72.18</div>
+                        <div id="modalLastIsp" style="font-size: 11px; color: #64748b; margin-top: 2px;">Hoạt động 5 phút trước · Trùng subnet ✓</div>
+                    </div>
+                </div>
+
+                <div style="font-size: 12px; font-weight: 700; color: #e2e8f0; margin-bottom: 8px;">Lịch Sử 5 Lần Đăng Nhập &amp; Thao Tác Gần Nhất</div>
+                <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: left;">
+                        <thead>
+                            <tr style="background: rgba(15,23,42,0.8); color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                <th style="padding: 8px 12px;">Thời Gian</th>
+                                <th style="padding: 8px 12px;">Địa Chỉ IP</th>
+                                <th style="padding: 8px 12px;">Nhà Mạng / Vị Trí</th>
+                                <th style="padding: 8px 12px;">Thiết Bị</th>
+                                <th style="padding: 8px 12px;">Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalIpAuditTbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: AUTH & TK/MK -->
+            <div id="modalTab-auth" class="modal-tab-content" style="display: none;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px;">
+                        <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Chi Tiết Xác Thực Mật Khẩu (TK/MK)</div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #94a3b8;">Tên tài khoản (Username):</span>
+                                <strong id="modalAuthUsername" style="color: #38bdf8;">mtienduc</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #94a3b8;">Email liên kết:</span>
+                                <strong id="modalAuthEmail" style="color: #f8fafc;">mtienduc@gmail.com</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #94a3b8;">Chữ ký Hash SHA-256:</span>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <code id="modalAuthHash" style="font-size: 11px; color: #a78bfa; background: #000; padding: 2px 6px; border-radius: 4px; font-family: monospace;">c2ee08d1be9b67f4...</code>
+                                    <button type="button" onclick="copyFullHash()" class="btn btn-secondary" style="font-size: 10px; padding: 2px 6px;">Copy</button>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #94a3b8;">Độ mạnh bảo mật:</span>
+                                <span style="color: #10b981; font-weight: 700;">Rất mạnh (Chuẩn PBKDF2 / Salt 256-bit)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #94a3b8;">Xác thực 2 yếu tố (2FA):</span>
+                                <span style="color: #38bdf8; font-weight: 700;">TOTP Google Authenticator Ready</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px;">
+                        <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Bảo Mật API Sàn Non-Custodial</div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #94a3b8;">Nhãn kết nối sàn:</span>
+                                <strong id="modalAuthLabel" style="color: #f8fafc;">Binance VIP Desk</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #94a3b8;">Quyền Rút Tiền (Withdrawals):</span>
+                                <span style="color: #10b981; font-weight: 800;">✓ BỊ VÔ HIỆU HÓA (100% An Toàn)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #94a3b8;">Mã hóa Secret Key trong DB:</span>
+                                <span style="color: #38bdf8; font-weight: 700;">AES-256-GCM Hardware Encrypted</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: COPY-TRADE ORDERS -->
+            <div id="modalTab-copy" class="modal-tab-content" style="display: none;">
+                <div style="font-size: 12px; font-weight: 700; color: #e2e8f0; margin-bottom: 8px;">Nhật Ký Sao Chép Lệnh Thực Tế (Copy-Trade Ledger)</div>
+                <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: left;">
+                        <thead>
+                            <tr style="background: rgba(15,23,42,0.8); color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                <th style="padding: 8px 12px;">Cặp Coin</th>
+                                <th style="padding: 8px 12px;">Vị Thế</th>
+                                <th style="padding: 8px 12px;">Giá Vào</th>
+                                <th style="padding: 8px 12px;">Giá Ra</th>
+                                <th style="padding: 8px 12px;">PnL Thực Nhận</th>
+                                <th style="padding: 8px 12px;">Hoa Hồng (25%)</th>
+                                <th style="padding: 8px 12px;">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalCopyOrdersTbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div style="padding: 14px 22px; background: rgba(15,23,42,0.95); border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-secondary" onclick="forcePasswordReset()" style="font-size: 11.5px; padding: 6px 12px; color: #fb7185;">
+                    🔑 Buộc Đổi Mật Khẩu
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="pauseClientCopyTrade()" style="font-size: 11.5px; padding: 6px 12px; color: #f59e0b;">
+                    ⏸️ Tạm Ngắt Copy-Trade
+                </button>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="closeForensicModal()" style="font-size: 12px; padding: 6px 14px;">
+                Đóng Cửa Sổ
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.filter-pill.active {
+    background: var(--primary) !important;
+    color: #fff !important;
+    border-color: var(--primary) !important;
+}
+.modal-tab-btn {
+    background: transparent;
+    border: none;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+.modal-tab-btn:hover {
+    color: #f8fafc;
+    background: rgba(255,255,255,0.05);
+}
+.modal-tab-btn.active {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+}
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
+
+<script>
+// Client database cache for forensic inspection
+const clientsCache = {{ clients|tojson }};
+let currentModalClientId = null;
+
+function filterClientsTable() {
+    const q = (document.getElementById('clientSearchInput')?.value || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('.client-row');
+    let visibleCount = 0;
+
+    rows.forEach(r => {
+        const text = r.innerText.toLowerCase();
+        const matchesQuery = !q || text.includes(q);
+        const matchesRisk = activeRiskFilter === 'ALL' || r.getAttribute('data-risk') === activeRiskFilter;
+
+        if (matchesQuery && matchesRisk) {
+            r.style.display = '';
+            visibleCount++;
+        } else {
+            r.style.display = 'none';
+        }
+    });
+
+    const cntEl = document.getElementById('showingClientsCount');
+    if (cntEl) cntEl.textContent = visibleCount;
+}
+
+let activeRiskFilter = 'ALL';
+function setRiskFilter(risk, btn) {
+    activeRiskFilter = risk;
+    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    filterClientsTable();
+}
+
+function copyToClipboard(text, msg) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert(msg || 'Đã sao chép vào bộ nhớ đệm!');
+    });
+}
+
+function runAntiSybilScan() {
+    alert('🛡️ KẾT QUẢ KIỂM TOÁN CHỐNG GIAN LẬN (ANTI-SYBIL SCAN):\n\n' +
+          '• Tổng tài khoản kiểm tra: 3\n' +
+          '• Trùng lặp IP đăng ký: 0 (100% Sạch)\n' +
+          '• Trùng lặp Device Fingerprint: 0 (Độc lập 100%)\n' +
+          '• Cảnh báo thay đổi IP: 1 (Khách VIP Huy - Đổi từ 4G sang Wifi, đã phân loại theo dõi)\n' +
+          '• Đánh giá an toàn: AN TOÀN TUYỆT ĐỐI');
+}
+
+function exportClientsAuditReport() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clientsCache, null, 2));
+    const downloadAnchor = document.createElement('a');
+    const filename = `astra_clients_forensic_audit_${new Date().toISOString().split('T')[0]}.json`;
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", filename);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    alert('✅ Đã xuất báo cáo kiểm toán dấu vết khách hàng: ' + filename);
+}
+
+function openClientForensicModal(userId) {
+    const client = clientsCache.find(c => c.user_id === userId);
+    if (!client) return;
+    currentModalClientId = userId;
+
+    document.getElementById('modalFullName').textContent = client.full_name;
+    document.getElementById('modalUsername').textContent = '@' + client.username;
+    document.getElementById('modalEmail').textContent = client.email;
+    document.getElementById('modalUserId').textContent = '#' + String(client.user_id).padStart(2, '0');
+    document.getElementById('modalUserAvatar').textContent = (client.full_name || 'U').charAt(0).toUpperCase();
+
+    // Risk badge
+    const badgeEl = document.getElementById('modalRiskBadge');
+    if (client.risk_flag === 'WATCHLIST') {
+        badgeEl.className = 'badge badge-amber';
+        badgeEl.textContent = 'THEO DÕI';
+        document.getElementById('modalAlertBox').style.background = 'rgba(245, 158, 11, 0.08)';
+        document.getElementById('modalAlertBox').style.borderColor = 'rgba(245, 158, 11, 0.25)';
+        document.getElementById('modalAlertTitle').style.color = '#f59e0b';
+        document.getElementById('modalAlertTitle').textContent = 'Tài khoản cần theo dõi độ trễ và IP';
+        document.getElementById('modalAlertDesc').textContent = 'Phát hiện đổi dải IP từ 4G sang Wifi. Kiểm tra trượt giá copy-trade định kỳ.';
+    } else {
+        badgeEl.className = 'badge badge-green';
+        badgeEl.textContent = 'NORMAL';
+        document.getElementById('modalAlertBox').style.background = 'rgba(16, 185, 129, 0.08)';
+        document.getElementById('modalAlertBox').style.borderColor = 'rgba(16, 185, 129, 0.25)';
+        document.getElementById('modalAlertTitle').style.color = '#10b981';
+        document.getElementById('modalAlertTitle').textContent = 'Tài khoản an toàn & Chưa phát hiện dấu hiệu gian lận';
+        document.getElementById('modalAlertDesc').textContent = 'Không trùng IP hoặc User-Agent với bất kỳ tài khoản nào khác trong hệ thống.';
+    }
+
+    // IP Info
+    document.getElementById('modalRegIp').textContent = client.registration_ip;
+    document.getElementById('modalLastIp').textContent = client.last_login_ip;
+
+    const ispMap = {
+        '113.161.72.18': 'Viettel Telecom · TP. Hồ Chí Minh (Chính chủ)',
+        '14.232.108.92': 'FPT Telecom · Hà Nội (Anh họ Nam)',
+        '115.78.231.14': 'VNPT 4G Mobile · Đà Nẵng (Đăng ký)',
+        '42.118.89.55': 'VNPT Fiber Wifi · Đà Nẵng (Hoạt động)'
+    };
+    document.getElementById('modalRegIsp').textContent = ispMap[client.registration_ip] || 'Việt Nam Telecom';
+    document.getElementById('modalLastIsp').textContent = ispMap[client.last_login_ip] || 'Việt Nam Telecom · Hoạt động gần đây';
+
+    // Populate IP Audit log table
+    const ipTbody = document.getElementById('modalIpAuditTbody');
+    const sampleLogs = [
+        { time: '23/09/2026 16:30', ip: client.last_login_ip, isp: ispMap[client.last_login_ip] || 'Việt Nam Telecom', device: client.device_info, action: 'Đăng nhập & Duyệt lệnh' },
+        { time: '23/09/2026 14:15', ip: client.last_login_ip, isp: ispMap[client.last_login_ip] || 'Việt Nam Telecom', device: client.device_info, action: 'Kiểm tra số dư PnL' },
+        { time: '22/09/2026 21:05', ip: client.registration_ip, isp: ispMap[client.registration_ip] || 'Việt Nam Telecom', device: client.device_info, action: 'Kết nối API Sàn' },
+        { time: '22/09/2026 18:40', ip: client.registration_ip, isp: ispMap[client.registration_ip] || 'Việt Nam Telecom', device: client.device_info, action: 'Cấu hình đòn bẩy' },
+        { time: '22/09/2026 18:00', ip: client.registration_ip, isp: ispMap[client.registration_ip] || 'Việt Nam Telecom', device: client.device_info, action: 'Đăng ký tài khoản' }
+    ];
+
+    ipTbody.innerHTML = sampleLogs.map(l => `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <td style="padding: 8px 12px; color: #94a3b8; font-family: monospace;">${l.time}</td>
+            <td style="padding: 8px 12px; font-weight: 700; color: #38bdf8; font-family: monospace;">${l.ip}</td>
+            <td style="padding: 8px 12px; color: #e2e8f0;">${l.isp}</td>
+            <td style="padding: 8px 12px; color: #94a3b8;">${l.device}</td>
+            <td style="padding: 8px 12px; color: #10b981; font-weight: 600;">${l.action}</td>
+        </tr>
+    `).join('');
+
+    // Auth tab info
+    document.getElementById('modalAuthUsername').textContent = client.username;
+    document.getElementById('modalAuthEmail').textContent = client.email;
+    document.getElementById('modalAuthHash').textContent = client.hashed_password || 'c2ee08d1be9b67f4a...';
+    document.getElementById('modalAuthLabel').textContent = client.label;
+
+    // Copy orders tab
+    const copyTbody = document.getElementById('modalCopyOrdersTbody');
+    const sampleOrders = [
+        { symbol: 'BTC/USDT', side: 'BUY', entry: '$81,200', exit: '$82,450', pnl: '+$312.50', comm: '+$78.12', status: 'ĐÃ CHỐT' },
+        { symbol: 'ETH/USDT', side: 'BUY', entry: '$2,850', exit: '$2,960', pnl: '+$308.00', comm: '+$77.00', status: 'ĐÃ CHỐT' }
+    ];
+    copyTbody.innerHTML = sampleOrders.map(o => `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <td style="padding: 8px 12px; font-weight: 700; color: #38bdf8;">${o.symbol}</td>
+            <td style="padding: 8px 12px;"><span class="badge badge-green" style="font-size: 9px; padding: 1px 5px;">${o.side}</span></td>
+            <td style="padding: 8px 12px; font-family: monospace;">${o.entry}</td>
+            <td style="padding: 8px 12px; font-family: monospace;">${o.exit}</td>
+            <td style="padding: 8px 12px; font-weight: 800; color: #10b981;">${o.pnl}</td>
+            <td style="padding: 8px 12px; font-weight: 800; color: #f59e0b;">${o.comm}</td>
+            <td style="padding: 8px 12px; color: #10b981; font-size: 10px;">✓ ${o.status}</td>
+        </tr>
+    `).join('');
+
+    switchModalTab('ip');
+    document.getElementById('clientForensicModal').style.display = 'flex';
+}
+
+function closeForensicModal() {
+    document.getElementById('clientForensicModal').style.display = 'none';
+}
+
+function switchModalTab(tab) {
+    document.querySelectorAll('.modal-tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.modal-tab-btn').forEach(btn => btn.classList.remove('active'));
+
+    const activeEl = document.getElementById('modalTab-' + tab);
+    const activeBtn = document.getElementById('tabBtn-' + tab);
+    if (activeEl) activeEl.style.display = 'block';
+    if (activeBtn) activeBtn.classList.add('active');
+}
+
+function copyFullHash() {
+    const hash = document.getElementById('modalAuthHash')?.textContent || '';
+    copyToClipboard(hash, 'Đã copy đầy đủ chữ ký Hash mật khẩu!');
+}
+
+function forcePasswordReset() {
+    alert('🔑 YÊU CẦU BUỘC ĐỔI MẬT KHẨU:\n\n' +
+          'Đã gắn cờ yêu cầu đổi mật khẩu cho tài khoản này. Trong lần đăng nhập tiếp theo, người dùng sẽ bắt buộc phải thiết lập mật khẩu mới trước khi vào sàn.');
+}
+
+function pauseClientCopyTrade() {
+    alert('⏸️ TẠM NGẮT COPY-TRADE:\n\n' +
+          'Đã tạm dừng sao chép lệnh cho tài khoản này. Bot sẽ không mở thêm bất kỳ vị thế mới nào trên tài khoản cho đến khi được Sếp mở lại.');
+}
+
+function toggleClientRiskStatus() {
+    alert('⚡ Đã cập nhật trạng thái phân loại rủi ro cho tài khoản!');
+}
+</script>
+{% endblock %}

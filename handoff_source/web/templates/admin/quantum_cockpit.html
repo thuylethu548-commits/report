@@ -1,0 +1,1855 @@
+{% extends "layouts/admin_base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/css/quantum.css?v=202609211715">
+
+<div class="quantum-master-wrap">
+    <!-- 1. QUANTUM TOPBAR SUB-HEADER & TELEMETRY -->
+    <div class="quantum-sub-header">
+        <div class="q-header-left">
+            <div class="q-brand-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                    <polyline points="2 17 12 22 22 17"/>
+                    <polyline points="2 12 12 17 22 12"/>
+                </svg>
+            </div>
+            <div>
+                <div class="q-header-title-row">
+                    <span class="q-header-title" id="q-page-title">QUANTUM COCKPIT (GPTHEIST PROTOCOL)</span>
+                    <span class="live-pill active-state" id="q-audit-pill" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">● LIVE · BINANCE SYNCED</span>
+                </div>
+                <div class="q-header-sub" id="q-page-sub">Autonomous Quant Trading &amp; Research | Multi-Agent Decision System</div>
+            </div>
+
+            <!-- View Switcher Pills: Cockpit vs Analytics vs Backtest -->
+            <div class="q-view-switcher">
+                <button class="q-view-btn {% if initial_tab != 'analytics' and initial_tab != 'backtest' %}active{% endif %}" id="tab-btn-cockpit" onclick="switchQuantumTab('cockpit')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+                    <span>Quantum Cockpit</span>
+                </button>
+                <button class="q-view-btn {% if initial_tab == 'analytics' %}active{% endif %}" id="tab-btn-analytics" onclick="switchQuantumTab('analytics')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+                    <span>Quantum Analytics</span>
+                </button>
+                <button class="q-view-btn {% if initial_tab == 'backtest' %}active{% endif %}" id="tab-btn-backtest" onclick="switchQuantumTab('backtest')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <span>Backtest Lab</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="q-header-right">
+            <span class="q-motto-quote">"Data-Driven Alpha · Multi-Agent Intelligence · Systematic Execution"</span>
+            <div class="q-clock-box">
+                <span class="q-clock-time" id="q-clock-time">05:01:29</span>
+                <span class="q-clock-date" id="q-clock-date">Thg 9 20, 2026</span>
+            </div>
+            <div class="q-live-badge-pill" id="q-status-badge">
+                <span class="pulse-dot"></span>
+                <span id="q-status-badge-text" style="color: #10b981; font-weight: 700;">●● LIVE TRADING (Binance USDⓈ-M)</span>
+            </div>
+            <div class="q-mini-tickers">
+                <div class="q-mini-ticker-pill">
+                    <span class="sym">BTC</span>
+                    <span class="val" id="q-tick-btc">81,065.00</span>
+                    <span class="chg" style="color: #64748b; font-size: 9px;">chưa có mẫu</span>
+                </div>
+                <div class="q-mini-ticker-pill">
+                    <span class="sym">ETH</span>
+                    <span class="val" id="q-tick-eth">2,624.88</span>
+                    <span class="chg" style="color: #64748b; font-size: 9px;">chưa có mẫu</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- VIEW 1: QUANTUM COCKPIT (GPTHEIST PROTOCOL) — SCREENSHOT 1           -->
+    <!-- ==================================================================== -->
+    <div class="quantum-view-pane" id="view-cockpit" style="display: {% if initial_tab == 'analytics' or initial_tab == 'backtest' %}none{% else %}block{% endif %};">
+        <!-- 1. 7 TOP KPI METRICS TILES -->
+        <div class="q-cockpit-kpi-grid">
+            <!-- 1. Balance -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">SỐ DƯ TÀI KHOẢN</div>
+                    <div class="q-stat-icon-badge teal">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val val-cyan" id="qc-val-bal">$31.63 USD</span>
+                    <span class="q-stat-badge-tag green" id="qc-val-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">LIVE_BINANCE_FUTURES</span>
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Vốn ban đầu</span>
+                        <span class="val" id="qc-val-start-bal">$31.23</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Vốn hiện tại</span>
+                        <span class="val" id="qc-val-curr-bal">$31.63</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Tỷ lệ sử dụng</span>
+                        <span class="val" id="qc-val-margin-ratio">0.0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Total PnL -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">TỔNG PNL / USD</div>
+                    <div class="q-stat-icon-badge green">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val val-green" id="qc-val-pnl">+$0.40</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px; margin-top: 2px;">
+                    <span class="badge badge-green" id="qc-val-pnl-pct" style="font-size: 9px; padding: 1px 4px; font-weight: 700;">+1.28%</span>
+                    <span class="proof-muted" id="qc-val-pnl-note" style="font-size: 9.5px; color: #10b981;">6 lệnh thực chiến (Winrate 83.3%)</span>
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">PnL hôm nay</span>
+                        <span class="val green-txt" id="qc-val-today-pnl">+$0.40</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">PnL chưa thực hiện</span>
+                        <span class="val" id="qc-val-unrealized-pnl" style="color: #94a3b8;">-$0.16</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">PnL đã thực hiện</span>
+                        <span class="val green-txt" id="qc-val-realized-pnl">+$0.40</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Campaign Goal / Target +5U -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">MỤC TIÊU CHIẾN DỊCH</div>
+                    <div class="q-stat-icon-badge purple">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val val-purple" id="qc-val-mission">+$0.46 / +$5.00U</span>
+                </div>
+                <div style="font-size: 9.5px; color: var(--q-text-muted); margin-top: 2px;">
+                    Tiến độ: <strong style="color: var(--q-amber);">9.2%</strong> | Mục tiêu: $35.00
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Ngày bắt đầu</span>
+                        <span class="val">20/09/2026</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Còn lại</span>
+                        <span class="val">29 ngày</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Kỳ vọng/ngày</span>
+                        <span class="val green-txt">+$0.16</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Approval Gate Model -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">APPROVAL GATE MODEL</div>
+                    <div class="q-stat-icon-badge green">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+                    <span style="font-family: var(--q-mono-font); font-size: 13px; font-weight: 800; color: #ef4444;">CLAUDE-3.5-SONNET</span>
+                </div>
+                <div style="font-size: 9px; color: #10b981; font-weight: 700; margin-top: 3px;">
+                    ARMED · AI CONSENSUS ACTIVE
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Ngưỡng phê duyệt</span>
+                        <span class="val">0.75</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Chế độ hoạt động</span>
+                        <span class="val">Multi-Agent</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Cập nhật cuối</span>
+                        <span class="val">2 phút trước</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Confidence (Avg) -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">ĐỘ TIN CẬY (AVG)</div>
+                    <div class="q-stat-icon-badge blue">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val val-blue" id="qc-val-conf">78.4%</span>
+                </div>
+                <div style="font-size: 9.5px; color: #10b981; font-weight: 700; margin-top: 2px;">
+                    +12.6% so với hôm qua
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Tín hiệu đồng thuận</span>
+                        <span class="val">6/8</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Độ nhất quán</span>
+                        <span class="val">--</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Trạng thái</span>
+                        <span class="val green-txt">Ổn định</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Volatility (24h) -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">BIẾN ĐỘNG (24H)</div>
+                    <div class="q-stat-icon-badge purple">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val val-purple" id="qc-val-vol">24.8%</span>
+                </div>
+                <div style="font-size: 9.5px; color: var(--q-text-muted); margin-top: 2px;">
+                    Trung bình
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">ATR (24h)</span>
+                        <span class="val">2.12%</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Vol So Với TB</span>
+                        <span class="val green-txt">+18.4%</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Trạng thái</span>
+                        <span class="val green-txt">Bình thường</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Active Pool -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">POOL AGENT HOẠT ĐỘNG</div>
+                    <div class="q-stat-icon-badge amber">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val" id="qc-val-pool" style="color: #10b981; font-size: 15px;">10 ĐÃ XÁC MINH</span>
+                </div>
+                <div class="proof-muted" style="font-size: 9.5px; margin-top: 2px;">
+                    Heartbeat: 22ms (Live)
+                </div>
+                <div class="q-pool-bars" style="margin-top: 4px; height: 16px;">
+                    <span style="height: 10px; background: #0ea5e9;"></span>
+                    <span style="height: 14px; background: #0ea5e9;"></span>
+                    <span style="height: 12px; background: #0ea5e9;"></span>
+                    <span style="height: 16px; background: #0ea5e9;"></span>
+                    <span style="height: 15px; background: #0ea5e9;"></span>
+                    <span style="height: 13px; background: #0ea5e9;"></span>
+                    <span style="height: 11px; background: #0ea5e9;"></span>
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Tổng agent</span>
+                        <span class="val">12</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Đang hoạt động</span>
+                        <span class="val">0</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Tỷ lệ online</span>
+                        <span class="val">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. MIDDLE ROW: BALANCE HISTORY & TAIL PROBABILITY RIDGE -->
+        <div class="q-dual-chart-grid" style="margin-top: 14px;">
+            <!-- Left: Balance History -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                        <span class="q-panel-title">LỊCH SỬ SỐ DƯ &amp; HIỆU SUẤT</span>
+                    </div>
+                    <div class="q-panel-tabs">
+                        <button class="q-tab-btn active" onclick="switchBalanceTab('equity', this)">Equity Curve</button>
+                        <button class="q-tab-btn" onclick="switchBalanceTab('pnl', this)">PnL (Daily)</button>
+                        <button class="q-tab-btn" onclick="switchBalanceTab('drawdown', this)">Drawdown</button>
+                        <button class="q-tab-btn" onclick="switchBalanceTab('return', this)">Return %</button>
+                    </div>
+                    <div class="q-tf-group">
+                        <button class="q-tf-btn" onclick="switchBalanceTf('1D', this)">1D</button>
+                        <button class="q-tf-btn" onclick="switchBalanceTf('7D', this)">7D</button>
+                        <button class="q-tf-btn active" onclick="switchBalanceTf('1M', this)">1M</button>
+                        <button class="q-tf-btn" onclick="switchBalanceTf('ALL', this)">ALL</button>
+                        <button class="q-icon-btn" title="Phóng to" onclick="toggleCanvasFullscreen('balanceCanvas')">⛶</button>
+                    </div>
+                </div>
+
+                <!-- 6 Performance Metrics Row -->
+                <div class="q-metrics-row">
+                    <div class="q-metric-item">
+                        <span class="label">Tổng lợi nhuận</span>
+                        <span class="val" id="bm-total-return" style="color: #10b981; font-weight: 700;">+0.12 USD <small style="font-size: 10px;">+1.53%</small></span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Sharpe Ratio</span>
+                        <span class="val" id="bm-sharpe" style="font-weight: 700;">2.35</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Max Drawdown</span>
+                        <span class="val" id="bm-drawdown" style="color: #0ea5e9; font-weight: 700;">0.88%</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Win Rate</span>
+                        <span class="val" id="bm-winrate" style="color: #10b981; font-weight: 700;">100.0%</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Tổng giao dịch</span>
+                        <span class="val" id="bm-trades" style="font-weight: 700;">1</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Profit Factor</span>
+                        <span class="val" id="bm-profit-factor" style="color: #8b5cf6; font-weight: 700;">3.85</span>
+                    </div>
+                </div>
+
+                <!-- Balance History Canvas -->
+                <div class="q-canvas-wrap-large" style="height: 250px; position: relative;">
+                    <canvas id="balanceCanvas"></canvas>
+                </div>
+
+                <div class="q-chart-legend-row" style="padding: 6px 14px 10px;">
+                    <div class="legend-item"><span class="legend-dot" style="background: #10b981;"></span> Equity (USDT)</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #0ea5e9;"></span> Balance (USDT)</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #059669;"></span> Daily PnL</div>
+                    <div class="q-chart-context" id="balance-chart-context">Đang tải lịch sử giao dịch đã ghi nhận…</div>
+                </div>
+            </div>
+
+            <!-- Right: Tail Probability Ridge -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="m4 8 8-4 8 4"/></svg>
+                        <span class="q-panel-title">PHÂN BỐ XÁC SUẤT ĐUÔI (TAIL PROBABILITY RIDGE)</span>
+                        <span class="live-pill audit-state" style="font-size: 8.5px; padding: 1px 6px;">● AUDIT</span>
+                    </div>
+                    <div class="q-tf-group">
+                        <button class="q-tf-btn" onclick="switchRidgeTf('1D', this)">1D</button>
+                        <button class="q-tf-btn" onclick="switchRidgeTf('1W', this)">1W</button>
+                        <button class="q-tf-btn active" onclick="switchRidgeTf('1M', this)">1M</button>
+                        <button class="q-tf-btn" onclick="switchRidgeTf('ALL', this)">ALL</button>
+                    </div>
+                </div>
+
+                <!-- 6 Ridge Metrics Row -->
+                <div class="q-metrics-row">
+                    <div class="q-metric-item">
+                        <span class="label">Sessions</span>
+                        <span class="val" id="rm-sessions" style="font-weight: 700;">14</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Tail Mass</span>
+                        <span class="val" id="rm-tail-mass" style="color: #f59e0b; font-weight: 700;">3.8%</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Implied Vol</span>
+                        <span class="val" id="rm-implied-vol" style="color: #0ea5e9; font-weight: 700;">24.8%</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Avg Entry</span>
+                        <span class="val" id="rm-avg-entry" style="font-weight: 700;">$80,970</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Best Hit</span>
+                        <span class="val" id="rm-best-hit" style="color: #10b981; font-weight: 700;">+3.0%</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Tail Risk (99%)</span>
+                        <span class="val" id="rm-tail-risk" style="color: #f43f5e; font-weight: 700;">-1.5%</span>
+                    </div>
+                </div>
+
+                <!-- 5 Zones Labels -->
+                <div class="q-ridge-zones-strip" style="padding: 0 14px;">
+                    <div class="q-ridge-zone-item low-risk">Vùng rủi ro thấp<br>(-3σ đến -2σ)</div>
+                    <div class="q-ridge-zone-item med-risk">Vùng rủi ro trung bình<br>(-2σ đến -1σ)</div>
+                    <div class="q-ridge-zone-item normal">Vùng bình thường<br>(-1σ đến +1σ)</div>
+                    <div class="q-ridge-zone-item opp">Vùng cơ hội<br>(+1σ đến +2σ)</div>
+                    <div class="q-ridge-zone-item high-risk">Vùng rủi ro cao<br>(+2σ đến +3σ)</div>
+                </div>
+
+                <!-- Ridge Canvas -->
+                <div class="q-canvas-wrap-large" style="height: 200px; position: relative;">
+                    <canvas id="ridgeCanvas"></canvas>
+                </div>
+
+                <div class="q-chart-legend-row" style="padding: 6px 14px 10px;">
+                    <div class="legend-item"><span class="legend-dot" style="background: #f43f5e;"></span> Chế độ hiện tại</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #e2e8f0; border: 1px dashed #94a3b8;"></span> Phạm vi 99%</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #0ea5e9;"></span> Phân bố lịch sử</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. ROW 3: 3 PANELS (MARKET CONTEXT, KEY METRICS 24H, SYSTEM HEALTH) -->
+        <div class="q-row-3-grid">
+            <!-- Panel 1: Bối Cảnh Thị Trường (Market Context) -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                        <span class="q-panel-title">BỐI CẢNH THỊ TRƯỜNG (MARKET CONTEXT)</span>
+                    </div>
+                    <a href="/admin/trader-demo" class="q-view-all-link">Xem thêm →</a>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px 14px;">
+                    <!-- BTC -->
+                    <div style="background: var(--q-card-hover); border: 1px solid var(--q-card-border); border-radius: 6px; padding: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-weight: 800; font-size: 11px; color: #f59e0b;">₿ BTC/USDT</span>
+                            <span class="pulse-dot" style="width: 5px; height: 5px;"></span>
+                        </div>
+                        <div style="font-family: var(--q-mono-font); font-size: 13px; font-weight: 800; margin-top: 4px; color: #ef4444;">81,065.00</div>
+                        <div style="font-size: 9.5px; color: #10b981; font-weight: 700;">+0.80%</div>
+                        <div style="height: 18px; margin-top: 4px;">
+                            <svg width="100%" height="18" viewBox="0 0 70 18"><path d="M0 14 Q15 6 30 11 T60 7 T70 4" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+                        </div>
+                        <div style="font-size: 8.5px; color: var(--q-text-muted); margin-top: 2px;">Vol: 12.4B · <span style="color:#10b981;">+0.8%</span></div>
+                    </div>
+                    <!-- ETH -->
+                    <div style="background: var(--q-card-hover); border: 1px solid var(--q-card-border); border-radius: 6px; padding: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-weight: 800; font-size: 11px; color: #6366f1;">♦ ETH/USDT</span>
+                            <span class="pulse-dot" style="width: 5px; height: 5px;"></span>
+                        </div>
+                        <div style="font-family: var(--q-mono-font); font-size: 13px; font-weight: 800; margin-top: 4px; color: #ef4444;">2,624.88</div>
+                        <div style="font-size: 9.5px; color: #10b981; font-weight: 700;">+0.62%</div>
+                        <div style="height: 18px; margin-top: 4px;">
+                            <svg width="100%" height="18" viewBox="0 0 70 18"><path d="M0 12 Q20 15 40 8 T70 3" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+                        </div>
+                        <div style="font-size: 8.5px; color: var(--q-text-muted); margin-top: 2px;">Vol: 6.8B · <span style="color:#10b981;">+0.8%</span></div>
+                    </div>
+                    <!-- BNB -->
+                    <div style="background: var(--q-card-hover); border: 1px solid var(--q-card-border); border-radius: 6px; padding: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-weight: 800; font-size: 11px; color: #f59e0b;">⬡ BNB/USDT</span>
+                            <span class="pulse-dot" style="width: 5px; height: 5px;"></span>
+                        </div>
+                        <div style="font-family: var(--q-mono-font); font-size: 13px; font-weight: 800; margin-top: 4px; color: #ef4444;">759.53</div>
+                        <div style="font-size: 9.5px; color: #10b981; font-weight: 700;">+0.80%</div>
+                        <div style="height: 18px; margin-top: 4px;">
+                            <svg width="100%" height="18" viewBox="0 0 70 18"><path d="M0 15 Q25 5 50 12 T70 6" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+                        </div>
+                        <div style="font-size: 8.5px; color: var(--q-text-muted); margin-top: 2px;">Vol: 1.2B · <span style="color:#10b981;">+0.8%</span></div>
+                    </div>
+                    <!-- SOL -->
+                    <div style="background: var(--q-card-hover); border: 1px solid var(--q-card-border); border-radius: 6px; padding: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-weight: 800; font-size: 11px; color: #06b6d4;">◎ SOL/USDT</span>
+                            <span class="pulse-dot" style="width: 5px; height: 5px;"></span>
+                        </div>
+                        <div style="font-family: var(--q-mono-font); font-size: 13px; font-weight: 800; margin-top: 4px; color: #ef4444;">110.46</div>
+                        <div style="font-size: 9.5px; color: #10b981; font-weight: 700;">+0.80%</div>
+                        <div style="height: 18px; margin-top: 4px;">
+                            <svg width="100%" height="18" viewBox="0 0 70 18"><path d="M0 10 Q20 14 45 6 T70 2" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+                        </div>
+                        <div style="font-size: 8.5px; color: var(--q-text-muted); margin-top: 2px;">Vol: 980M · <span style="color:#10b981;">+0.8%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 2: Chỉ Số Chính (24h) -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+                        <span class="q-panel-title">CHỈ SỐ CHÍNH (24H)</span>
+                    </div>
+                    <a href="/admin/performance" class="q-view-all-link">Xem chi tiết →</a>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px;">
+                    <div>
+                        <div style="font-size: 9.5px; color: var(--q-text-muted);">Sessions</div>
+                        <div style="font-family: var(--q-mono-font); font-size: 14px; font-weight: 800; margin: 2px 0;">14</div>
+                        <div style="font-size: 9px; color: #f43f5e; font-weight: 700;">-12.3%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9.5px; color: var(--q-text-muted);">Tail Mass</div>
+                        <div style="font-family: var(--q-mono-font); font-size: 14px; font-weight: 800; margin: 2px 0;">3.8%</div>
+                        <div style="font-size: 9px; color: #10b981; font-weight: 700;">+8.1%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9.5px; color: var(--q-text-muted);">Implied Vol</div>
+                        <div style="font-family: var(--q-mono-font); font-size: 14px; font-weight: 800; margin: 2px 0;">24.8%</div>
+                        <div style="font-size: 9px; color: #f43f5e; font-weight: 700;">-12.5%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9.5px; color: var(--q-text-muted);">Avg Entry</div>
+                        <div style="font-family: var(--q-mono-font); font-size: 14px; font-weight: 800; margin: 2px 0;">$80,970</div>
+                        <div style="font-size: 9px; color: #10b981; font-weight: 700;">+0.3%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9.5px; color: var(--q-text-muted);">Hit Rate</div>
+                        <div style="font-family: var(--q-mono-font); font-size: 14px; font-weight: 800; margin: 2px 0;">100.0%</div>
+                        <div style="font-size: 9px; color: #10b981; font-weight: 700;">+4.1%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9.5px; color: var(--q-text-muted);">Profit Factor</div>
+                        <div style="font-family: var(--q-mono-font); font-size: 14px; font-weight: 800; margin: 2px 0;">3.85</div>
+                        <div style="font-size: 9px; color: #10b981; font-weight: 700;">+0.22</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 3: Trạng Thái Hệ Thống -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+                        <span class="q-panel-title">TRẠNG THÁI HỆ THỐNG</span>
+                    </div>
+                    <span style="font-size: 9.5px; color: #10b981; font-weight: 700;">● Tất cả hoạt động bình thường</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                        <span style="color: var(--q-text-muted); font-size: 10px;">Approval Gate</span>
+                        <div style="display: flex; gap: 4px;">
+                            <span class="badge" style="font-size: 9px; background: rgba(148,163,184,0.15);">PALERMO</span>
+                            <span class="badge badge-rose" style="font-size: 9px; font-weight: 700;">VETO</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                        <span style="color: var(--q-text-muted); font-size: 10px;">Risk Engine</span>
+                        <span class="badge badge-green" style="font-size: 9px; font-weight: 700;">ARMED</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                        <span style="color: var(--q-text-muted); font-size: 10px;">Execution</span>
+                        <span class="badge badge-green" style="font-size: 9px; font-weight: 700;">READY</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                        <span style="color: var(--q-text-muted); font-size: 10px;">Data Feed</span>
+                        <span class="badge badge-green" style="font-size: 9px; font-weight: 700;">STABLE</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                        <span style="color: var(--q-text-muted); font-size: 10px;">Agent Pool</span>
+                        <span class="badge badge-amber" style="font-size: 9px; font-weight: 700;">0 ĐÃ XÁC MINH</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ROW 4: AGENT HANDOFF & DEBATE vs TELEMETRY -->
+        <div class="q-dual-bottom-grid">
+            <!-- Left: Agent Handoff & Debate -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <span class="q-panel-title">AGENT HANDOFF &amp; DEBATE</span>
+                    </div>
+                    <div class="q-panel-tabs">
+                        <button class="q-tab-btn active">Live Debate</button>
+                        <button class="q-tab-btn">Handoff Graph</button>
+                        <button class="q-tab-btn">Agent Influence</button>
+                        <button class="q-tab-btn">Decision Log</button>
+                    </div>
+                </div>
+                <div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: flex-start; gap: 10px; font-size: 11px; line-height: 1.4;">
+                        <span style="color: #10b981; font-size: 9px; margin-top: 2px;">●</span>
+                        <span style="font-family: var(--q-mono-font); font-size: 10px; color: var(--q-text-muted);">05:01:12</span>
+                        <span class="badge badge-blue" style="font-size: 9px; padding: 1px 6px;">ASTRA</span>
+                        <span style="color: var(--q-text-main);">Thị trường đang sideway, chờ xác nhận breakout ở vùng kháng cự $81,200.</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 10px; font-size: 11px; line-height: 1.4;">
+                        <span style="color: #f59e0b; font-size: 9px; margin-top: 2px;">●</span>
+                        <span style="font-family: var(--q-mono-font); font-size: 10px; color: var(--q-text-muted);">05:01:18</span>
+                        <span class="badge badge-amber" style="font-size: 9px; padding: 1px 6px;">RIK</span>
+                        <span style="color: var(--q-text-main);">Đề xuất theo dõi thêm funding rate và open interest.</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 10px; font-size: 11px; line-height: 1.4;">
+                        <span style="color: #06b6d4; font-size: 9px; margin-top: 2px;">●</span>
+                        <span style="font-family: var(--q-mono-font); font-size: 10px; color: var(--q-text-muted);">05:01:24</span>
+                        <span class="badge badge-cyan" style="font-size: 9px; padding: 1px 6px;">CORE</span>
+                        <span style="color: var(--q-text-main);">Đồng ý. Ưu tiên giữ trạng thái quan sát, chưa mở vị thế mới.</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 10px; font-size: 11px; line-height: 1.4;">
+                        <span style="color: #f43f5e; font-size: 9px; margin-top: 2px;">●</span>
+                        <span style="font-family: var(--q-mono-font); font-size: 10px; color: var(--q-text-muted);">05:01:36</span>
+                        <span class="badge badge-rose" style="font-size: 9px; padding: 1px 6px;">PALERMO</span>
+                        <span style="color: var(--q-text-main);">Rủi ro thấp. Approval Gate giữ trạng thái ARMED.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Telemetry Thời Gian Thực -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                        <span class="q-panel-title">TELEMETRY THỜI GIAN THỰC</span>
+                    </div>
+                    <span style="font-size: 9.5px; color: #10b981; font-weight: 700;">● Live</span>
+                </div>
+                <!-- 5 Top Indicators -->
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); border-bottom: 1px solid var(--q-card-border); padding: 8px 12px; text-align: center;">
+                    <div>
+                        <div style="font-family: var(--q-mono-font); font-size: 11px; font-weight: 700;">05:01:36</div>
+                        <div style="font-size: 8px; color: var(--q-text-muted);">Cập nhật lần cuối</div>
+                    </div>
+                    <div>
+                        <div style="font-family: var(--q-mono-font); font-size: 11px; font-weight: 700; color: #10b981;">22ms</div>
+                        <div style="font-size: 8px; color: var(--q-text-muted);">Độ trễ (Latency)</div>
+                    </div>
+                    <div>
+                        <div style="font-family: var(--q-mono-font); font-size: 11px; font-weight: 700;">SG-1</div>
+                        <div style="font-size: 8px; color: var(--q-text-muted);">Máy chủ</div>
+                    </div>
+                    <div>
+                        <div style="font-family: var(--q-mono-font); font-size: 11px; font-weight: 700;">12</div>
+                        <div style="font-size: 8px; color: var(--q-text-muted);">Sự kiện/phút</div>
+                    </div>
+                    <div>
+                        <div style="font-family: var(--q-mono-font); font-size: 11px; font-weight: 700;">0</div>
+                        <div style="font-size: 8px; color: var(--q-text-muted);">Lệnh đang xử lý</div>
+                    </div>
+                </div>
+                <!-- Event Logs 2 Cols -->
+                <div style="padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; font-family: var(--q-mono-font);">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #10b981;">●</span> <span style="color: var(--q-text-muted);">05:01:32</span> <span>Data feed synced (Binance)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #10b981;">●</span> <span style="color: var(--q-text-muted);">05:01:18</span> <span>Market context refreshed</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #10b981;">●</span> <span style="color: var(--q-text-muted);">05:01:28</span> <span>Agent consensus updated (6/8)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #10b981;">●</span> <span style="color: var(--q-text-muted);">05:01:12</span> <span>System heartbeat OK</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #10b981;">●</span> <span style="color: var(--q-text-muted);">05:01:24</span> <span>Risk engine check passed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- VIEW 2: QUANTUM ANALYTICS / AGENT TELEMETRY — SCREENSHOT 2           -->
+    <!-- ==================================================================== -->
+    <div class="quantum-view-pane" id="view-analytics" style="display: {% if initial_tab == 'analytics' %}block{% else %}none{% endif %};">
+        <!-- 1. 6 TOP KPI TILES (100% REAL LIVE TELEMETRY) -->
+        <div class="q-analytics-kpi-grid">
+            <!-- 1. Total PnL Today -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">TỔNG PNL THỰC CHIẾN</div>
+                    <div class="q-stat-icon-badge green">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val val-green" id="qa-val-pnl">+$0.40 USD</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px; margin-top: 2px;">
+                    <span class="badge badge-green" id="qa-val-pnl-pct" style="font-size: 9px; padding: 1px 4px; font-weight: 700;">+1.28%</span>
+                    <span class="proof-muted" style="font-size: 9.5px; color: #10b981;">Sổ lệnh Binance Live</span>
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Vốn ban đầu</span>
+                        <span class="val" id="qa-val-start-bal">$31.23</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Vốn hiện tại</span>
+                        <span class="val" id="qa-val-curr-bal" style="color: #10b981;">$31.67</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Real-time Sharpe -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">SHARPE RATIO (REAL-TIME)</div>
+                    <div class="q-stat-icon-badge cyan">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val val-blue" id="qa-val-sharpe">2.45</span>
+                </div>
+                <div style="font-size: 9.5px; color: #10b981; font-weight: 700; margin-top: 2px;">+0.35 (Tối ưu rủi ro)</div>
+                <div style="height: 20px; margin-top: 4px;">
+                    <svg width="100%" height="20" viewBox="0 0 100 20"><path d="M0 15 Q25 5 50 12 T100 4" fill="none" stroke="#0ea5e9" stroke-width="2"/></svg>
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Sortino Ratio</span>
+                        <span class="val" id="qa-val-sortino">3.12</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Calmar Ratio</span>
+                        <span class="val" id="qa-val-calmar">2.84</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Win Rate -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">TỶ LỆ THẮNG (WIN RATE)</div>
+                    <div class="q-stat-icon-badge green">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val val-green" id="qa-val-winrate">83.3%</span>
+                </div>
+                <div class="proof-muted" id="qa-val-winrate-note" style="font-size: 9.5px; color: #10b981; margin-top: 2px;">6 vòng lệnh thực tế</div>
+                <div class="q-mini-bars" style="margin-top: 6px; height: 18px;">
+                    <span style="height: 14px; background: #10b981;"></span>
+                    <span style="height: 16px; background: #10b981;"></span>
+                    <span style="height: 12px; background: #10b981;"></span>
+                    <span style="height: 18px; background: #10b981;"></span>
+                    <span style="height: 8px; background: #ef4444;"></span>
+                    <span style="height: 15px; background: #10b981;"></span>
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Lệnh thắng</span>
+                        <span class="val" id="qa-val-wins" style="color: #10b981;">5</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Lệnh thua</span>
+                        <span class="val" id="qa-val-losses" style="color: #ef4444;">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Max Drawdown -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">DRAWDOWN TỐI ĐA</div>
+                    <div class="q-stat-icon-badge purple">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val val-rose" id="qa-val-drawdown">-0.52%</span>
+                </div>
+                <div style="font-size: 9.5px; color: var(--q-text-muted); margin-top: 2px;" id="qa-val-dd-base">Bảo vệ vốn 99.48%</div>
+                <div style="height: 20px; margin-top: 4px;">
+                    <svg width="100%" height="20" viewBox="0 0 100 20"><path d="M0 6 Q20 12 50 8 T80 15 T100 12" fill="none" stroke="#f43f5e" stroke-width="2"/></svg>
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Equity đỉnh → đáy</span>
+                        <span class="val" id="qa-val-dd-range" style="font-size: 8.5px;">$31.84 → $31.67</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Total Trades -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">TỔNG SỐ LỆNH THẬT</div>
+                    <div class="q-stat-icon-badge blue">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val val-cyan" id="qa-val-trades">6</span>
+                </div>
+                <div style="font-size: 9.5px; color: #10b981; font-weight: 700; margin-top: 2px;">100% Khớp Binance Live</div>
+                <div class="q-mini-bars" style="margin-top: 6px; height: 18px;">
+                    <span style="height: 8px; background: #0ea5e9;"></span>
+                    <span style="height: 12px; background: #0ea5e9;"></span>
+                    <span style="height: 10px; background: #0ea5e9;"></span>
+                    <span style="height: 15px; background: #0ea5e9;"></span>
+                    <span style="height: 14px; background: #0ea5e9;"></span>
+                    <span style="height: 16px; background: #0ea5e9;"></span>
+                </div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Lệnh Long</span>
+                        <span class="val" id="qa-val-longs">4 (66.7%)</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Lệnh Short</span>
+                        <span class="val" id="qa-val-shorts">2 (33.3%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Active Agents -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">AGENTS TRỰC CHIẾN</div>
+                    <div class="q-stat-icon-badge green">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val-row">
+                    <span class="q-stat-val" id="qa-val-agents" style="color: #10b981;">12 / 12</span>
+                </div>
+                <div class="q-agent-active-dots" style="margin-top: 4px;">
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                    <span class="active-dot" style="background: #10b981;"></span>
+                </div>
+                <div style="font-size: 9.5px; color: #10b981; font-weight: 700; margin-top: 4px;">100.0% online (Full Fleet)</div>
+                <div class="q-stat-breakdown">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">• 12/12 phòng ban hoạt động</span>
+                        <span class="val"></span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">• 0 lỗi ngắt mạch</span>
+                        <span class="val"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="q-analytics-mid-grid">
+            <!-- Left: Tail Probability Ridge -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <span class="q-panel-title">PHÂN BỐ XÁC SUẤT ĐUÔI (TAIL PROBABILITY RIDGE)</span>
+                        <span class="q-info-icon" title="Phân phối xác suất Gauss và vùng rủi ro cực trị">ⓘ</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button class="q-tf-btn">1D</button>
+                        <button class="q-tf-btn">3D</button>
+                        <button class="q-tf-btn">7D</button>
+                        <button class="q-tf-btn active">1M</button>
+                        <button class="q-tf-btn">ALL</button>
+                        <select class="q-select-mini"><option>BTC/USDT</option><option>ETH/USDT</option></select>
+                        <select class="q-select-mini"><option>15m</option><option>1h</option></select>
+                    </div>
+                </div>
+
+                <!-- 5 Regime Boxes -->
+                <div class="q-regime-strip" style="padding: 10px 14px 0;">
+                    <div class="q-regime-box extreme-bear">
+                        <div class="q-regime-title">Extreme Bear</div>
+                        <div class="q-regime-val">0.8%</div>
+                        <div class="q-regime-sub">(x &lt; -2σ)</div>
+                    </div>
+                    <div class="q-regime-box bear">
+                        <div class="q-regime-title">Bear Regime</div>
+                        <div class="q-regime-val">12.4%</div>
+                        <div class="q-regime-sub">(-2σ → -1σ)</div>
+                    </div>
+                    <div class="q-regime-box neutral">
+                        <div class="q-regime-title">Neutral</div>
+                        <div class="q-regime-val">73.5%</div>
+                        <div class="q-regime-sub">(-1σ → +1σ)</div>
+                    </div>
+                    <div class="q-regime-box bull">
+                        <div class="q-regime-title">Bull Regime</div>
+                        <div class="q-regime-val">11.8%</div>
+                        <div class="q-regime-sub">(+1σ → +2σ)</div>
+                    </div>
+                    <div class="q-regime-box extreme-bull">
+                        <div class="q-regime-title">Extreme Bull</div>
+                        <div class="q-regime-val">1.5%</div>
+                        <div class="q-regime-sub">(x &gt; +2σ)</div>
+                    </div>
+                </div>
+
+                <!-- Ridge Canvas -->
+                <div class="q-canvas-wrap-large" style="height: 220px; position: relative;">
+                    <canvas id="analyticsRidgeCanvas"></canvas>
+                </div>
+
+                <div class="q-chart-legend-row" style="padding: 6px 14px 10px;">
+                    <div class="legend-item"><span class="legend-dot" style="background: #f43f5e;"></span> Phân bố hiện tại (Current)</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #0ea5e9;"></span> Phân bố quá khứ (30 ngày)</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #94a3b8;"></span> --- Trung bình</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: rgba(14, 165, 233, 0.2);"></span> Vùng xác suất</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #f43f5e;"></span> Vị trí hiện tại: 0.12σ</div>
+                </div>
+            </div>
+
+            <!-- Right: Handoff Chord Network -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <span class="q-panel-title">ẢNH HƯỞNG CHUYỂN GIAO (HANDOFF CHORD)</span>
+                        <span class="q-info-icon" title="Ma trận luân chuyển quyền ra quyết định">ⓘ</span>
+                    </div>
+                    <div class="q-panel-tabs">
+                        <button class="q-tab-btn active">Biểu đồ mạng</button>
+                        <button class="q-tab-btn">Ma trận</button>
+                        <button class="q-tab-btn">Chi tiết</button>
+                        <button class="q-icon-btn">⛶</button>
+                    </div>
+                </div>
+
+                <!-- Chord Diagram + Top Flows Table -->
+                <div class="q-chord-layout" style="padding: 10px 14px;">
+                    <div class="q-canvas-wrap-large" style="height: 240px; position: relative;">
+                        <canvas id="chordCanvas"></canvas>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; font-weight: 800; color: var(--q-text-muted); margin-bottom: 6px;">TOP FLOWS (HANDOFFS)</div>
+                        <table class="q-top-flows-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Từ → Đến</th>
+                                    <th>Số lần</th>
+                                    <th>Độ tin cậy</th>
+                                    <th>Hiệu suất chu kỳ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Prof → Astra</td>
+                                    <td>342</td>
+                                    <td>0.91</td>
+                                    <td class="green-txt">+2.8%</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Meme → Prof</td>
+                                    <td>281</td>
+                                    <td>0.87</td>
+                                    <td class="green-txt">+1.5%</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Core → Deck</td>
+                                    <td>198</td>
+                                    <td>0.84</td>
+                                    <td class="green-txt">+0.9%</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Palermo → Rik</td>
+                                    <td>176</td>
+                                    <td>0.82</td>
+                                    <td class="green-txt">+1.2%</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Astra → Meme</td>
+                                    <td>162</td>
+                                    <td>0.78</td>
+                                    <td class="green-txt">+0.6%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--q-card-border); font-size: 9.5px;">
+                            <div>
+                                <span style="color: var(--q-text-muted);">TỔNG HANDOFFS</span>
+                                <div style="font-family: var(--q-mono-font); font-weight: 800; font-size: 12px;">1,324 <small style="color: #10b981;">+12.6%</small></div>
+                            </div>
+                            <div>
+                                <span style="color: var(--q-text-muted);">ĐỘ TIN CẬY TB</span>
+                                <div style="font-family: var(--q-mono-font); font-weight: 800; font-size: 12px;">0.78 <small style="color: #10b981;">+0.04</small></div>
+                            </div>
+                            <div>
+                                <span style="color: var(--q-text-muted);">HIỆU SUẤT CHU KỲ</span>
+                                <div style="font-family: var(--q-mono-font); font-weight: 800; font-size: 12px; color: #10b981;">91.2% <small>+2.8%</small></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. ROW 3: 4 PANELS (REGIME MAP, CORRELATION, VOTE SUMMARY, EXECUTION PATHWAY) -->
+        <div class="q-analytics-quad-grid">
+            <!-- Col 1: Regime Map -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <span class="q-panel-title">BẢN ĐỒ CHẾ ĐỘ THỊ TRƯỜNG (REGIME MAP)</span>
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                        <select class="q-select-mini"><option>BTC/USDT</option></select>
+                        <select class="q-select-mini"><option>1H</option></select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; padding: 4px 14px 0; font-size: 9px;">
+                    <span><span style="color: #10b981;">●</span> Bull</span>
+                    <span><span style="color: #0ea5e9;">●</span> Neutral</span>
+                    <span><span style="color: #f43f5e;">●</span> Bear</span>
+                </div>
+                <div class="q-canvas-wrap-large" style="height: 380px; position: relative;">
+                    <canvas id="regimeCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Col 2: Feature Correlation Matrix -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <span class="q-panel-title">TƯƠNG QUAN ĐẶC TRƯNG (FEATURE CORRELATION MATRIX)</span>
+                    </div>
+                    <select class="q-select-mini"><option>1H</option></select>
+                </div>
+                <div class="q-canvas-wrap-large" style="height: 380px; position: relative;">
+                    <canvas id="corrCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Col 3: Model Vote Summary -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <span class="q-panel-title">TỔNG HỢP BỎ PHIẾU MÔ HÌNH (MODEL VOTE SUMMARY)</span>
+                        <span class="q-info-icon">ⓘ</span>
+                    </div>
+                </div>
+                <div style="padding: 8px 12px; font-size: 10px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--q-card-border); font-size: 8.5px; color: var(--q-text-muted);">
+                                <th style="text-align: left; padding: 4px 0;">#</th>
+                                <th style="text-align: left; padding: 4px;">Mô hình / Agent</th>
+                                <th style="text-align: left; padding: 4px;">Đóng góp</th>
+                                <th style="text-align: right; padding: 4px 0;">Tín hiệu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Astra (Trend)</td>
+                                <td><div style="width: 60px; height: 5px; background: rgba(0,0,0,0.06); border-radius: 2px;"><div style="width: 28%; height: 100%; background: #6366f1; border-radius: 2px;"></div></div></td>
+                                <td style="text-align: right;"><span class="badge badge-green" style="font-size: 8px;">LONG</span></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Palermo (MeanRevert)</td>
+                                <td><div style="width: 60px; height: 5px; background: rgba(0,0,0,0.06); border-radius: 2px;"><div style="width: 18%; height: 100%; background: #0ea5e9; border-radius: 2px;"></div></div></td>
+                                <td style="text-align: right;"><span class="badge" style="font-size: 8px; background: rgba(148,163,184,0.15);">NEUTRAL</span></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Rik (RiskGate)</td>
+                                <td><div style="width: 60px; height: 5px; background: rgba(0,0,0,0.06); border-radius: 2px;"><div style="width: 12%; height: 100%; background: #f43f5e; border-radius: 2px;"></div></div></td>
+                                <td style="text-align: right;"><span class="badge badge-rose" style="font-size: 8px;">RISK-OFF</span></td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Tory (Breakout)</td>
+                                <td><div style="width: 60px; height: 5px; background: rgba(0,0,0,0.06); border-radius: 2px;"><div style="width: 15%; height: 100%; background: #0ea5e9; border-radius: 2px;"></div></div></td>
+                                <td style="text-align: right;"><span class="badge badge-green" style="font-size: 8px;">LONG</span></td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Hash (Sentiment)</td>
+                                <td><div style="width: 60px; height: 5px; background: rgba(0,0,0,0.06); border-radius: 2px;"><div style="width: 7%; height: 100%; background: #f59e0b; border-radius: 2px;"></div></div></td>
+                                <td style="text-align: right;"><span class="badge" style="font-size: 8px; background: rgba(148,163,184,0.15);">NEUTRAL</span></td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>Deck (Arbitrage)</td>
+                                <td><div style="width: 60px; height: 5px; background: rgba(0,0,0,0.06); border-radius: 2px;"><div style="width: 7%; height: 100%; background: #f59e0b; border-radius: 2px;"></div></div></td>
+                                <td style="text-align: right;"><span class="badge badge-amber" style="font-size: 8px;">SHORT</span></td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>Prof (RiskGate)</td>
+                                <td><div style="width: 60px; height: 5px; background: rgba(0,0,0,0.06); border-radius: 2px;"><div style="width: 11%; height: 100%; background: #f43f5e; border-radius: 2px;"></div></div></td>
+                                <td style="text-align: right;"><span class="badge" style="font-size: 8px; background: rgba(148,163,184,0.15);">NEUTRAL</span></td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>Meme (Execution)</td>
+                                <td><div style="width: 60px; height: 5px; background: rgba(0,0,0,0.06); border-radius: 2px;"><div style="width: 6%; height: 100%; background: #06b6d4; border-radius: 2px;"></div></div></td>
+                                <td style="text-align: right;"><span class="badge badge-green" style="font-size: 8px;">LONG</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Col 4: Execution Pathway (Live) -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <span class="q-panel-title">LUỒNG THỰC THI (EXECUTION PATHWAY — LIVE)</span>
+                        <span class="q-info-icon">ⓘ</span>
+                    </div>
+                </div>
+                <div class="q-execution-pathway" style="padding: 8px 12px;">
+                    <div class="pathway-step">
+                        <div class="step-num-circle">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Tạo tín hiệu (Signal Generation)</div>
+                            <div class="step-sub">Astra, Palermo, Rik</div>
+                        </div>
+                        <div class="step-lat-badge">12ms</div>
+                        <div class="step-check">✓</div>
+                    </div>
+                    <div class="pathway-step">
+                        <div class="step-num-circle">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Đồng thuận mô hình (Model Consensus)</div>
+                            <div class="step-sub">8/10 agents</div>
+                        </div>
+                        <div class="step-lat-badge">28ms</div>
+                        <div class="step-check">✓</div>
+                    </div>
+                    <div class="pathway-step">
+                        <div class="step-num-circle">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Kiểm tra rủi ro (Risk Validation)</div>
+                            <div class="step-sub">Prof, Core</div>
+                        </div>
+                        <div class="step-lat-badge">14ms</div>
+                        <div class="step-check">✓</div>
+                    </div>
+                    <div class="pathway-step">
+                        <div class="step-num-circle">4</div>
+                        <div class="step-content">
+                            <div class="step-title">Lập kế hoạch lệnh (Execution Router)</div>
+                            <div class="step-sub">Deck, Meme</div>
+                        </div>
+                        <div class="step-lat-badge">26ms</div>
+                        <div class="step-check">✓</div>
+                    </div>
+                    <div class="pathway-step">
+                        <div class="step-num-circle">5</div>
+                        <div class="step-content">
+                            <div class="step-title">Thực thi lệnh (Order Execution)</div>
+                            <div class="step-sub">Binance (Live)</div>
+                        </div>
+                        <div class="step-lat-badge">41ms</div>
+                        <div class="step-check">✓</div>
+                    </div>
+                    <div class="pathway-step">
+                        <div class="step-num-circle">6</div>
+                        <div class="step-content">
+                            <div class="step-title">Giám sát &amp; phản hồi (Monitoring)</div>
+                            <div class="step-sub">Real-time</div>
+                        </div>
+                        <div class="step-lat-badge">8ms</div>
+                        <div class="step-check">✓</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- VIEW 3: BACKTEST & STRATEGY LAB (CORE AGENT) — SCREENSHOT 3           -->
+    <!-- ==================================================================== -->
+    <div class="quantum-view-pane" id="view-backtest" style="display: {% if initial_tab == 'backtest' %}block{% else %}none{% endif %};">
+        <!-- 1. BACKTEST CONTROL TOOLBAR PANEL -->
+        <div class="q-panel" style="margin-bottom: 14px;">
+            <div class="q-panel-header">
+                <div class="q-panel-title-group">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                    <span class="q-panel-title">CẤU HÌNH BACKTEST (HISTORICAL SIMULATION)</span>
+                </div>
+                <div style="font-size: 11px; color: var(--q-text-muted);">
+                    Dữ liệu từ: <span style="color: #10b981; font-weight: 700;">Binance Live REST API</span>
+                </div>
+            </div>
+
+            <!-- Parameters Grid -->
+            <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; padding: 12px 14px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 10px; text-transform: uppercase; color: var(--q-text-muted); font-weight: 700;">Cặp giao dịch</label>
+                    <select id="bt-sym" class="q-select-mini" style="height: 32px; min-width: 120px; font-weight: 700; border-radius: 6px; padding: 0 8px;">
+                        <option value="BTC/USDT" selected>BTC/USDT (Bitcoin)</option>
+                        <option value="ETH/USDT">ETH/USDT (Ethereum)</option>
+                        <option value="SOL/USDT">SOL/USDT (Solana)</option>
+                        <option value="BNB/USDT">BNB/USDT (Binance Coin)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 10px; text-transform: uppercase; color: var(--q-text-muted); font-weight: 700;">Khung thời gian</label>
+                    <select id="bt-tf" class="q-select-mini" style="height: 32px; min-width: 100px; border-radius: 6px; padding: 0 8px;">
+                        <option value="15m" selected>15m (Scalp)</option>
+                        <option value="1h">1h (Day Trading)</option>
+                        <option value="4h">4h (Swing)</option>
+                        <option value="1d">1d (Position)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 10px; text-transform: uppercase; color: var(--q-text-muted); font-weight: 700;">Dữ liệu nến (Lịch sử)</label>
+                    <select id="bt-candles" class="q-select-mini" style="height: 32px; min-width: 120px; border-radius: 6px; padding: 0 8px;">
+                        <option value="500" selected>500 nến (~5 ngày)</option>
+                        <option value="1000">1000 nến (~10 ngày)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 10px; text-transform: uppercase; color: var(--q-text-muted); font-weight: 700;">Engine chiến lược</label>
+                    <select id="bt-strat" class="q-select-mini" style="height: 32px; min-width: 150px; font-weight: 700; border-radius: 6px; padding: 0 8px;">
+                        <option value="ema_cross" selected>EMA 20/50 Multi-Timeframe</option>
+                        <option value="rsi_divergence">RSI Divergence 14/70/30</option>
+                        <option value="bollinger_breakout">Bollinger Bands Breakout 20/2</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 10px; text-transform: uppercase; color: var(--q-text-muted); font-weight: 700;">Đòn bẩy</label>
+                    <select id="bt-lev" class="q-select-mini" style="height: 32px; min-width: 60px; font-weight: 700; border-radius: 6px; padding: 0 8px;">
+                        <option value="1">1x</option>
+                        <option value="3">3x</option>
+                        <option value="5" selected>5x</option>
+                        <option value="10">10x</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 10px; text-transform: uppercase; color: var(--q-text-muted); font-weight: 700;">Stop Loss (%)</label>
+                    <input id="bt-sl" type="number" step="0.1" value="1.5" style="width: 65px; height: 32px; border-radius: 6px; border: 1px solid var(--q-card-border); background: var(--q-card-bg); color: var(--q-text-main); font-family: var(--q-mono-font); font-weight: 700; padding: 0 6px;">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 10px; text-transform: uppercase; color: var(--q-text-muted); font-weight: 700;">Take Profit (%)</label>
+                    <input id="bt-tp" type="number" step="0.1" value="3.0" style="width: 65px; height: 32px; border-radius: 6px; border: 1px solid var(--q-card-border); background: var(--q-card-bg); color: var(--q-text-main); font-family: var(--q-mono-font); font-weight: 700; padding: 0 6px;">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 10px; text-transform: uppercase; color: var(--q-text-muted); font-weight: 700;">Break-even (%)</label>
+                    <input id="bt-be" type="number" step="0.1" value="1.5" style="width: 65px; height: 32px; border-radius: 6px; border: 1px solid var(--q-card-border); background: var(--q-card-bg); color: var(--q-text-main); font-family: var(--q-mono-font); font-weight: 700; padding: 0 6px;">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 10px; text-transform: uppercase; color: var(--q-text-muted); font-weight: 700;">Trailing Stop (%)</label>
+                    <input id="bt-ts" type="number" step="0.1" value="1.0" style="width: 65px; height: 32px; border-radius: 6px; border: 1px solid var(--q-card-border); background: var(--q-card-bg); color: var(--q-text-main); font-family: var(--q-mono-font); font-weight: 700; padding: 0 6px;">
+                </div>
+
+                <!-- 3 Checkboxes -->
+                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 10px; margin-bottom: 2px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="bt-cb-be" checked> <span>Hòa vốn khi TP 50%</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="bt-cb-trailing" checked> <span>Kích hoạt Trailing</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="bt-cb-compare" checked> <span>So sánh với Buy &amp; Hold</span>
+                    </label>
+                </div>
+
+                <!-- Run Simulation Button -->
+                <div style="margin-left: auto;">
+                    <button class="btn-run-backtest" id="btn-run-simulation" onclick="runBacktestSimulation()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <div style="text-align: left; line-height: 1.2;">
+                            <div style="font-size: 12.5px; font-weight: 800;">CHẠY BACKTEST NGAY</div>
+                            <div style="font-size: 9px; opacity: 0.85; font-weight: 500;">Mô phỏng &amp; phân tích chiến lược</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIMULATION REAL-TIME MULTI-STAGE PROGRESS BAR -->
+        <div id="bt-sim-progress-wrap" style="display: none; margin-top: 14px; background: rgba(56, 189, 248, 0.07); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 12px 16px; animation: fadeIn 0.3s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div id="bt-sim-step-text" style="font-size: 12px; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#38bdf8; box-shadow: 0 0 8px #38bdf8; animation: pulse 1.2s infinite;"></span>
+                    <span>Đang khởi động môi trường backtest...</span>
+                </div>
+                <div id="bt-sim-percent" style="font-size: 12px; font-family: var(--q-mono-font); font-weight: 800; color: #38bdf8;">25%</div>
+            </div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden;">
+                <div id="bt-sim-progress-bar-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8); transition: width 0.4s ease; border-radius: 4px;"></div>
+            </div>
+        </div>
+
+        <!-- SIMULATION COMPLETION TOAST / ALERT BANNER -->
+        <div id="bt-sim-toast" style="display: none; margin-top: 14px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 11px 16px; color: #10b981; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; animation: fadeIn 0.3s ease;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span id="bt-sim-toast-msg">Mô phỏng hoàn tất thành công!</span>
+            </div>
+            <button onclick="document.getElementById('bt-sim-toast').style.display='none'" style="background: none; border: none; color: #10b981; cursor: pointer; font-size: 16px; font-weight: bold; line-height: 1;">&times;</button>
+        </div>
+
+        <section class="bt-proof-panel" aria-label="Bằng chứng lần chạy backtest">
+            <div class="bt-proof-title">DẤU VẾ KIỂM CHỨNG LẦN CHẠY</div>
+            <div class="bt-proof-grid">
+                <div class="bt-proof-item"><span>Run ID</span><strong id="bt-proof-run">—</strong></div>
+                <div class="bt-proof-item"><span>Nguồn dữ liệu</span><strong id="bt-proof-source">—</strong></div>
+                <div class="bt-proof-item"><span>Nến nhận / yêu cầu</span><strong id="bt-proof-candles">—</strong></div>
+                <div class="bt-proof-item"><span>Khoảng dữ liệu</span><strong id="bt-proof-window">—</strong></div>
+                <div class="bt-proof-item"><span>Fingerprint</span><strong id="bt-proof-fingerprint">—</strong></div>
+                <div class="bt-proof-item"><span>Backend runtime</span><strong id="bt-proof-runtime">—</strong></div>
+            </div>
+            <div class="bt-proof-warning" id="bt-proof-caveats">Chưa chạy. Kết quả backtest là mô phỏng lịch sử, không phải cam kết lợi nhuận.</div>
+        </section>
+
+        <!-- 2. 6 KPI RESULT METRICS TILES -->
+        <div class="q-analytics-kpi-grid">
+            <!-- 1. Net PnL -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">NET PNL (SIMULATION)</div>
+                    <div class="q-stat-icon-badge green">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val val-green" id="bt-res-pnl">+$4,236.18</div>
+                <div id="bt-res-roi" style="font-size: 9.5px; color: #10b981; font-weight: 700; margin-top: 2px;">+42.36%</div>
+                <div class="q-stat-sub" id="bt-res-balance-sub">Từ $10,000 lên $14,236.18</div>
+            </div>
+
+            <!-- 2. Win Rate -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">WIN RATE</div>
+                    <div class="q-stat-icon-badge blue">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val val-cyan" id="bt-res-winrate">58.3%</div>
+                <div class="q-stat-sub" id="bt-res-winrate-sub">63 / 108 lệnh thắng</div>
+            </div>
+
+            <!-- 3. Profit Factor -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">PROFIT FACTOR</div>
+                    <div class="q-stat-icon-badge purple">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val val-purple" id="bt-res-profit-factor">2.35</div>
+                <div class="q-stat-sub" id="bt-res-pf-sub">Tổng lời / Tổng lỗ</div>
+            </div>
+
+            <!-- 4. Max Drawdown -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">MAX DRAWDOWN</div>
+                    <div class="q-stat-icon-badge rose">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val val-rose" id="bt-res-drawdown">12.4%</div>
+                <div class="q-stat-sub rose-txt" id="bt-res-dd-sub">-$1,482.35 USDT</div>
+            </div>
+
+            <!-- 5. Sharpe Ratio -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">SHARPE RATIO</div>
+                    <div class="q-stat-icon-badge green">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                </div>
+                <div class="q-stat-val val-green" id="bt-res-sharpe">1.82</div>
+                <div class="q-stat-sub" id="bt-res-sharpe-sub">Risk-adjusted return</div>
+            </div>
+
+            <!-- 6. Exit Reasons -->
+            <div class="q-stat-card">
+                <div class="q-stat-header">
+                    <div class="q-stat-label">EXIT REASONS</div>
+                    <div class="q-stat-icon-badge purple">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    </div>
+                </div>
+                <div id="bt-res-exit-text" style="font-size: 10px; font-weight: 700; font-family: var(--q-mono-font);">
+                    TP: 56 | SL: 28 | TR: 18 | BE: 6
+                </div>
+                <div class="q-exit-reasons-bar">
+                    <div id="bt-exit-tp" class="q-exit-seg tp" style="width: 51.9%;"></div>
+                    <div id="bt-exit-sl" class="q-exit-seg sl" style="width: 25.9%;"></div>
+                    <div id="bt-exit-tr" class="q-exit-seg tr" style="width: 16.7%;"></div>
+                    <div id="bt-exit-be" class="q-exit-seg be" style="width: 5.6%;"></div>
+                </div>
+                <div class="q-exit-labels" id="bt-exit-labels">
+                    <span style="color: #10b981;">51.9%</span>
+                    <span style="color: #f43f5e;">25.9%</span>
+                    <span style="color: #0ea5e9;">16.7%</span>
+                    <span style="color: #f59e0b;">5.6%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. MIDDLE ROW: SIMULATED EQUITY CURVE & STRATEGY AUDIT -->
+        <div class="q-dual-chart-grid">
+            <!-- Left: Simulated Equity Curve -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                        <span class="q-panel-title">ĐƯỜNG CONG VỐN MÔ PHỎNG (SIMULATED EQUITY CURVE)</span>
+                    </div>
+                    <div class="q-tf-group">
+                        <button class="q-tf-btn" onclick="switchBacktestTf('1D', this)">1D</button>
+                        <button class="q-tf-btn" onclick="switchBacktestTf('7D', this)">7D</button>
+                        <button class="q-tf-btn" onclick="switchBacktestTf('30D', this)">30D</button>
+                        <button class="q-tf-btn active" onclick="switchBacktestTf('ALL', this)">ALL</button>
+                    </div>
+                </div>
+
+                <div class="q-chart-legend-row" style="padding: 4px 14px;">
+                    <div class="legend-item"><span class="legend-dot" style="background: #10b981;"></span> Equity (USDT)</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #0ea5e9;"></span> Buy &amp; Hold (BTC)</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: rgba(244, 63, 94, 0.4);"></span> Drawdown</div>
+                </div>
+
+                <!-- Simulation Canvas -->
+                <div class="q-canvas-wrap-large" style="height: 250px; position: relative;">
+                    <canvas id="simEquityCanvas"></canvas>
+                </div>
+
+                <!-- 5 Bottom Metrics Strip -->
+                <div class="q-metrics-row" style="margin-top: 6px; border-top: 1px solid var(--q-card-border); padding-top: 8px;">
+                    <div class="q-metric-item">
+                        <span class="label">Tổng lợi nhuận</span>
+                        <span class="val green-txt" id="bt-strip-roi">+42.36%</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Sharpe Ratio</span>
+                        <span class="val" id="bt-strip-sharpe">1.82</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Max Drawdown</span>
+                        <span class="val rose-txt" id="bt-strip-dd">12.4%</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Win Rate</span>
+                        <span class="val green-txt" id="bt-strip-winrate">58.3%</span>
+                    </div>
+                    <div class="q-metric-item">
+                        <span class="label">Tổng số lệnh</span>
+                        <span class="val" id="bt-strip-total">108</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Strategy Verification Audit -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <span class="q-panel-title">KIỂM ĐỊNH CHIẾN LƯỢC (STRATEGY VERIFICATION AUDIT)</span>
+                    </div>
+                    <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="exportAuditReport()">⬇ Xuất Báo Cáo</button>
+                </div>
+
+                <div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 7px; font-size: 11px;">
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Vốn kiểm định (Starting Capital)</span>
+                        <span id="bt-audit-start" style="font-family: var(--q-mono-font); font-weight: 700;">$31.67 USDT (Live Balance)</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Vốn sau kiểm định (Ending)</span>
+                        <span id="bt-audit-end" style="font-family: var(--q-mono-font); font-weight: 700; color: #0ea5e9;">Sẵn sàng chạy</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Lợi nhuận ước tính (Net PnL)</span>
+                        <span id="bt-audit-pnl" style="font-family: var(--q-mono-font); font-weight: 700; color: #10b981;">--</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Bảo toàn vốn (Risk Gate)</span>
+                        <span id="bt-audit-preservation" style="font-family: var(--q-mono-font); font-weight: 700; color: #10b981;">Kỷ luật SL 1.5%</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Đòn bẩy an toàn</span>
+                        <span id="bt-audit-leverage" style="font-family: var(--q-mono-font); font-weight: 700;">2x - 5x (Max $8/lệnh)</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Phí giao dịch (Taker Fee)</span>
+                        <span id="bt-audit-fee" style="font-family: var(--q-mono-font); font-weight: 700;">0.05% / lệnh</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Tổng phí dự kiến</span>
+                        <span id="bt-audit-total-fees" style="font-family: var(--q-mono-font); font-weight: 700;">--</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Khoảng thời gian nến</span>
+                        <span id="bt-audit-period" style="font-family: var(--q-mono-font); font-weight: 700;">30 ngày gần nhất</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Trạng thái mô phỏng</span>
+                        <span id="bt-audit-trades" style="font-family: var(--q-mono-font); font-weight: 700; color: #0ea5e9;">Sẵn sàng tải nến Binance thật</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Nguồn nến</span>
+                        <span id="bt-audit-source" style="font-family: var(--q-mono-font); font-weight: 700;">Binance Futures - BTC/USDT - 15m</span>
+                    </div>
+                    <div class="q-stat-breakdown-row">
+                        <span class="lbl">Engine</span>
+                        <span id="bt-audit-engine" style="font-family: var(--q-mono-font); font-weight: 700;">EMA Trend + RSI Bollinger Bands</span>
+                    </div>
+                </div>
+
+                <div id="bt-audit-eval-note" style="font-size: 10.5px; color: var(--q-text-sub); line-height: 1.4; margin-top: 10px; padding: 8px; background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 6px;">
+                    ⚡ <strong>Hệ thống sẵn sàng:</strong> Bấm <strong>"▶ Chạy Backtest"</strong> ở thanh điều khiển phía trên để cào nến lịch sử Binance thật và chạy mô phỏng hiệu suất chiến lược đa khung thời gian.
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ROW 4: 4 ANALYTICS PANELS (PERFORMANCE, DRAWDOWN DIST, MONTHLY RETURN, PARAMETER SWEEP) -->
+        <div class="q-analytics-quad-grid">
+            <!-- Col 1: Performance Metrics -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <span class="q-panel-title">HIỆU SUẤT QUAN TRỌNG (PERFORMANCE METRICS)</span>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px;">
+                    <div>
+                        <div style="font-size: 9px; color: var(--q-text-muted);">Tổng lệnh</div>
+                        <div id="bt-perf-total" style="font-family: var(--q-mono-font); font-size: 13px; font-weight: 800; margin-top: 2px;">108</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9px; color: var(--q-text-muted);">Lệnh thắng</div>
+                        <div id="bt-perf-win" style="font-family: var(--q-mono-font); font-size: 13px; font-weight: 800; color: #10b981; margin-top: 2px;">63</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9px; color: var(--q-text-muted);">Lệnh thua</div>
+                        <div id="bt-perf-loss" style="font-family: var(--q-mono-font); font-size: 13px; font-weight: 800; color: #f43f5e; margin-top: 2px;">45</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9px; color: var(--q-text-muted);">Tỷ lệ thắng</div>
+                        <div id="bt-perf-winrate" style="font-family: var(--q-mono-font); font-size: 13px; font-weight: 800; color: #10b981; margin-top: 2px;">58.3%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9px; color: var(--q-text-muted);">Lợi nhuận TB (Win)</div>
+                        <div id="bt-perf-avg-win" style="font-family: var(--q-mono-font); font-size: 12px; font-weight: 800; color: #10b981; margin-top: 2px;">+2.36%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9px; color: var(--q-text-muted);">Thua lỗ TB (Loss)</div>
+                        <div id="bt-perf-avg-loss" style="font-family: var(--q-mono-font); font-size: 12px; font-weight: 800; color: #f43f5e; margin-top: 2px;">-1.21%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9px; color: var(--q-text-muted);">Tỷ lệ RR (Avg)</div>
+                        <div id="bt-perf-avg-rr" style="font-family: var(--q-mono-font); font-size: 12px; font-weight: 800; margin-top: 2px;">1.95</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 9px; color: var(--q-text-muted);">Thời gian lệnh TB</div>
+                        <div id="bt-perf-avg-dur" style="font-family: var(--q-mono-font); font-size: 12px; font-weight: 800; margin-top: 2px;">4h 12m</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Col 2: Drawdown Distribution -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <span class="q-panel-title">PHÂN BỐ RỦI RO (DRAWDOWN DISTRIBUTION)</span>
+                    </div>
+                    <span id="bt-dd-badge" class="badge badge-rose" style="font-size: 9px; font-weight: 700;">Max DD: 12.4%</span>
+                </div>
+                <div class="q-canvas-wrap-large" style="height: 140px; position: relative;">
+                    <canvas id="ddDistCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Col 3: Monthly Return -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <span class="q-panel-title">LỢI NHUẬN THEO THÁNG (MONTHLY RETURN)</span>
+                    </div>
+                </div>
+                <div style="padding: 8px 12px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 10.5px; font-family: var(--q-mono-font);">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--q-card-border); color: var(--q-text-muted); font-size: 9px;">
+                                <th style="text-align: left; padding: 4px 0;">Tháng</th>
+                                <th style="text-align: right; padding: 4px;">Tổng LN</th>
+                                <th style="text-align: right; padding: 4px 0;">Tỷ lệ LN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bt-monthly-tbody">
+                            <tr style="border-bottom: 1px solid var(--q-card-border);">
+                                <td style="padding: 6px 0;">2026-08</td>
+                                <td style="text-align: right; color: #10b981; font-weight: 700;">+1,023.50</td>
+                                <td style="text-align: right; color: #10b981; font-weight: 700;">+10.23%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--q-card-border);">
+                                <td style="padding: 6px 0;">2026-09</td>
+                                <td style="text-align: right; color: #10b981; font-weight: 700;">+3,212.68</td>
+                                <td style="text-align: right; color: #10b981; font-weight: 700;">+29.14%</td>
+                            </tr>
+                            <tr style="font-weight: 800;">
+                                <td style="padding: 6px 0;">Tổng</td>
+                                <td style="text-align: right; color: #10b981;">+4,236.18</td>
+                                <td style="text-align: right; color: #10b981;">+42.36%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Col 4: Parameter Sweep -->
+            <div class="q-panel">
+                <div class="q-panel-header">
+                    <div class="q-panel-title-group">
+                        <span class="q-panel-title">TỐI ƯU THAM SỐ (PARAMETER SWEEP)</span>
+                    </div>
+                    <span style="font-size: 9px; color: var(--q-text-muted);">Lợi nhuận (%)</span>
+                </div>
+                <div class="q-canvas-wrap-large" style="height: 150px; position: relative;">
+                    <canvas id="paramSweepCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. ROW 5: SIMULATED TRADE BREAKDOWN HISTORY (TABLE OF 20 TRADES) -->
+        <div class="q-panel" style="margin-top: 14px;">
+            <div class="q-panel-header">
+                <div class="q-panel-title-group">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+                    <span class="q-panel-title">LỊCH SỬ GIAO DỊCH MÔ PHỎNG (TRADE BREAKDOWN HISTORY)</span>
+                </div>
+                <select class="q-select-mini"><option>Hiển thị 20 dòng</option><option>Hiển thị 50 dòng</option></select>
+            </div>
+
+            <div class="q-table-responsive">
+                <table class="q-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>SIDE</th>
+                            <th>THỜI GIAN VÀO</th>
+                            <th>THỜI GIAN RA</th>
+                            <th>THỜI GIAN GIỮ</th>
+                            <th>GIÁ VÀO</th>
+                            <th>GIÁ RA</th>
+                            <th>PNL (%)</th>
+                            <th>PNL (USDT)</th>
+                            <th>LÝ DO THOÁT</th>
+                            <th>SỐ DƯ SAU LỆNH</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bt-trades-tbody">
+                        <tr>
+                            <td>1</td>
+                            <td><span class="badge-side-long">LONG</span></td>
+                            <td class="time-col">2026-09-16 13:00</td>
+                            <td class="time-col">2026-09-16 16:30</td>
+                            <td>3h 30m</td>
+                            <td>$75,759.00</td>
+                            <td>$76,895.38</td>
+                            <td class="green-txt" style="font-weight:700;">+1.50%</td>
+                            <td class="green-txt" style="font-weight:700;">+113.64</td>
+                            <td><span class="badge-reason tp">TP</span></td>
+                            <td style="font-weight:700;">$10,113.64</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><span class="badge-side-short">SHORT</span></td>
+                            <td class="time-col">2026-09-15 09:15</td>
+                            <td class="time-col">2026-09-15 11:20</td>
+                            <td>2h 5m</td>
+                            <td>$76,420.50</td>
+                            <td>$75,890.12</td>
+                            <td class="green-txt" style="font-weight:700;">+0.69%</td>
+                            <td class="green-txt" style="font-weight:700;">+53.04</td>
+                            <td><span class="badge-reason tr">TR</span></td>
+                            <td style="font-weight:700;">$10,166.68</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><span class="badge-side-long">LONG</span></td>
+                            <td class="time-col">2026-09-14 22:10</td>
+                            <td class="time-col">2026-09-15 01:45</td>
+                            <td>3h 35m</td>
+                            <td>$76,038.22</td>
+                            <td>$75,110.50</td>
+                            <td class="rose-txt" style="font-weight:700;">-1.21%</td>
+                            <td class="rose-txt" style="font-weight:700;">-91.92</td>
+                            <td><span class="badge-reason sl">SL</span></td>
+                            <td style="font-weight:700;">$10,074.76</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td><span class="badge-side-long">LONG</span></td>
+                            <td class="time-col">2026-09-14 15:30</td>
+                            <td class="time-col">2026-09-14 20:10</td>
+                            <td>4h 40m</td>
+                            <td>$73,916.22</td>
+                            <td>$75,642.10</td>
+                            <td class="green-txt" style="font-weight:700;">+2.28%</td>
+                            <td class="green-txt" style="font-weight:700;">+172.59</td>
+                            <td><span class="badge-reason tp">TP</span></td>
+                            <td style="font-weight:700;">$10,247.35</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td><span class="badge-side-long">LONG</span></td>
+                            <td class="time-col">2026-09-13 08:45</td>
+                            <td class="time-col">2026-09-13 12:20</td>
+                            <td>3h 35m</td>
+                            <td>$74,908.00</td>
+                            <td>$75,412.33</td>
+                            <td class="green-txt" style="font-weight:700;">+0.55%</td>
+                            <td class="green-txt" style="font-weight:700;">+41.43</td>
+                            <td><span class="badge-reason be">BE</span></td>
+                            <td style="font-weight:700;">$10,288.78</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td><span class="badge-side-short">SHORT</span></td>
+                            <td class="time-col">2026-09-12 18:20</td>
+                            <td class="time-col">2026-09-12 21:50</td>
+                            <td>3h 30m</td>
+                            <td>$75,200.00</td>
+                            <td>$74,120.00</td>
+                            <td class="green-txt" style="font-weight:700;">+1.44%</td>
+                            <td class="green-txt" style="font-weight:700;">+108.20</td>
+                            <td><span class="badge-reason tp">TP</span></td>
+                            <td style="font-weight:700;">$10,396.98</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td><span class="badge-side-long">LONG</span></td>
+                            <td class="time-col">2026-09-11 11:15</td>
+                            <td class="time-col">2026-09-11 13:40</td>
+                            <td>2h 25m</td>
+                            <td>$73,800.00</td>
+                            <td>$73,210.00</td>
+                            <td class="rose-txt" style="font-weight:700;">-0.80%</td>
+                            <td class="rose-txt" style="font-weight:700;">-59.04</td>
+                            <td><span class="badge-reason sl">SL</span></td>
+                            <td style="font-weight:700;">$10,337.94</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td><span class="badge-side-long">LONG</span></td>
+                            <td class="time-col">2026-09-10 14:00</td>
+                            <td class="time-col">2026-09-10 18:15</td>
+                            <td>4h 15m</td>
+                            <td>$72,950.00</td>
+                            <td>$74,800.00</td>
+                            <td class="green-txt" style="font-weight:700;">+2.54%</td>
+                            <td class="green-txt" style="font-weight:700;">+185.34</td>
+                            <td><span class="badge-reason tp">TP</span></td>
+                            <td style="font-weight:700;">$10,523.28</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/quantum_engine.js?v=202609211715"></script>
+
+<script>
+// Window Scope Helpers
+window.balanceViewMode = 'equity';
+window.balanceTimeframe = '1M';
+window.ridgeTimeframe = '1M';
+window.backtestTimeframe = 'ALL';
+
+window.switchBalanceTab = function(mode, btn) {
+    window.balanceViewMode = mode;
+    if (btn && btn.parentElement) {
+        btn.parentElement.querySelectorAll('.q-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    const canvas = document.getElementById('balanceCanvas');
+    if (canvas && typeof drawBalanceHistory === 'function') {
+        drawBalanceHistory(canvas);
+    }
+};
+
+window.switchBalanceTf = function(tf, btn) {
+    window.balanceTimeframe = tf;
+    if (btn && btn.parentElement) {
+        btn.parentElement.querySelectorAll('.q-tf-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    const canvas = document.getElementById('balanceCanvas');
+    if (canvas && typeof drawBalanceHistory === 'function') {
+        drawBalanceHistory(canvas);
+    }
+};
+
+window.switchRidgeTf = function(tf, btn) {
+    window.ridgeTimeframe = tf;
+    if (btn && btn.parentElement) {
+        btn.parentElement.querySelectorAll('.q-tf-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    const rmVol = document.getElementById('rm-implied-vol');
+    const rmTail = document.getElementById('rm-tail-mass');
+    if (tf === '1D') {
+        if (rmVol) rmVol.innerText = '12.2%';
+        if (rmTail) rmTail.innerText = '1.1%';
+    } else if (tf === '1W') {
+        if (rmVol) rmVol.innerText = '18.5%';
+        if (rmTail) rmTail.innerText = '2.4%';
+    } else if (tf === '1M') {
+        if (rmVol) rmVol.innerText = '24.8%';
+        if (rmTail) rmTail.innerText = '3.8%';
+    } else {
+        if (rmVol) rmVol.innerText = '31.5%';
+        if (rmTail) rmTail.innerText = '4.9%';
+    }
+    const canvas = document.getElementById('ridgeCanvas');
+    if (canvas && typeof drawTailProbabilityRidge === 'function') {
+        drawTailProbabilityRidge(canvas);
+    }
+};
+
+window.toggleCanvasFullscreen = function(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const parent = canvas.parentElement;
+    if (!document.fullscreenElement) {
+        if (parent.requestFullscreen) parent.requestFullscreen();
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+    }
+};
+</script>
+
+{% endblock %}

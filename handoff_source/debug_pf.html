@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Thực Quản Trị Viên — Astra Control Desk</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at top center, #0f172a 0%, #020617 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #f8fafc;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 20px;
+            padding: 38px 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(56, 189, 248, 0.1);
+            backdrop-filter: blur(16px);
+        }
+        .brand-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .brand-header img {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
+        }
+        .brand-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin: 0;
+            color: #ffffff;
+        }
+        .brand-sub {
+            font-size: 11.5px;
+            color: #94a3b8;
+            letter-spacing: 2px;
+            margin-top: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-label {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .input-field {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px 16px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14.5px;
+            font-family: 'JetBrains Mono', monospace;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .input-field:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.6);
+        }
+        .error-banner {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            color: #fca5a5;
+            font-size: 13px;
+            text-align: center;
+        }
+        .security-footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 11.5px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="brand-header">
+            <img src="/static/favicon.svg" alt="Astra Core">
+            <h1 class="brand-title">ASTRA CONTROL GATE</h1>
+            <div class="brand-sub">OPERATOR AUTHENTICATION</div>
+        </div>
+
+        
+
+        <form method="POST" action="/admin/login">
+            <input type="hidden" name="next" value="/admin/pixel-floor">
+            
+            <div class="input-group">
+                <label class="input-label">Mật Khẩu Quản Trị Viên / Operator Key</label>
+                <input type="password" name="password" required autofocus placeholder="••••••••••••" class="input-field">
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Xác Thực & Mở Cockpit →
+            </button>
+        </form>
+
+        <div class="security-footer">
+            🔒 Khu vực bảo mật tuyệt đối dành riêng cho Quản trị viên hệ thống.<br>
+            Mọi phiên truy cập trái phép đều được ghi nhận IP & Audit Log.
+            <div style="margin-top: 14px;">
+                <a href="/" style="color: #38bdf8; text-decoration: none;">← Quay lại Trang Chủ Public</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

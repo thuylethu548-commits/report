@@ -1,0 +1,143 @@
+{% extends "layouts/portal_base.html" %}
+
+{% block portal_content %}
+<div style="padding: 28px 32px; max-width: 900px; margin: 0 auto;">
+
+    <!-- TOP TITLE ROW -->
+    <div style="margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <a href="/portal/dashboard" style="color: var(--portal-primary); text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                    ← Quay lại Bảng Điều Khiển
+                </a>
+                <h1 style="font-size: 26px; font-weight: 800; color: var(--portal-text); margin-top: 8px; margin-bottom: 4px;">
+                    Cài Đặt Kết Nối Binance API
+                </h1>
+                <p style="color: var(--portal-text-muted); font-size: 13.5px; margin: 0;">
+                    Ủy thác tín hiệu tự động thông qua kiến trúc Non-Custodial (Phi lưu ký) — Bảo vệ an toàn 100% tài sản
+                </p>
+            </div>
+
+            <!-- API Connection Status Badge -->
+            <div>
+                {% if cred and cred.api_key %}
+                <div style="background: var(--portal-green-light); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 30px; padding: 6px 14px; font-size: 12.5px; font-weight: 700; color: var(--portal-green); display: inline-flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 10px;">●</span> ĐÃ KẾT NỐI API BINANCE (NON-CUSTODIAL)
+                </div>
+                {% else %}
+                <div style="background: var(--portal-amber-light); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 30px; padding: 6px 14px; font-size: 12.5px; font-weight: 700; color: var(--portal-amber); display: inline-flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 10px;">○</span> CHƯA KẾT NỐI API
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- STRICT NON-CUSTODIAL SAFETY RULES CARD -->
+    <div style="background: var(--portal-amber-light); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 12px; padding: 18px 22px; margin-bottom: 24px; color: var(--portal-text); font-size: 13.5px; line-height: 1.65;">
+        <div style="font-weight: 800; font-size: 14px; margin-bottom: 8px; color: #d97706; display: flex; align-items: center; gap: 8px;">
+            ⚠️ HƯỚNG DẪN BẢO MẬT TÀI SẢN 100% TRÊN SÀN BINANCE:
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div>1. Đăng nhập tài khoản Binance → Vào mục <b>Quản lý API (API Management)</b> → Nhấn <b>Tạo API mới</b>.</div>
+            <div>2. Tích chọn quyền: <b>Enable Reading (Đọc dữ liệu)</b> và <b>Enable Futures (Giao dịch hợp đồng tương lai)</b>.</div>
+            <div>3. <b style="color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px;">TUYỆT ĐỐI KHÔNG BẬT: Enable Withdrawals (Quyền Rút tiền)</b>. Bot sẽ kiểm tra và từ chối nếu phát hiện quyền rút tiền bật!</div>
+            <div>4. Tiền của bạn nằm an toàn 100% trong ví Binance của chính bạn. Astra Quant không thể và không bao giờ giữ tiền khách hàng.</div>
+        </div>
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    {% if success %}
+    <div style="background: var(--portal-green-light); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; color: var(--portal-green); font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 16px;">✓</span> {{ success }}
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div style="background: var(--portal-red-light); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; color: var(--portal-red); font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 16px;">❌</span> {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- MAIN SETTINGS CARD -->
+    <div style="background: var(--portal-card-bg); border: 1px solid var(--portal-border); border-radius: 16px; padding: 32px; box-shadow: var(--portal-shadow-sm);">
+        <form method="POST" action="/portal/api-settings" style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: var(--portal-text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Nhãn tài khoản (Tên gợi nhớ)
+                </label>
+                <input type="text" name="label" value="{{ cred.label if cred and cred.label else 'Tài Khoản Binance Futures' }}" required style="width: 100%; padding: 12px 16px; background: var(--portal-bg); border: 1px solid var(--portal-border); border-radius: 8px; color: var(--portal-text); font-size: 14px; outline: none; box-sizing: border-box; font-family: var(--portal-font);">
+            </div>
+
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="font-size: 12px; font-weight: 700; color: var(--portal-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                        Binance API Key *
+                    </label>
+                    {% if cred and cred.masked_key %}
+                    <span style="font-size: 11.5px; color: var(--portal-green); font-weight: 700;">Đang dùng: {{ cred.masked_key }}</span>
+                    {% endif %}
+                </div>
+                <input type="text" name="api_key" value="{{ cred.api_key if cred and cred.api_key else '' }}" placeholder="Dán chuỗi API Key từ sàn Binance..." required style="width: 100%; padding: 12px 16px; background: var(--portal-bg); border: 1px solid var(--portal-border); border-radius: 8px; color: var(--portal-text); font-size: 13.5px; outline: none; box-sizing: border-box; font-family: var(--portal-mono);">
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: var(--portal-text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Binance API Secret *
+                </label>
+                <input type="password" name="api_secret" value="{{ cred.api_secret if cred and cred.api_secret else '' }}" placeholder="Dán Secret Key bảo mật..." required style="width: 100%; padding: 12px 16px; background: var(--portal-bg); border: 1px solid var(--portal-border); border-radius: 8px; color: var(--portal-text); font-size: 13.5px; outline: none; box-sizing: border-box; font-family: var(--portal-mono);">
+                <div style="color: var(--portal-text-subtle); font-size: 11.5px; margin-top: 4px;">
+                    🔒 Secret Key được mã hóa AES-256 an toàn trong cơ sở dữ liệu và không bao giờ hiển thị công khai.
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px;">
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: var(--portal-text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Hạn mức Ký quỹ tối đa (USDT / lệnh)
+                    </label>
+                    <input type="number" step="1.0" min="10.0" max="10000.0" name="max_margin_usdt" value="{{ cred.max_margin_usdt if cred and cred.max_margin_usdt else 50.0 }}" required style="width: 100%; padding: 12px 16px; background: var(--portal-bg); border: 1px solid var(--portal-border); border-radius: 8px; color: var(--portal-text); font-size: 14px; outline: none; box-sizing: border-box; font-family: var(--portal-mono);">
+                    <div style="color: var(--portal-text-subtle); font-size: 11.5px; margin-top: 4px;">Mặc định: 50.0 USDT mỗi lệnh copy</div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: var(--portal-text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Đòn bẩy mong muốn (Leverage)
+                    </label>
+                    <select name="leverage" style="width: 100%; padding: 12px 16px; background: var(--portal-bg); border: 1px solid var(--portal-border); border-radius: 8px; color: var(--portal-text); font-size: 14px; outline: none; box-sizing: border-box;">
+                        <option value="2" {% if cred and cred.leverage == 2 %}selected{% endif %}>2x — Bảo thủ & An toàn cao nhất</option>
+                        <option value="3" {% if not cred or cred.leverage == 3 %}selected{% endif %}>3x — Tiêu chuẩn Astra Quant (Khuyên dùng)</option>
+                        <option value="5" {% if cred and cred.leverage == 5 %}selected{% endif %}>5x — Tăng trưởng chủ động</option>
+                    </select>
+                    <div style="color: var(--portal-text-subtle); font-size: 11.5px; margin-top: 4px;">Khuyến nghị: 2x - 3x để bảo toàn vốn trong mọi biến động</div>
+                </div>
+            </div>
+
+            <!-- Profit Share Terms -->
+            <div style="border-top: 1px solid var(--portal-border); padding-top: 20px; margin-top: 6px;">
+                <div style="background: var(--portal-border-subtle); border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 13px; color: var(--portal-text);">Tỷ lệ chia sẻ lợi nhuận (Profit Share)</div>
+                        <div style="font-size: 11.5px; color: var(--portal-text-muted);">Chỉ áp dụng khi tài khoản có LÃI RÒNG thực tế (High Water Mark).</div>
+                    </div>
+                    <span style="color: #f59e0b; font-weight: 800; font-size: 15px; font-family: var(--portal-mono);">
+                        {{ (cred.profit_share_pct * 100)|round|int if cred and cred.profit_share_pct else 25 }}% trên lãi ròng
+                    </span>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="btn-start-copy" style="flex: 1; padding: 14px; font-weight: 800; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; text-align: center;">
+                        💾 Kiểm Tra Quyền & Lưu Kết Nối API
+                    </button>
+                    <a href="/portal/dashboard" class="btn-detail" style="padding: 14px 20px; border-radius: 8px; font-size: 13.5px; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                        Hủy
+                    </a>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+{% endblock %}

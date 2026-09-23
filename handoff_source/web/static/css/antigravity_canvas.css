@@ -1,0 +1,779 @@
+/* ==========================================================================
+   Antigravity 2.0 Web Agentic Canvas — CSS
+   Matching Google DeepMind Antigravity IDE & Antigravity 2.0 Desktop Style
+   ========================================================================== */
+
+:root {
+    --agy-bg-root: #0b0f19;
+    --agy-bg-panel-1: #0f172a;
+    --agy-bg-panel-2: #0b0f19;
+    --agy-bg-panel-3: #0d1322;
+    --agy-bg-card: #131d33;
+    --agy-bg-card-hover: #192642;
+    --agy-border: #1e293b;
+    --agy-border-subtle: #192233;
+    --agy-border-active: #38bdf8;
+
+    --agy-text-main: #f8fafc;
+    --agy-text-muted: #94a3b8;
+    --agy-text-sub: #64748b;
+
+    --agy-accent-cyan: #38bdf8;
+    --agy-accent-purple: #a855f7;
+    --agy-accent-green: #10b981;
+    --agy-accent-amber: #f59e0b;
+    --agy-accent-red: #ef4444;
+
+    --agy-font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --agy-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body.agy-body {
+    background: var(--agy-bg-root);
+    color: var(--agy-text-main);
+    font-family: var(--agy-font-sans);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Top App Bar */
+.agy-topbar {
+    height: 42px;
+    background: #090d16;
+    border-bottom: 1px solid var(--agy-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.agy-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.agy-logo-badge {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #0284c7 0%, #8b5cf6 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 13px;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+.agy-brand-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.agy-version-pill {
+    font-size: 9.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--agy-accent-cyan);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    font-family: var(--agy-font-mono);
+}
+
+.agy-topbar-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+}
+.agy-top-tab {
+    padding: 6px 12px;
+    border-radius: 6px 6px 0 0;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--agy-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    height: 34px;
+    margin-top: 8px;
+    border: 1px solid transparent;
+    border-bottom: none;
+}
+.agy-top-tab.active {
+    background: var(--agy-bg-panel-2);
+    color: #fff;
+    border-color: var(--agy-border);
+}
+.agy-top-tab:hover:not(.active) {
+    color: #cbd5e1;
+}
+
+.agy-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.agy-btn-top {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #1e293b;
+    color: #f8fafc;
+    border: 1px solid #334155;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+}
+.agy-btn-top:hover {
+    background: #334155;
+}
+.agy-btn-top.btn-primary {
+    background: #0284c7;
+    border-color: #38bdf8;
+}
+.agy-btn-top.btn-primary:hover {
+    background: #0369a1;
+}
+
+/* ==========================================================================
+   Main 3-Panel Workspace Container
+   ========================================================================== */
+.agy-workspace-container {
+    flex: 1;
+    display: flex;
+    height: calc(100vh - 42px);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Splitter handles for drag resize */
+.agy-splitter {
+    width: 4px;
+    background: var(--agy-border);
+    cursor: col-resize;
+    transition: background 0.2s;
+    user-select: none;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+}
+.agy-splitter:hover,
+.agy-splitter.active {
+    background: var(--agy-accent-cyan);
+}
+
+/* ==========================================================================
+   PANEL 1: Workspace Tree & Quotas Sidebar (250px default)
+   ========================================================================== */
+.agy-panel-sidebar {
+    width: 250px;
+    min-width: 200px;
+    max-width: 380px;
+    background: var(--agy-bg-panel-1);
+    border-right: 1px solid var(--agy-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.agy-sidebar-header {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid var(--agy-border-subtle);
+}
+.agy-btn-new-chat {
+    width: 100%;
+    padding: 7px 12px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.agy-btn-new-chat:hover {
+    background: #0284c7;
+    border-color: #38bdf8;
+}
+
+.agy-sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.agy-section-title {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--agy-text-sub);
+    letter-spacing: 0.5px;
+    padding: 0 6px 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.agy-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.agy-nav-item {
+    padding: 6px 8px;
+    border-radius: 5px;
+    font-size: 11.5px;
+    color: var(--agy-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;
+    user-select: none;
+}
+.agy-nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--agy-text-main);
+}
+.agy-nav-item.active {
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--agy-accent-cyan);
+    font-weight: 700;
+}
+
+/* File Tree */
+.agy-tree-node {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    font-size: 11.5px;
+    font-family: var(--agy-font-mono);
+    color: var(--agy-text-muted);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.12s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.agy-tree-node:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #f8fafc;
+}
+.agy-tree-node.active {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--agy-accent-cyan);
+    font-weight: 700;
+}
+.agy-tree-children {
+    padding-left: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+/* Models & Quota Rings */
+.agy-quota-card {
+    background: #090d16;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.agy-quota-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10.5px;
+}
+.agy-quota-name {
+    font-weight: 600;
+    color: var(--agy-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.agy-quota-val {
+    font-family: var(--agy-font-mono);
+    font-weight: 800;
+}
+
+/* Sidebar Footer */
+.agy-sidebar-footer {
+    padding: 10px 14px;
+    border-top: 1px solid var(--agy-border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--agy-text-sub);
+}
+
+/* ==========================================================================
+   PANEL 2: Agent Chat & Thought Canvas (Center)
+   ========================================================================== */
+.agy-panel-chat {
+    flex: 1;
+    min-width: 320px;
+    background: var(--agy-bg-panel-2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.agy-chat-header {
+    height: 40px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--agy-border);
+    background: rgba(11, 15, 25, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 5;
+}
+.agy-chat-title {
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.agy-chat-meta-pill {
+    font-size: 10px;
+    font-family: var(--agy-font-mono);
+    color: var(--agy-accent-cyan);
+    background: rgba(56, 189, 248, 0.1);
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+.agy-chat-messages-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* User Message Bubble */
+.agy-msg-user {
+    align-self: flex-end;
+    max-width: 80%;
+    background: #1e293b;
+    border: 1px solid #334155;
+    padding: 10px 14px;
+    border-radius: 12px 12px 2px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #f8fafc;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Agent Message Container */
+.agy-msg-agent {
+    align-self: flex-start;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Antigravity Step / Action Card */
+.agy-action-summary-card {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--agy-text-muted);
+}
+.agy-action-chips {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.agy-chip-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    color: var(--agy-accent-cyan);
+}
+.agy-chip-diff {
+    font-family: var(--agy-font-mono);
+    font-size: 10px;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--agy-accent-green);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Agent Thought Box */
+.agy-thought-box {
+    background: rgba(15, 23, 42, 0.6);
+    border-left: 2px solid var(--agy-accent-purple);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 11.5px;
+    color: #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.agy-thought-header {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--agy-accent-purple);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Agent Content Body */
+.agy-agent-body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #e2e8f0;
+}
+.agy-agent-body p {
+    margin-bottom: 8px;
+}
+.agy-agent-body pre {
+    background: #090d16;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: var(--agy-font-mono);
+    font-size: 11.5px;
+    overflow-x: auto;
+    margin: 8px 0;
+}
+.agy-agent-body code {
+    font-family: var(--agy-font-mono);
+    font-size: 12px;
+    background: rgba(255,255,255,0.07);
+    padding: 2px 5px;
+    border-radius: 4px;
+    color: #38bdf8;
+}
+
+/* Bottom Input Dock */
+.agy-chat-dock {
+    padding: 12px 16px 14px 16px;
+    border-top: 1px solid var(--agy-border);
+    background: #090d16;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.agy-input-container {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    transition: border-color 0.2s;
+}
+.agy-input-container:focus-within {
+    border-color: var(--agy-accent-cyan);
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+}
+
+.agy-textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f8fafc;
+    font-family: var(--agy-font-sans);
+    font-size: 13px;
+    line-height: 1.45;
+    resize: none;
+    min-height: 48px;
+    max-height: 180px;
+}
+.agy-textarea::placeholder {
+    color: #64748b;
+}
+
+.agy-input-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 6px;
+}
+
+.agy-input-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.agy-model-selector {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: #f8fafc;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    outline: none;
+    cursor: pointer;
+    font-family: var(--agy-font-mono);
+}
+
+.agy-btn-send {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #0284c7;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+.agy-btn-send:hover {
+    background: #0369a1;
+    transform: scale(1.04);
+}
+
+/* ==========================================================================
+   PANEL 3: Auxiliary Inspector / Editor Check & Artifacts (Right)
+   ========================================================================== */
+.agy-panel-auxiliary {
+    width: 480px;
+    min-width: 300px;
+    max-width: 800px;
+    background: var(--agy-bg-panel-3);
+    border-left: 1px solid var(--agy-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.agy-aux-tabs-bar {
+    height: 38px;
+    background: #090d16;
+    border-bottom: 1px solid var(--agy-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+}
+.agy-aux-tabs-list {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 100%;
+}
+.agy-aux-tab {
+    height: 100%;
+    padding: 0 12px;
+    font-size: 11.5px;
+    font-family: var(--agy-font-mono);
+    color: var(--agy-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+}
+.agy-aux-tab.active {
+    color: var(--agy-accent-cyan);
+    border-bottom-color: var(--agy-accent-cyan);
+    font-weight: 700;
+    background: rgba(56, 189, 248, 0.05);
+}
+.agy-aux-tab:hover:not(.active) {
+    color: #cbd5e1;
+}
+
+.agy-aux-content-wrap {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Code Editor Pane */
+.agy-editor-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.agy-editor-toolbar {
+    height: 32px;
+    background: #0f172a;
+    border-bottom: 1px solid var(--agy-border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    font-size: 11px;
+    font-family: var(--agy-font-mono);
+    color: var(--agy-text-muted);
+}
+.agy-btn-save {
+    background: #10b981;
+    border: none;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.agy-btn-save:hover {
+    background: #059669;
+}
+
+.agy-editor-textarea {
+    flex: 1;
+    width: 100%;
+    background: #090d16;
+    color: #e2e8f0;
+    font-family: var(--agy-font-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    padding: 12px;
+    border: none;
+    outline: none;
+    resize: none;
+    white-space: pre;
+    overflow: auto;
+}
+
+/* Artifact & Markdown Pane */
+.agy-artifact-pane {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #cbd5e1;
+}
+.agy-artifact-card {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 8px;
+    padding: 14px;
+}
+.agy-artifact-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #1f2937;
+}
+
+/* Live Preview / Webview Iframe */
+.agy-preview-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.agy-preview-bar {
+    height: 32px;
+    background: #0f172a;
+    border-bottom: 1px solid var(--agy-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+}
+.agy-preview-url {
+    flex: 1;
+    background: #090d16;
+    border: 1px solid #1e293b;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: var(--agy-font-mono);
+    font-size: 10.5px;
+    color: #94a3b8;
+    outline: none;
+}
+.agy-iframe-preview {
+    flex: 1;
+    border: none;
+    width: 100%;
+    background: #fff;
+}

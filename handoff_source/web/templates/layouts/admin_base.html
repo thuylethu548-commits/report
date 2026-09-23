@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title or "ASTRA CONTROL DESK — Operator Command Center" }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
+    <link rel="stylesheet" href="/static/css/admin.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- MOBILE OVERLAY BACKDROP -->
+    <div class="mobile-overlay" onclick="toggleMobileSidebar()"></div>
+
+    <div class="admin-layout" style="width: 100%;">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar" id="adminSidebar">
+            <div class="brand-box">
+                <div class="brand-logo" style="background: transparent; border: none; padding: 0;">
+                    <img src="/static/favicon.svg" alt="Astra" style="width: 28px; height: 28px;">
+                </div>
+                <div class="brand-text">
+                    <h1>ASTRA DESK</h1>
+                    <span>CONTROL CENTER V3.0</span>
+                </div>
+                <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Thu gọn / Mở rộng Sidebar">«</button>
+            </div>
+
+            <nav class="nav-section">
+                <div class="nav-label">COMMAND COCKPIT</div>
+                <a href="/admin" class="nav-item {% if current_page == 'cockpit' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                    <span>Cockpit Desk</span>
+                </a>
+                <a href="/admin/trader-demo" class="nav-item {% if current_page == 'trader_demo' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                    <span>Trader Demo</span>
+                    <span class="badge badge-green" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto;">LIVE</span>
+                </a>
+                <a href="/admin/quantum" class="nav-item {% if current_page == 'quantum' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    <span>Quantum Desk</span>
+                    <span class="badge badge-rose" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto;">HOT</span>
+                </a>
+                <a href="/admin/pixel-floor" class="nav-item {% if current_page == 'pixel_floor' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span>Tầng Trade</span>
+                    <span class="badge badge-cyan" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto; color: #38bdf8; border: 1px solid #38bdf8;">12 BAN</span>
+                </a>
+                <a href="/admin/research" class="nav-item {% if current_page == 'research' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31"/><path d="M14 9.3V2"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><circle cx="12" cy="15" r="1"/></svg>
+                    <span>Phòng Nghiên Cứu Số</span>
+                    <span class="badge badge-rose" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto; background: rgba(244,63,94,0.18); color: #fb7185; border: 1px solid rgba(244,63,94,0.45);">LAB AI</span>
+                </a>
+                <a href="/admin/mkt-floor" class="nav-item {% if current_page == 'mkt_floor' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+                    <span>Phòng Ban MKT</span>
+                    <span class="badge badge-purple" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto; background: rgba(168,85,247,0.18); color: #c084fc; border: 1px solid rgba(168,85,247,0.45);">TẦNG DƯỚI</span>
+                </a>
+                <a href="/admin/performance" class="nav-item {% if current_page == 'performance' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    <span>Hiệu Suất & Token AI</span>
+                    <span class="badge badge-amber" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto;">AI</span>
+                </a>
+                <a href="/admin/ai-orchestration" class="nav-item {% if current_page == 'ai_orchestration' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                    <span>Điều Phối AI</span>
+                    <span class="badge badge-purple" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto; background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.4);">7 NGUỒN</span>
+                </a>
+                <a href="/admin/workflows" class="nav-item {% if current_page == 'workflows' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 9v6"/><path d="M9 6h9a3 3 0 0 1 3 3v6"/><path d="M9 18h6"/></svg>
+                    <span>Sơ Đồ & Luồng Vận Hành</span>
+                    <span class="badge badge-cyan" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto; color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); background: rgba(56,189,248,0.12);">9 FLOWS</span>
+                </a>
+                <a href="/admin/antigravity-canvas" class="nav-item {% if current_page == 'antigravity_canvas' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+                    <span>Antigravity 2.0</span>
+                    <span class="badge badge-purple" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto; background: rgba(168,85,247,0.18); color: #c084fc; border: 1px solid rgba(168,85,247,0.45);">CANVAS</span>
+                </a>
+                <a href="/admin/campaign" class="nav-item {% if current_page == 'campaign' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+                    <span>Chiến Dịch Scale Vốn</span>
+                    <span class="badge badge-rose" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto; background: rgba(244,63,94,0.18); color: #fb7185; border: 1px solid rgba(244,63,94,0.45);">CAMP 500U</span>
+                </a>
+                <a href="/admin/settings" class="nav-item {% if current_page == 'settings' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg>
+                    <span>Cấu Hình Sàn & Bot</span>
+                </a>
+                <a href="/admin/trades" class="nav-item {% if current_page == 'trades' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span>Lịch Sử Giao Dịch</span>
+                    <span class="badge badge-green" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto;">DATA</span>
+                </a>
+                <a href="/admin/lessons" class="nav-item {% if current_page == 'lessons' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                    <span>Bài Học Xương Máu</span>
+                </a>
+                <a href="/admin/clients" class="nav-item {% if current_page == 'clients' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Khách Hàng & SaaS</span>
+                    <span class="badge badge-amber" style="font-size: 8.5px; padding: 2px 5px; margin-left: auto;">25%</span>
+                </a>
+                <a href="/admin/audit-logs" class="nav-item {% if current_page == 'logs' %}active{% endif %}">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <span>Audit & Tín Hiệu</span>
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">PUBLIC LINKS</div>
+                <a href="/" target="_blank" class="nav-item">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Xem Trang Client</span>
+                </a>
+                <a href="/track-record" target="_blank" class="nav-item">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+                    <span>Public Track Record</span>
+                </a>
+                <a href="/admin/logout" class="nav-item" style="color: #f87171; margin-top: 8px;">
+                    <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>🚪 Đăng Xuất Admin</span>
+                </a>
+            </nav>
+
+            <!-- SIDEBAR FOOTER (ASTRA LABS & DISCLAIMER) -->
+            <div class="sidebar-footer-wrap">
+                <div class="astra-labs-card">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="astra-labs-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; font-weight: 800; color: var(--text-main);">ASTRA LABS</div>
+                            <div style="font-size: 9.5px; color: var(--text-muted);">Build · Test · Trade · Learn</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 9.5px; color: var(--text-sub); font-style: italic; line-height: 1.35; margin-top: 6px;">
+                        "Better logic. Safer trading. A more open quant future."
+                    </div>
+                </div>
+
+                <div class="simulated-warning-box">
+                    <div style="display: flex; align-items: center; gap: 5px; font-weight: 800; font-size: 9.5px; color: var(--crimson);">
+                        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--crimson);"></span>
+                        SIMULATED ENVIRONMENT
+                    </div>
+                    <div style="font-size: 8.5px; color: var(--text-muted); line-height: 1.3; margin-top: 3px;">
+                        This is a research and demo platform. Not financial advice. Trade at your own risk.
+                    </div>
+                </div>
+
+                <div style="font-size: 9.5px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; padding: 0 4px;">
+                    v3.0.0
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="main-wrapper">
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-nav-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle Sidebar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
+                    
+                    <!-- LIVE STATUS PILLS -->
+                    <div class="top-status-pills">
+                        <div class="top-pill pill-online">
+                            <span class="pulse-dot"></span>
+                            <span>SYSTEM ONLINE</span>
+                        </div>
+                        <div class="top-pill pill-neutral" id="topbar-agents-btn" style="cursor: pointer; position: relative; transition: all 0.2s;" title="Nhấp để xem danh sách và chi tiết 10 Tác tử (Fleet Telemetry)" onclick="toggleFleetModal()">
+                            <span class="pulse-dot" style="background: #10b981; width: 7px; height: 7px; box-shadow: 0 0 6px #10b981;"></span>
+                            <span style="font-weight: 700; color: #f8fafc;">10 / 10 Tác Tử Hoạt Động</span>
+                            <span style="font-size: 9px; color: #38bdf8;" id="topbar-agents-arrow">▼</span>
+                        </div>
+                        <div class="top-pill pill-neutral" id="topbar-exchange-pill">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/></svg>
+                            <span>Binance (Live)</span>
+                        </div>
+                        <div class="top-pill pill-neutral">
+                            <span>Latency:</span>
+                            <strong style="color: var(--emerald);" id="topbar-latency">22ms</strong>
+                        </div>
+                        <div class="top-pill pill-neutral">
+                            <span>Server: SG-1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <button id="topbar-autotrade-btn" class="btn btn-autotrade" onclick="toggleAutoTrade()" title="Bật/Tắt chế độ Auto-Trade săn lệnh tự động 24/7">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+                        <span>AUTO: <strong id="topbar-autotrade-status">ON</strong></span>
+                    </button>
+                    <button id="topbar-buy-btn" class="btn btn-success btn-action-quick" onclick="triggerTestTrade('BUY')" title="Bắn lệnh Mua qua Risk Engine">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                        <span id="topbar-buy-label">Buy (Live)</span>
+                    </button>
+                    <button id="topbar-sell-btn" class="btn btn-outline-danger btn-action-quick" onclick="triggerTestTrade('SELL')" title="Bắn lệnh Bán qua Risk Engine">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        <span id="topbar-sell-label">Sell (Live)</span>
+                    </button>
+                    <button id="topbar-reset-btn" class="btn btn-secondary btn-action-quick btn-hide-tablet" onclick="triggerResetCircuit()" title="Reset Circuit Breaker nếu bị ngắt">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+                        <span>Reset Gate</span>
+                    </button>
+                    <button id="topbar-kill-btn" class="btn btn-outline-danger btn-action-quick" onclick="triggerEmergencyKill()" title="Đóng băng toàn bộ giao dịch ngay lập tức">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                        <span>Kill All</span>
+                    </button>
+                    <button id="topbar-theme-btn" class="btn btn-theme-toggle" onclick="toggleTheme()" title="Đổi Theme">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                    </button>
+                    
+                    <!-- OPERATOR PROFILE BADGE & DROPDOWN -->
+                    <div style="position: relative;">
+                        <div class="top-operator-badge" id="top-operator-badge-btn" onclick="toggleOperatorDropdown(event)" style="display: flex; align-items: center; gap: 7px; padding: 4px 10px 4px 5px; border-radius: 20px; background: var(--panel-header-bg); border: 1px solid var(--border); cursor: pointer; user-select: none; transition: all 0.2s;">
+                            <div class="operator-avatar" style="width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800;">OP</div>
+                            <span class="operator-name" style="font-size: 12px; font-weight: 700; color: var(--text-main);">Operator</span>
+                            <svg id="operator-dropdown-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-sub); transition: transform 0.2s;"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+
+                        <!-- OPERATOR DROPDOWN MENU -->
+                        <div id="operator-dropdown-menu" style="display: none; position: absolute; top: calc(100% + 8px); right: 0; width: 270px; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55); z-index: 10000; padding: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                            <!-- Header Profile -->
+                            <div style="padding: 10px 12px 12px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">OP</div>
+                                        <div>
+                                            <div style="font-size: 13px; font-weight: 800; color: #f8fafc;">Admin Operator</div>
+                                            <div style="font-size: 10.5px; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">SUPREME COMMANDER</div>
+                                        </div>
+                                    </div>
+                                    <span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700; font-family: 'JetBrains Mono', monospace;">● ONLINE</span>
+                                </div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 6px; font-family: 'JetBrains Mono', monospace;">
+                                    Server: SG-1 • Uptime 24/7
+                                </div>
+                            </div>
+
+                            <!-- Quick Navigation Links -->
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <a href="/admin" class="op-menu-link" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; color: #94a3b8; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.15s;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                                    <span>Command Cockpit</span>
+                                </a>
+
+                                <a href="/admin/quantum" class="op-menu-link" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; color: #94a3b8; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.15s;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                    <span>Quantum Desk (5D)</span>
+                                </a>
+
+                                <a href="/admin/pixel-floor" class="op-menu-link" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; color: #94a3b8; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.15s;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                    <span>Thiên Cơ Các (Pixel Floor)</span>
+                                </a>
+
+                                <a href="/admin/performance" class="op-menu-link" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; color: #94a3b8; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.15s;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                                    <span>Hiệu Suất & Token Quota</span>
+                                </a>
+
+                                <a href="/admin/ai-orchestration" class="op-menu-link" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; color: #94a3b8; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.15s;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                                    <span>Điều Phối AI (7 Nguồn API)</span>
+                                </a>
+
+                                <a href="/admin/settings" class="op-menu-link" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; color: #94a3b8; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.15s;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                    <span>Cấu Hình Tham Số Rủi Ro</span>
+                                </a>
+
+                                <a href="/admin/clients" class="op-menu-link" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; color: #94a3b8; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.15s;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    <span>Khách Hàng & SaaS Portal</span>
+                                </a>
+                            </div>
+
+                            <!-- System Actions Divider -->
+                            <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 6px 0;"></div>
+
+                            <!-- Fast System Actions -->
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <div onclick="refreshAdminData()" class="op-menu-link" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; color: #38bdf8; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.15s;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                                    <span>Làm Mới Telemetry Tức Thì</span>
+                                </div>
+
+                                <a href="/admin/logout" class="op-menu-link" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; color: #f43f5e; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.15s;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                                    <span>Đăng Xuất Admin</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- BODY CONTENT -->
+            <div class="content-body">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- AGENT TELEMETRY MODAL -->
+    <div class="modal-overlay" id="agentModal" style="display: none;" onclick="closeAgentModal()">
+        <div class="card" onclick="event.stopPropagation()" style="width: 480px; max-width: 90vw; padding: 24px;">
+            <div class="card-title" id="modal-agent-name" style="margin-bottom: 12px;">Agent Telemetry</div>
+            <div id="modal-agent-body" style="font-size: 12.5px; line-height: 1.6; color: var(--text-sub);"></div>
+            <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                <button class="btn" onclick="closeAgentModal()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/theme.js?v=2026092002"></script>
+    <script src="/static/js/chart_engine.js?v=2026092002"></script>
+    <script src="/static/js/admin_app.js?v=2026092201"></script>
+    {% block scripts %}{% endblock %}
+
+<!-- FLEET INSPECTOR MODAL (10 AGENTS TELEMETRY) -->
+<div id="fleet-inspector-modal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(2, 6, 23, 0.88); backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #090d16; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 16px; max-width: 1040px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 70px rgba(0,0,0,0.85), 0 0 30px rgba(56, 189, 248, 0.15); overflow: hidden; animation: modalFadeIn 0.25s ease-out;">
+        <!-- Header -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid #1e293b; background: #020617;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(139, 92, 246, 0.15); border: 1.5px solid rgba(168, 85, 247, 0.5); display: flex; align-items: center; justify-content: center; font-size: 18px;"><span style="font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:800; color:#c084fc;">FLEET</span></div>
+                <div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #f8fafc; letter-spacing: -0.01em;">HỘI ĐỒNG 12 TÁC TỬ QUANT (FLEET TELEMETRY)</h3>
+                    <p style="margin: 3px 0 0; font-size: 12px; color: #94a3b8;">12 Tác tử tự hành thực chiến — Phân bổ 3 Biệt Đội Tác Chiến dưới quyền Tổng Quản Astra</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="fleet-live-pulse-badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+                    <span id="fleet-online-count">12/12 ONLINE</span>
+                </span>
+                <span id="fleet-modal-clock" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748b;">LIVE REALTIME</span>
+                <button onclick="toggleFleetModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 22px; cursor: pointer; padding: 4px 8px; line-height: 1; border-radius: 6px;" hover="color: #f8fafc;">✕</button>
+            </div>
+        </div>
+
+        <!-- Scrollable Modal Body -->
+        <div id="fleet-modal-body" style="padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
+            <!-- VIP SUPREME BANNER (ASTRA) -->
+            <div id="fleet-astra-container">
+                <div style="background: linear-gradient(135deg, rgba(30, 15, 60, 0.85), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(168, 85, 247, 0.55); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 18px; box-shadow: 0 0 25px rgba(139, 92, 246, 0.25); position: relative; overflow: hidden;">
+                    <div style="display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0;">
+                        <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(139, 92, 246, 0.2); border: 1.5px solid rgba(168, 85, 247, 0.6); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); flex-shrink: 0;">👑</div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap;">
+                                <strong style="color: #f8fafc; font-size: 16px;">Tổng Quản Tối Cao <span style="color: #c084fc; font-size: 12px; font-weight: 700;">(Astra)</span></strong>
+                                <span style="background: rgba(139, 92, 246, 0.25); border: 1px solid rgba(139, 92, 246, 0.5); color: #c084fc; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px;">SUPERVISING · 420ms</span>
+                                <span style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #f59e0b; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px;">CHỈ HUY 11 TÁC TỬ</span>
+                            </div>
+                            <div style="font-size: 12px; color: #38bdf8; font-weight: 600; margin-bottom: 4px;">Gemini-3.8-Flash / GPT-5.6-Sol (Supreme AI)</div>
+                            <div style="font-size: 11.5px; color: #94a3b8; line-height: 1.4;">Cơ quan tối cao: Tổng hợp dữ liệu từ 11 ban, quyết định Duyệt lệnh hoặc Phủ Quyết (AI Veto), báo cáo trực tiếp tới Boss.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3 TACTICAL SQUADS GRID -->
+            <div id="fleet-squads-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px;">
+                <!-- Filled dynamically via updateFleetModalLive -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-top: 1px solid #1e293b; background: #020617;">
+            <span style="font-size: 12px; color: #64748b;">Mô hình phân bổ vốn: 30U Futures (3x) + 20U Spot (DCA tích sản) • Risk Gate: 100% Bảo Toàn Vốn</span>
+            <div style="display: flex; gap: 10px;">
+                <a href="/admin/cockpit" style="text-decoration: none; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 8px;">Xem Tại Cockpit Desk →</a>
+                <button onclick="toggleFleetModal()" style="background: #1e293b; border: 1px solid #334155; color: #f8fafc; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer;">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// === SELF-CONTAINED REAL-TIME FLEET TELEMETRY ===
+const FLEET_AGENT_META = {
+    "Palermo": { char: "TRD", color: "#22c55e", bg: "rgba(34, 197, 94, 0.1)", border: "rgba(34, 197, 94, 0.3)" },
+    "Rik": { char: "RSK", color: "#38bdf8", bg: "rgba(2, 132, 199, 0.1)", border: "rgba(2, 132, 199, 0.3)" },
+    "Tory": { char: "BRK", color: "#f59e0b", bg: "rgba(245, 158, 11, 0.1)", border: "rgba(245, 158, 11, 0.3)" },
+    "Hash": { char: "SNT", color: "#10b981", bg: "rgba(5, 150, 105, 0.1)", border: "rgba(5, 150, 105, 0.3)" },
+    "Deck": { char: "ARB", color: "#94a3b8", bg: "rgba(100, 116, 139, 0.1)", border: "rgba(100, 116, 139, 0.3)" },
+    "Prof": { char: "CVR", color: "#f43f5e", bg: "rgba(244, 63, 94, 0.1)", border: "rgba(244, 63, 94, 0.3)" },
+    "Meme": { char: "OMS", color: "#10b981", bg: "rgba(16, 185, 129, 0.1)", border: "rgba(16, 185, 129, 0.3)" },
+    "Volt": { char: "VOL", color: "#38bdf8", bg: "rgba(14, 165, 233, 0.1)", border: "rgba(14, 165, 233, 0.3)" },
+    "Core": { char: "ANL", color: "#818cf8", bg: "rgba(99, 102, 241, 0.1)", border: "rgba(99, 102, 241, 0.3)" },
+    "Sniper": { char: "SNP", color: "#14b8a6", bg: "rgba(20, 184, 166, 0.1)", border: "rgba(20, 184, 166, 0.3)" },
+    "Square": { char: "SQR", color: "#3b82f6", bg: "rgba(59, 130, 246, 0.1)", border: "rgba(59, 130, 246, 0.3)" },
+    "Astra": { char: "SUP", color: "#c084fc", bg: "rgba(139, 92, 246, 0.15)", border: "rgba(139, 92, 246, 0.4)" }
+};
+
+async function updateFleetModalLive() {
+    const astraContainer = document.getElementById('fleet-astra-container');
+    const squadsContainer = document.getElementById('fleet-squads-container');
+    if (!astraContainer || !squadsContainer) return;
+
+    try {
+        const res = await fetch('/api/v1/fleet');
+        if (!res.ok) return;
+        const fleet = await res.json();
+        if (!Array.isArray(fleet) || fleet.length === 0) return;
+
+        const countEl = document.getElementById('fleet-online-count');
+        const clockEl = document.getElementById('fleet-modal-clock');
+        if (countEl) countEl.innerText = `${fleet.length}/${fleet.length} ONLINE`;
+        if (clockEl) {
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            clockEl.innerText = `Cập nhật: ${timeStr}`;
+            clockEl.style.color = '#38bdf8';
+        }
+
+        // 1. Render Astra Supreme VIP Banner
+        const astra = fleet.find(a => a.name === 'Astra') || fleet[fleet.length - 1];
+        if (astra) {
+            const m = FLEET_AGENT_META["Astra"];
+            const latency = astra.latency_ms !== undefined ? `${astra.latency_ms}ms` : '420ms';
+            const status = astra.status || 'SUPERVISING';
+            const details = (astra.details && astra.details !== 'Initialized & Monitoring market pipeline') ? astra.details : 'Đang điều phối 11 ban trực chiến & giám sát ngắt mạch';
+            
+            astraContainer.innerHTML = `
+                <div style="background: linear-gradient(135deg, rgba(30, 15, 60, 0.85), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(168, 85, 247, 0.55); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 18px; box-shadow: 0 0 25px rgba(139, 92, 246, 0.25); position: relative; overflow: hidden;">
+                    <div style="display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0;">
+                        <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(139, 92, 246, 0.2); border: 1.5px solid rgba(168, 85, 247, 0.6); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); flex-shrink: 0;">👑</div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap;">
+                                <strong style="color: #f8fafc; font-size: 16px; letter-spacing: -0.01em;">${astra.name_vi || 'Tổng Quản Tối Cao'} <span style="color: #c084fc; font-size: 12px; font-weight: 700;">(Astra)</span></strong>
+                                <span style="background: rgba(139, 92, 246, 0.25); border: 1px solid rgba(139, 92, 246, 0.5); color: #c084fc; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #c084fc; box-shadow: 0 0 6px #c084fc;"></span>
+                                    ${status} · ${latency}
+                                </span>
+                                <span style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #f59e0b; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px;">CHỈ HUY 11 TÁC TỬ</span>
+                            </div>
+                            <div style="font-size: 12px; color: #38bdf8; font-weight: 600; margin-bottom: 4px;">${astra.model || 'Gemini-3.8-Flash / GPT-5.6-Sol'} · Veto Gate Thường Trực</div>
+                            <div style="font-size: 11.5px; color: #94a3b8; line-height: 1.4;">${astra.duty_vi || 'Tổng hợp dữ liệu từ 11 ban, quyết định Duyệt lệnh hoặc Phủ Quyết (AI Veto), báo cáo trực tiếp tới Boss.'}</div>
+                            <div style="margin-top: 8px; padding: 5px 10px; border-radius: 6px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.25); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #c084fc; display: inline-flex; align-items: center; gap: 6px;">
+                                <span>⚡ <strong>Live Consensus:</strong> ${details}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Helper to render individual sub-agent card
+        const renderAgentCard = (agent) => {
+            const m = FLEET_AGENT_META[agent.name] || { char: agent.name.slice(0, 3).toUpperCase(), color: "#38bdf8", bg: "rgba(56,189,248,0.1)", border: "rgba(56,189,248,0.3)" };
+            const latency = agent.latency_ms !== undefined ? `${agent.latency_ms}ms` : '4.2ms';
+            const status = agent.status || 'ACTIVE';
+            const nameVi = agent.name_vi || agent.name;
+            const modelStr = agent.model || 'Deterministic Engine';
+
+            let badgeBg = "rgba(34, 197, 94, 0.15)";
+            let badgeColor = "#22c55e";
+            if (status === 'ARMED') { badgeBg = "rgba(244, 63, 94, 0.15)"; badgeColor = "#f43f5e"; }
+            else if (status === 'SUPERVISING') { badgeBg = "rgba(139, 92, 246, 0.25)"; badgeColor = "#c084fc"; }
+            else if (status === 'MONITORING') { badgeBg = "rgba(100, 116, 139, 0.2)"; badgeColor = "#94a3b8"; }
+            else if (status === 'ONLINE') { badgeBg = "rgba(16, 185, 129, 0.15)"; badgeColor = "#10b981"; }
+
+            let detailsHtml = '';
+            if (agent.details && agent.details !== 'Initialized & Monitoring market pipeline') {
+                detailsHtml = `
+                    <div style="margin-top: 6px; padding: 4px 8px; border-radius: 6px; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #38bdf8; display: flex; align-items: center; gap: 5px; white-space: normal; word-break: break-word;">
+                        <span><strong>Live:</strong> ${agent.details}</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div style="background: #0d1322; border: 1px solid #1e293b; border-radius: 10px; padding: 12px 14px; display: flex; gap: 12px; transition: all 0.2s;">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800; width: 36px; height: 36px; background: ${m.bg}; border: 1px solid ${m.border}; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: ${m.color}; flex-shrink: 0;">
+                        ${m.char}
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; gap: 6px;">
+                            <strong style="color: #f8fafc; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nameVi} <span style="font-size: 10px; color: #64748b; font-weight: 500;">(${agent.name})</span></strong>
+                            <span style="background: ${badgeBg}; color: ${badgeColor}; font-size: 9.5px; font-weight: 800; padding: 1px 5px; border-radius: 4px; flex-shrink: 0;">
+                                ${status} · ${latency}
+                            </span>
+                        </div>
+                        <div style="font-size: 11px; color: ${m.color}; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${modelStr}</div>
+                        <div style="font-size: 10.5px; color: #94a3b8; line-height: 1.35;">${agent.duty_vi || ''}</div>
+                        ${detailsHtml}
+                    </div>
+                </div>
+            `;
+        };
+
+        // 2. Render 3 Squads (11 sub-agents)
+        const attackSquad = fleet.filter(a => ['Palermo', 'Tory', 'Deck', 'Sniper'].includes(a.name));
+        const defenseSquad = fleet.filter(a => ['Rik', 'Prof', 'Volt'].includes(a.name));
+        const intelSquad = fleet.filter(a => ['Hash', 'Meme', 'Core', 'Square'].includes(a.name));
+
+        const renderSquadColumn = (title, sub, squadAgents, accentColor) => `
+            <div style="background: #070c18; border: 1px solid #1e293b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 12.5px; font-weight: 800; color: ${accentColor}; letter-spacing: 0.3px;">${title}</div>
+                        <div style="font-size: 10px; color: #64748b;">${sub}</div>
+                    </div>
+                    <span style="font-size: 10px; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: #94a3b8; font-family: 'JetBrains Mono', monospace; font-weight: 700;">${squadAgents.length} TÁC TỬ</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    ${squadAgents.map(renderAgentCard).join('')}
+                </div>
+            </div>
+        `;
+
+        squadsContainer.innerHTML = `
+            ${renderSquadColumn('🗡️ BIỆT ĐỘI XUNG KÍCH & TÍCH SẢN', 'Săn Kèo, Đột Phá & Spot 500U', attackSquad, '#22c55e')}
+            ${renderSquadColumn('🛡️ LÁ CHẮN SINH TỬ & AN TOÀN', 'Quản Trị Rủi Ro & Bảo Vệ Vốn', defenseSquad, '#38bdf8')}
+            ${renderSquadColumn('📡 TÌNH BÁO, KHỚP LỆNH & CRM', 'On-Chain, Khớp Lệnh, CRM & Sổ Cái', intelSquad, '#818cf8')}
+        `;
+    } catch (e) {
+        console.error("Error updating fleet modal:", e);
+    }
+}
+
+function toggleFleetModal() {
+    const modal = document.getElementById('fleet-inspector-modal');
+    if (!modal) return;
+    if (modal.style.display === 'none' || modal.style.display === '') {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        updateFleetModalLive();
+    } else {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+// Background auto-refresh for modal when open
+setInterval(() => {
+    const modal = document.getElementById('fleet-inspector-modal');
+    if (modal && (modal.style.display === 'flex' || modal.style.display === 'block')) {
+        updateFleetModalLive();
+    }
+}, 2500);
+
+// Close on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('fleet-inspector-modal');
+        if (modal && modal.style.display === 'flex') {
+            toggleFleetModal();
+        }
+    }
+});
+
+// Close when clicking outside modal box
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('fleet-inspector-modal');
+    if (modal && e.target === modal) {
+        toggleFleetModal();
+    }
+});
+</script>
+<style>
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
+
+
+<style>
+.op-menu-link:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+}
+#top-operator-badge-btn:hover {
+    border-color: rgba(14, 165, 233, 0.5) !important;
+    box-shadow: 0 0 12px rgba(14, 165, 233, 0.25);
+}
+</style>
+<script>
+function toggleOperatorDropdown(event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('operator-dropdown-menu');
+    const arrow = document.getElementById('operator-dropdown-arrow');
+    if (!menu) return;
+    const isVisible = menu.style.display === 'block';
+    menu.style.display = isVisible ? 'none' : 'block';
+    if (arrow) arrow.style.transform = isVisible ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+function refreshAdminData() {
+    if (typeof updateAdminCockpit === 'function') {
+        updateAdminCockpit();
+    } else {
+        location.reload();
+    }
+    const menu = document.getElementById('operator-dropdown-menu');
+    if (menu) menu.style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('operator-dropdown-menu');
+    const btn = document.getElementById('top-operator-badge-btn');
+    const arrow = document.getElementById('operator-dropdown-arrow');
+    if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+        menu.style.display = 'none';
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+    }
+});
+</script>
+
+</body>
+</html>
