@@ -1,0 +1,183 @@
+{
+  "project_name": "ASTRA QUANT DESK & THIÊN CƠ CÁC",
+  "version": "3.0.0",
+  "protocol": "GPTHeist Autonomous Multi-Agent Protocol",
+  "generated_at": "2026-09-23T13:30:00Z",
+  "environment": {
+    "os": "Windows Server NT 10.0 (x64)",
+    "python_version": "3.10.0 / 3.12 (.venv)",
+    "node_version": "v24.13.1",
+    "process_manager": "PM2 v5.4.3",
+    "trading_mode": "live",
+    "market_type": "futures",
+    "binance_use_testnet": false
+  },
+  "networking": {
+    "ports": {
+      "8386": "FastAPI ASTRA QUANT Web & Cockpit",
+      "3005": "Next.js op-web Client Portal & ACB Shop",
+      "20128": "9Router Local AI Gateway Proxy",
+      "3100": "Agent Nexus Microservice"
+    },
+    "domain": "trader.hoanvi.com"
+  },
+  "processes": [
+    {
+      "id": 6,
+      "name": "astra-quant",
+      "exec": "c:\\sunMy\\trading_bot\\main.py",
+      "status": "online"
+    },
+    {
+      "id": 0,
+      "name": "op-web",
+      "exec": "node_modules/next/dist/bin/next dev -p 3005 -H 0.0.0.0",
+      "status": "online"
+    },
+    {
+      "id": 1,
+      "name": "telegram-bot",
+      "exec": "scripts/start_bot.mjs",
+      "status": "online"
+    },
+    {
+      "id": 2,
+      "name": "acb-poll",
+      "exec": "scripts/acb_poll_worker.mjs",
+      "status": "online"
+    },
+    {
+      "id": 8,
+      "name": "alpha-miner",
+      "exec": "scripts/miner_daemon.py",
+      "status": "online"
+    },
+    {
+      "id": 9,
+      "name": "ai-spot-sniper",
+      "exec": "scripts/ai_spot_sniper.py",
+      "status": "online"
+    },
+    {
+      "id": 10,
+      "name": "koc-master",
+      "exec": "scripts/full_day_autonomous_master.py",
+      "status": "online"
+    },
+    {
+      "id": 11,
+      "name": "agent-nexus",
+      "exec": "run.py",
+      "status": "online"
+    }
+  ],
+  "database": {
+    "primary_source_of_truth": "SQLite3 (c:\\sunMy\\trading_bot\\trading_bot.db)",
+    "journal_mode": "WAL",
+    "total_tables": 23,
+    "key_tables": {
+      "candles": 2353,
+      "trades": 28,
+      "signals": 380,
+      "ai_advisory_logs": 94,
+      "trading_lessons": 40,
+      "ai_token_usage": 3249,
+      "macro_strategic_directives": 79,
+      "execution_state": 1
+    },
+    "analytical_data_lake": "Apache Arrow Parquet (data/lake/parquet) + DuckDB",
+    "cloud_sync_mirror": "Supabase PostgreSQL (https://ldtaziouuvmcwssqmggn.supabase.co)"
+  },
+  "agent_system": {
+    "total_agents_defined": 12,
+    "fleets": {
+      "fleet_1_tactical": [
+        "Palermo",
+        "Rik",
+        "Tory",
+        "Meme",
+        "Volt",
+        "Astra"
+      ],
+      "fleet_2_intelligence": [
+        "Hash",
+        "Deck",
+        "Prof",
+        "Core",
+        "Sniper",
+        "Square"
+      ]
+    },
+    "adversarial_var_council": {
+      "round_1_bull": {
+        "model": "openai/gpt-oss-120b",
+        "provider": "Groq LPU Cloud"
+      },
+      "round_2_bear": {
+        "model": "gcli/grok-4.7",
+        "provider": "9Router Local Gateway",
+        "fallback": "qwen/qwen3.8-27b"
+      },
+      "round_3_arbiter": {
+        "model": "cx/gpt-6-astra",
+        "provider": "9Router Local Gateway",
+        "fallback": "claude-sonnet-4-6 via Vyce AI"
+      }
+    }
+  },
+  "risk_and_oms": {
+    "circuit_breaker": {
+      "max_daily_loss_usd": 3.5,
+      "daily_max_drawdown_percent": 0.07,
+      "target_daily_profit_usd": 10.0,
+      "house_money_mode_enabled": true
+    },
+    "position_limits": {
+      "max_open_positions": 2,
+      "max_positions_per_symbol": 1,
+      "futures_leverage": 6,
+      "live_max_usdt_per_order": 14.0,
+      "max_position_percent": 0.25,
+      "mandatory_stop_loss_distance_max_pct": 0.018
+    },
+    "reconciliation_interval_seconds": 20,
+    "direct_ai_to_exchange_code_path": false
+  },
+  "real_vs_mock_breakdown": {
+    "live_metrics": [
+      "Prices",
+      "Margin Balance",
+      "Open Positions",
+      "Order Fills",
+      "Circuit Breaker",
+      "Drawdown"
+    ],
+    "calculated_metrics": [
+      "Realized PnL",
+      "Win Rate (Backend)",
+      "Token Costs (DB)"
+    ],
+    "mock_or_placeholder_ui": [
+      "Handoff Chord Diagram",
+      "Tail Probability Ridge",
+      "Sortino Ratio (3.12)",
+      "Calmar Ratio (2.84)",
+      "Sharpe on Quantum (2.45)"
+    ]
+  },
+  "current_runtime_state": {
+    "status": "HEALTHY_OPERATIONAL",
+    "open_positions_count": 1,
+    "open_position_details": {
+      "symbol": "ETH/USDT",
+      "side": "SELL",
+      "quantity": 0.009,
+      "entry_price": 2722.84,
+      "stop_loss": 2771.8511,
+      "take_profit": 2641.1548,
+      "protective_stop_order_id": "3000002211769186"
+    },
+    "entries_blocked": false,
+    "uncertain_symbols": []
+  }
+}
